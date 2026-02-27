@@ -17,12 +17,17 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      navigate("/dashboard", { replace: true });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        toast.error(error.message);
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (err: any) {
+      toast.error("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
