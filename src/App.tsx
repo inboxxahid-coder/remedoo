@@ -19,6 +19,7 @@ import BookAppointment from "./pages/BookAppointment";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import Emergency from "./pages/Emergency";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/emergency" element={<Emergency />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
