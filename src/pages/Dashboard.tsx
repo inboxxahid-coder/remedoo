@@ -30,12 +30,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      if (!session) navigate("/login", { replace: true });
-      else setUser(session.user);
+      setUser(session?.user ?? null);
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate("/login", { replace: true });
-      else setUser(session.user);
+      setUser(session?.user ?? null);
     });
 
     // Load slider & top doctors
