@@ -96,7 +96,14 @@ const Login = () => {
           </form>
         </div>
 
-        <p className="text-center mt-6 text-sm text-muted-foreground">
+        <button
+          onClick={() => navigate("/dashboard", { replace: true })}
+          className="w-full text-center mt-4 text-sm text-muted-foreground underline"
+        >
+          Skip, continue as guest
+        </button>
+
+        <p className="text-center mt-4 text-sm text-muted-foreground">
           Don't have an account?{" "}
           <Link to="/signup" className="text-primary font-semibold">
             Sign Up
