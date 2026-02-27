@@ -1,0 +1,156 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, User, Home, MapPin, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import type { User as SupaUser } from "@supabase/supabase-js";
+
+const quickActions = [
+  { icon: Calendar, label: "Book\nAppointment", color: "bg-primary", path: "/appointments" },
+  { icon: AlertTriangle, label: "Emergency\nSOS", color: "bg-emergency", path: "/emergency" },
+  { icon: Pill, label: "Order\nMedicines", color: "bg-success", path: "/pharmacies" },
+  { icon: Heart, label: "View\nFavorites", color: "bg-warning", path: "/favorites" },
+];
+
+const bottomTabs = [
+  { icon: Home, label: "Home", path: "/dashboard" },
+  { icon: Calendar, label: "Appointments", path: "/appointments" },
+  { icon: MapPin, label: "Emergency", path: "/emergency" },
+  { icon: User, label: "Profile", path: "/profile" },
+  { icon: Settings, label: "Settings", path: "/settings" },
+];
+
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<SupaUser | null>(null);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      if (!session) navigate("/login", { replace: true });
+      else setUser(session.user);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) navigate("/login", { replace: true });
+      else setUser(session.user);
+    });
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient";
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header */}
+      <div className="gradient-primary px-5 pt-10 pb-8 rounded-b-[1.5rem]">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <p className="text-primary-foreground/70 text-sm">Good day 👋</p>
+            <h1 className="text-xl font-bold text-primary-foreground">{displayName}</h1>
+          </div>
+          <button
+            onClick={() => navigate("/profile")}
+            className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center border border-primary-foreground/30"
+          >
+            <Bell className="w-5 h-5 text-primary-foreground" />
+          </button>
+        </div>
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search doctors, hospitals, labs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 bg-card border-0 shadow-lg h-12 rounded-xl"
+          />
+        </div>
+      </div>
+
+      <div className="px-5 mt-6 space-y-6">
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Quick Actions</h2>
+          <div className="grid grid-cols-4 gap-3">
+            {quickActions.map((action) => (
+              <button
+                key={action.label}
+                onClick={() => navigate(action.path)}
+                className="flex flex-col items-center gap-2"
+              >
+                <div className={`w-14 h-14 rounded-2xl ${action.color} flex items-center justify-center shadow-md`}>
+                  <action.icon className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <span className="text-xs text-center leading-tight text-foreground font-medium whitespace-pre-line">
+                  {action.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Media Slider placeholder */}
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Featured</h2>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 w-72 h-36 rounded-2xl gradient-primary flex items-center justify-center shadow-md"
+              >
+                <div className="text-center text-primary-foreground">
+                  <p className="font-bold text-lg">Health Tip #{i}</p>
+                  <p className="text-sm opacity-70">Stay healthy, stay strong</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Provider categories */}
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Browse Services</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { title: "Doctors", desc: "Find specialists", icon: "👨‍⚕️", path: "/doctors" },
+              { title: "Hospitals", desc: "Nearby facilities", icon: "🏥", path: "/hospitals" },
+              { title: "Labs", desc: "Book tests", icon: "🔬", path: "/labs" },
+              { title: "Pharmacies", desc: "Order medicines", icon: "💊", path: "/pharmacies" },
+            ].map((item) => (
+              <button
+                key={item.title}
+                onClick={() => navigate(item.path)}
+                className="bg-card rounded-2xl p-4 border border-border text-left shadow-sm hover:shadow-md transition-shadow"
+              >
+                <span className="text-3xl">{item.icon}</span>
+                <h3 className="font-semibold mt-2">{item.title}</h3>
+                <p className="text-xs text-muted-foreground">{item.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Nav */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border safe-bottom">
+        <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
+          {bottomTabs.map((tab) => (
+            <button
+              key={tab.label}
+              onClick={() => navigate(tab.path)}
+              className={`flex flex-col items-center gap-0.5 text-xs ${
+                tab.path === "/dashboard" ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              <tab.icon className="w-5 h-5" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
