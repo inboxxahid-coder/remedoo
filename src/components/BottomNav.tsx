@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Calendar, AlertTriangle, Package, User } from "lucide-react";
+import { Home, Calendar, AlertTriangle, Package, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 
 const tabs = [
@@ -7,7 +7,7 @@ const tabs = [
   { icon: Calendar, label: "Appointments", path: "/appointments" },
   { icon: AlertTriangle, label: "SOS", path: "/emergency", accent: true },
   { icon: Package, label: "Orders", path: "/my-orders" },
-  { icon: User, label: "Profile", path: "/profile" },
+  { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
 const BottomNav = () => {
