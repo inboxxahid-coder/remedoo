@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import BottomNav from "@/components/BottomNav";
 
 const Doctors = () => {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ const Doctors = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-24">
       <div className="gradient-primary px-5 pt-10 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
@@ -111,6 +112,7 @@ const Doctors = () => {
           ))
         )}
       </div>
+      <BottomNav />
     </div>
   );
 };
