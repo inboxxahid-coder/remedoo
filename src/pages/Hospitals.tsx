@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, Heart, MapPin, Bed, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Star, Search, Heart, MapPin, Bed, ShieldCheck, CalendarPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -88,6 +88,12 @@ const Hospitals = () => {
                     <span className="text-xs text-muted-foreground flex items-center gap-1"><Bed className="w-3 h-3" />{h.beds} beds</span>
                     {h.icu_available && <span className="text-xs bg-success/10 text-success px-2 py-0.5 rounded-full flex items-center gap-1"><ShieldCheck className="w-3 h-3" />ICU</span>}
                   </div>
+                  <button
+                    onClick={() => navigate(`/book/hospital/${h.id}`)}
+                    className="mt-2 w-full py-1.5 rounded-lg text-xs font-semibold gradient-primary text-primary-foreground flex items-center justify-center gap-1"
+                  >
+                    <CalendarPlus className="w-3.5 h-3.5" />Book Now
+                  </button>
                 </div>
               </div>
             </div>
