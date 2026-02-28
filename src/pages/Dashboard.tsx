@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store } from "lucide-react";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
+import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,7 +54,7 @@ const AnimatedMenuButton = () => {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<SupaUser | null>(null);
-  const [search, setSearch] = useState("");
+  
   const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
   const [ads, setAds] = useState<Tables<"ads">[]>([]);
@@ -167,13 +167,7 @@ const Dashboard = () => {
                   transition={{ duration: 0.5, delay: 0.1 }}
                   className="relative z-10"
                 >
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search doctors, hospitals, labs..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-11 bg-card/95 backdrop-blur-md border-0 shadow-xl h-12 rounded-2xl text-sm focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
-                  />
+                  <UnifiedSearch />
                 </motion.div>
               </div>
             </div>
