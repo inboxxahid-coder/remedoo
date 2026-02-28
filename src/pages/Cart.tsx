@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Minus, Trash2, Upload, FileText, MapPin, X } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Trash2, Upload, FileText, MapPin, X, LocateFixed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +21,7 @@ const Cart = () => {
   const [cart, setCart] = useState<Record<string, CartItem>>(initialCart || {});
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [locatingGps, setLocatingGps] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,6 +59,41 @@ const Cart = () => {
   }, 0);
   const deliveryFee = subtotal > 500 ? 0 : 30;
   const total = subtotal + deliveryFee;
+
+  const fetchGpsAddress = async () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+    setLocatingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+            { headers: { "Accept-Language": "en" } }
+          );
+          const data = await res.json();
+          if (data.display_name) {
+            setAddress(data.display_name);
+            toast.success("Location detected!");
+          } else {
+            toast.error("Could not determine address");
+          }
+        } catch {
+          toast.error("Failed to fetch address from coordinates");
+        } finally {
+          setLocatingGps(false);
+        }
+      },
+      (err) => {
+        setLocatingGps(false);
+        toast.error(err.message || "Unable to get your location");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   const placeOrder = async () => {
     if (!address.trim()) { toast.error("Please enter a delivery address"); return; }
@@ -188,9 +224,21 @@ const Cart = () => {
 
         {/* Delivery address */}
         <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-primary" />
-            <h2 className="font-semibold text-foreground text-sm">Delivery Address</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-primary" />
+              <h2 className="font-semibold text-foreground text-sm">Delivery Address</h2>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchGpsAddress}
+              disabled={locatingGps}
+              className="rounded-xl text-xs gap-1.5 border-primary text-primary"
+            >
+              <LocateFixed className={`w-3.5 h-3.5 ${locatingGps ? "animate-spin" : ""}`} />
+              {locatingGps ? "Locating..." : "Use GPS"}
+            </Button>
           </div>
           <Textarea
             placeholder="Enter your full delivery address..."
