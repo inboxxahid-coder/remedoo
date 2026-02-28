@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
 import type { Tables } from "@/integrations/supabase/types";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import BottomNav from "@/components/BottomNav";
 
 const quickActions = [
   { icon: Calendar, label: "Book\nAppointment", gradient: "from-primary to-[hsl(190,70%,45%)]", path: "/doctors" },
@@ -310,6 +311,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <BottomNav />
     </SidebarProvider>
   );
 };
