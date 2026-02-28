@@ -165,8 +165,8 @@ const Dashboard = () => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="flex-1 flex flex-col min-w-0 overflow-y-auto"
-          style={{ overscrollBehavior: "none" }}
+          className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto"
+          style={{ overscrollBehavior: "contain" }}
         >
           {/* Pull-to-refresh indicator */}
           <AnimatePresence>
