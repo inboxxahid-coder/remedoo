@@ -29,7 +29,7 @@ const Labs = () => {
       setLoading(false);
     };
     load();
-  }, [navigate]);
+  }, []);
 
   const toggleFavorite = async (id: string) => {
     if (!userId) { toast.error("Please sign in to add favorites"); navigate("/login"); return; }
