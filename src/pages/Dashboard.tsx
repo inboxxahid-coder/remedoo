@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
 import type { Tables } from "@/integrations/supabase/types";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 
 const quickActions = [
   { icon: Calendar, label: "Book\nAppointment", gradient: "from-primary to-[hsl(190,70%,45%)]", path: "/doctors" },
@@ -55,6 +56,9 @@ const Dashboard = () => {
   const [search, setSearch] = useState("");
   const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
+
+  // Real-time toast notifications
+  useRealtimeNotifications();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {

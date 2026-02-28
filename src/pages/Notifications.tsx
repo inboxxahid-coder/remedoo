@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Bell, Calendar, Package, Info, Check, Trash2 } from "lucide-react";
+import { ArrowLeft, Bell, Calendar, Package, Info, Check, BellRing, BellOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
-import { format, isToday, isTomorrow, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 type NotificationItem = {
   id: string;
-  type: "appointment" | "order" | "system";
+  type: string;
   title: string;
   message: string;
   time: string;
@@ -19,63 +20,11 @@ type NotificationItem = {
   path?: string;
 };
 
-const buildAppointmentNotifications = (appointments: Tables<"appointments">[]): NotificationItem[] =>
-  appointments.map((apt) => {
-    const date = parseISO(apt.appointment_date);
-    const prefix = isToday(date) ? "Today" : isTomorrow(date) ? "Tomorrow" : format(date, "MMM d");
-    return {
-      id: `apt-${apt.id}`,
-      type: "appointment",
-      title: `${prefix} — ${apt.service_type} appointment`,
-      message: `Scheduled at ${apt.appointment_time?.slice(0, 5)}. Status: ${apt.status}`,
-      time: format(parseISO(apt.created_at), "MMM d, h:mm a"),
-      read: apt.status === "completed",
-      icon: Calendar,
-      path: "/appointments",
-    };
-  });
-
-const buildOrderNotifications = (orders: Tables<"orders">[]): NotificationItem[] =>
-  orders.map((order) => {
-    const statusMap: Record<string, string> = {
-      placed: "Your order has been placed",
-      confirmed: "Your order is confirmed",
-      out_for_delivery: "Your order is out for delivery 🚚",
-      delivered: "Your order has been delivered ✅",
-      cancelled: "Your order was cancelled",
-    };
-    return {
-      id: `ord-${order.id}`,
-      type: "order",
-      title: statusMap[order.status] || `Order ${order.status}`,
-      message: `Total: ₹${order.total} • ${order.payment_method.toUpperCase()}`,
-      time: format(parseISO(order.updated_at), "MMM d, h:mm a"),
-      read: order.status === "delivered",
-      icon: Package,
-      path: `/order/${order.id}`,
-    };
-  });
-
-const systemAlerts: NotificationItem[] = [
-  {
-    id: "sys-1",
-    type: "system",
-    title: "Welcome to MediCare! 🎉",
-    message: "Explore doctors, pharmacies, and labs near you.",
-    time: "System",
-    read: false,
-    icon: Info,
-  },
-  {
-    id: "sys-2",
-    type: "system",
-    title: "Stay healthy 💪",
-    message: "Remember to schedule your annual health checkup.",
-    time: "System",
-    read: false,
-    icon: Info,
-  },
-];
+const iconMap: Record<string, typeof Calendar> = {
+  appointment: Calendar,
+  order: Package,
+  system: Info,
+};
 
 const NotificationCard = ({
   item,
@@ -91,9 +40,7 @@ const NotificationCard = ({
     exit={{ opacity: 0, x: -60 }}
     onClick={onTap}
     className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl border transition-colors ${
-      item.read
-        ? "bg-muted/40 border-border/50"
-        : "bg-card border-border shadow-sm"
+      item.read ? "bg-muted/40 border-border/50" : "bg-card border-border shadow-sm"
     }`}
   >
     <div
@@ -129,44 +76,103 @@ const EmptyState = ({ label }: { label: string }) => (
 
 const Notifications = () => {
   const navigate = useNavigate();
-  const [appointments, setAppointments] = useState<Tables<"appointments">[]>([]);
-  const [orders, setOrders] = useState<Tables<"orders">[]>([]);
-  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { permission, supported, requestPermission } = usePushNotifications();
+
+  // Enable real-time toast alerts
+  useRealtimeNotifications();
 
   useEffect(() => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) {
+        setLoading(false);
+        return;
+      }
 
-      const [aptRes, ordRes] = await Promise.all([
-        supabase
-          .from("appointments")
-          .select("*")
-          .eq("patient_id", session.user.id)
-          .order("created_at", { ascending: false })
-          .limit(20),
-        supabase
-          .from("orders")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .order("updated_at", { ascending: false })
-          .limit(20),
-      ]);
+      const { data } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
 
-      if (aptRes.data) setAppointments(aptRes.data);
-      if (ordRes.data) setOrders(ordRes.data);
+      if (data) {
+        setNotifications(
+          data.map((n: any) => ({
+            id: n.id,
+            type: n.type,
+            title: n.title,
+            message: n.message || "",
+            time: format(parseISO(n.created_at), "MMM d, h:mm a"),
+            read: n.read,
+            icon: iconMap[n.type] || Info,
+            path: n.path,
+          }))
+        );
+      }
+      setLoading(false);
     };
     load();
+
+    // Listen for new notifications in real-time and add to list
+    const channel = supabase
+      .channel("notifications-page")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications" },
+        (payload: any) => {
+          const n = payload.new;
+          setNotifications((prev) => [
+            {
+              id: n.id,
+              type: n.type,
+              title: n.title,
+              message: n.message || "",
+              time: format(parseISO(n.created_at), "MMM d, h:mm a"),
+              read: false,
+              icon: iconMap[n.type] || Info,
+              path: n.path,
+            },
+            ...prev,
+          ]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const dismiss = (id: string) => setDismissed((prev) => new Set(prev).add(id));
+  const markAllRead = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
 
-  const aptNotifs = buildAppointmentNotifications(appointments).filter((n) => !dismissed.has(n.id));
-  const orderNotifs = buildOrderNotifications(orders).filter((n) => !dismissed.has(n.id));
-  const sysNotifs = systemAlerts.filter((n) => !dismissed.has(n.id));
-  const allNotifs = [...aptNotifs, ...orderNotifs, ...sysNotifs];
+    await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("user_id", session.user.id)
+      .eq("read", false);
 
-  const unreadCount = allNotifs.filter((n) => !n.read).length;
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const handleTap = async (item: NotificationItem) => {
+    // Mark as read
+    if (!item.read) {
+      await supabase.from("notifications").update({ read: true }).eq("id", item.id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
+      );
+    }
+    if (item.path) navigate(item.path);
+  };
+
+  const filterByType = (type: string) => notifications.filter((n) => n.type === type);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const renderList = (items: NotificationItem[], label: string) =>
     items.length === 0 ? (
@@ -175,11 +181,7 @@ const Notifications = () => {
       <div className="space-y-3">
         <AnimatePresence>
           {items.map((item) => (
-            <NotificationCard
-              key={item.id}
-              item={item}
-              onTap={() => (item.path ? navigate(item.path) : dismiss(item.id))}
-            />
+            <NotificationCard key={item.id} item={item} onTap={() => handleTap(item)} />
           ))}
         </AnimatePresence>
       </div>
@@ -202,16 +204,33 @@ const Notifications = () => {
               <p className="text-sm text-primary-foreground/70">{unreadCount} unread</p>
             )}
           </div>
-          {allNotifs.length > 0 && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setDismissed(new Set(allNotifs.map((n) => n.id)))}
-              className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
-            >
-              <Check className="w-4 h-4 mr-1" /> Clear all
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {supported && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={requestPermission}
+                className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                title={permission === "granted" ? "Push enabled" : "Enable push"}
+              >
+                {permission === "granted" ? (
+                  <BellRing className="w-4 h-4" />
+                ) : (
+                  <BellOff className="w-4 h-4" />
+                )}
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={markAllRead}
+                className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <Check className="w-4 h-4 mr-1" /> Read all
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -226,10 +245,10 @@ const Notifications = () => {
           </TabsList>
 
           <div className="mt-4 pb-8">
-            <TabsContent value="all">{renderList(allNotifs, "notifications")}</TabsContent>
-            <TabsContent value="appointments">{renderList(aptNotifs, "appointment reminders")}</TabsContent>
-            <TabsContent value="orders">{renderList(orderNotifs, "order updates")}</TabsContent>
-            <TabsContent value="system">{renderList(sysNotifs, "system alerts")}</TabsContent>
+            <TabsContent value="all">{renderList(notifications, "notifications")}</TabsContent>
+            <TabsContent value="appointments">{renderList(filterByType("appointment"), "appointment reminders")}</TabsContent>
+            <TabsContent value="orders">{renderList(filterByType("order"), "order updates")}</TabsContent>
+            <TabsContent value="system">{renderList(filterByType("system"), "system alerts")}</TabsContent>
           </div>
         </Tabs>
       </div>
