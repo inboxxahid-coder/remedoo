@@ -47,6 +47,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ambulances: {
+        Row: {
+          assigned_patient_id: string | null
+          created_at: string
+          current_latitude: number | null
+          current_longitude: number | null
+          driver_name: string | null
+          driver_phone: string | null
+          id: string
+          status: string
+          updated_at: string
+          vehicle_number: string
+        }
+        Insert: {
+          assigned_patient_id?: string | null
+          created_at?: string
+          current_latitude?: number | null
+          current_longitude?: number | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          vehicle_number: string
+        }
+        Update: {
+          assigned_patient_id?: string | null
+          created_at?: string
+          current_latitude?: number | null
+          current_longitude?: number | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          vehicle_number?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           appointment_date: string
@@ -176,6 +215,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      emergency_requests: {
+        Row: {
+          assigned_ambulance_id: string | null
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          patient_id: string
+          response_time_minutes: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_ambulance_id?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          patient_id: string
+          response_time_minutes?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_ambulance_id?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          patient_id?: string
+          response_time_minutes?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       favorites: {
         Row: {
@@ -471,6 +546,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          status?: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          status?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       pharmacies: {
         Row: {

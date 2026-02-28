@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, User, Home, MapPin, Settings, Star, ShoppingBag } from "lucide-react";
+import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, User, Home, MapPin, Settings, Star, ShoppingBag, Wallet, BarChart3 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
@@ -11,7 +11,9 @@ const quickActions = [
   { icon: AlertTriangle, label: "Emergency\nSOS", color: "bg-emergency", path: "/emergency" },
   { icon: Pill, label: "Order\nMedicines", color: "bg-success", path: "/pharmacies" },
   { icon: ShoppingBag, label: "My\nOrders", color: "bg-accent", path: "/my-orders" },
-  { icon: Heart, label: "View\nFavorites", color: "bg-warning", path: "/favorites" },
+  { icon: Wallet, label: "Wallet", color: "bg-warning", path: "/wallet" },
+  { icon: Heart, label: "Favorites", color: "bg-primary", path: "/favorites" },
+  { icon: BarChart3, label: "Analytics", color: "bg-secondary", path: "/analytics" },
 ];
 
 const bottomTabs = [
@@ -73,7 +75,7 @@ const Dashboard = () => {
         {/* Quick Actions */}
         <div>
           <h2 className="text-lg font-semibold mb-3">Quick Actions</h2>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-4 gap-3">
             {quickActions.map((action) => (
               <button key={action.label} onClick={() => navigate(action.path)} className="flex flex-col items-center gap-2">
                 <div className={`w-14 h-14 rounded-2xl ${action.color} flex items-center justify-center shadow-md`}>
