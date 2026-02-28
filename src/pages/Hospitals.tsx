@@ -16,19 +16,27 @@ const Hospitals = () => {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUserId(session.user.id);
-        const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "hospital");
-        if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
-      }
-      const { data: hRes } = await supabase.from("hospitals").select("*");
-      if (hRes) setHospitals(hRes);
+    const fetchHospitals = async () => {
+      try {
+        const { data: hRes } = await supabase.from("hospitals").select("*");
+        if (hRes) setHospitals(hRes);
+      } catch (e) { console.error("Failed to fetch hospitals:", e); }
       setLoading(false);
     };
-    load();
-  }, [navigate]);
+    fetchHospitals();
+
+    const loadFavorites = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setUserId(session.user.id);
+          const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "hospital");
+          if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
+        }
+      } catch (e) { console.error("Failed to load favorites:", e); }
+    };
+    loadFavorites();
+  }, []);
 
   const toggleFavorite = async (id: string) => {
     if (!userId) { toast.error("Please sign in to add favorites"); navigate("/login"); return; }

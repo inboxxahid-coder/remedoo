@@ -17,27 +17,35 @@ const Pharmacies = () => {
   const [medicineCounts, setMedicineCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUserId(session.user.id);
-        const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "pharmacy");
-        if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
-      }
-      const [pRes, mRes] = await Promise.all([
-        supabase.from("pharmacies").select("*"),
-        supabase.from("medicines").select("pharmacy_id"),
-      ]);
-      if (pRes.data) setPharmacies(pRes.data);
-      if (mRes.data) {
-        const counts: Record<string, number> = {};
-        mRes.data.forEach((m) => { counts[m.pharmacy_id] = (counts[m.pharmacy_id] || 0) + 1; });
-        setMedicineCounts(counts);
-      }
+    const fetchPharmacies = async () => {
+      try {
+        const [pRes, mRes] = await Promise.all([
+          supabase.from("pharmacies").select("*"),
+          supabase.from("medicines").select("pharmacy_id"),
+        ]);
+        if (pRes.data) setPharmacies(pRes.data);
+        if (mRes.data) {
+          const counts: Record<string, number> = {};
+          mRes.data.forEach((m) => { counts[m.pharmacy_id] = (counts[m.pharmacy_id] || 0) + 1; });
+          setMedicineCounts(counts);
+        }
+      } catch (e) { console.error("Failed to fetch pharmacies:", e); }
       setLoading(false);
     };
-    load();
-  }, [navigate]);
+    fetchPharmacies();
+
+    const loadFavorites = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setUserId(session.user.id);
+          const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "pharmacy");
+          if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
+        }
+      } catch (e) { console.error("Failed to load favorites:", e); }
+    };
+    loadFavorites();
+  }, []);
 
   const toggleFavorite = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
