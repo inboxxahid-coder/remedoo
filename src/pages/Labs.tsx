@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Star, Search, Heart, MapPin, TestTube } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
@@ -88,6 +89,11 @@ const Labs = () => {
                       {(lab.services as string[]).length > 3 && <span className="text-xs text-muted-foreground">+{(lab.services as string[]).length - 3}</span>}
                     </div>
                   )}
+                  <div className="flex justify-end mt-3">
+                    <Button size="sm" className="h-8 rounded-lg gradient-primary text-primary-foreground text-xs" onClick={() => navigate(`/book/lab/${lab.id}`)}>
+                      Book Now
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
