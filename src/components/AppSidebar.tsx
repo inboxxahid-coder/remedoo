@@ -71,16 +71,15 @@ export function AppSidebar() {
                   className={`group relative overflow-hidden flex ${
                     collapsed
                       ? "w-10 h-10 items-center justify-center rounded-xl"
-                      : "flex-col items-center gap-2 py-5 px-3 rounded-2xl"
+                      : "flex-col items-center gap-2 py-3 px-2 rounded-2xl"
                   } bg-gradient-to-br ${item.gradient} text-primary-foreground shadow-lg hover:shadow-2xl hover:scale-[1.06] active:scale-95 transition-all duration-300 cursor-pointer`}
                 >
-                  {/* Shine effect */}
                   {!collapsed && (
                     <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   )}
-                  <div className={collapsed ? "" : "text-2xl mb-0.5"}>{collapsed ? <item.icon className="h-5 w-5" /> : item.emoji}</div>
+                  <div className={collapsed ? "" : "text-lg"}>{collapsed ? <item.icon className="h-5 w-5" /> : item.emoji}</div>
                   {!collapsed && (
-                    <span className="text-[11px] font-bold text-center leading-tight drop-shadow-sm relative z-10">
+                    <span className="text-[10px] font-bold text-center leading-tight drop-shadow-sm relative z-10">
                       {item.title}
                     </span>
                   )}
@@ -105,7 +104,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <button
                       onClick={() => navigate(item.url)}
-                      className={`relative flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-semibold transition-all duration-300 ${
+                      className={`relative flex items-center gap-3 w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
                         isActive
                           ? "bg-gradient-to-r from-sidebar-accent to-sidebar-accent/60 text-sidebar-primary shadow-lg border border-sidebar-primary/20"
                           : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground hover:shadow-md"
