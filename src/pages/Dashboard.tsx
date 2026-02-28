@@ -53,7 +53,7 @@ const Dashboard = () => {
       <div className="gradient-primary px-5 pt-10 pb-8 rounded-b-[1.5rem]">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <SidebarTrigger className="text-primary-foreground">
+            <SidebarTrigger className="text-primary-foreground w-10 h-10 flex items-center justify-center rounded-xl bg-primary-foreground/20 border border-primary-foreground/30 hover:bg-primary-foreground/30 transition-colors">
               <Menu className="w-6 h-6" />
             </SidebarTrigger>
             <div>
