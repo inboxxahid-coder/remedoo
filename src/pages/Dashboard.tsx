@@ -56,6 +56,7 @@ const Dashboard = () => {
   const [search, setSearch] = useState("");
   const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Real-time toast notifications
   useRealtimeNotifications();
@@ -75,7 +76,34 @@ const Dashboard = () => {
       if (data) setTopDoctors(data);
     });
 
-    return () => subscription.unsubscribe();
+    // Fetch unread notification count
+    const fetchUnread = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { count } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", session.user.id)
+        .eq("read", false);
+      setUnreadCount(count ?? 0);
+    };
+    fetchUnread();
+
+    // Listen for new notifications to update badge
+    const notifChannel = supabase
+      .channel("dashboard-badge")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => {
+        fetchUnread();
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications" }, () => {
+        fetchUnread();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+      supabase.removeChannel(notifChannel);
+    };
   }, [navigate]);
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient";
@@ -118,7 +146,13 @@ const Dashboard = () => {
                     className="relative w-10 h-10 rounded-full bg-primary-foreground/15 flex items-center justify-center border border-primary-foreground/20 backdrop-blur-sm"
                   >
                     <Bell className="w-5 h-5 text-primary-foreground" />
-                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emergency rounded-full border-2 border-primary" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-emergency rounded-full border-2 border-primary flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-primary-foreground leading-none">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      </span>
+                    )}
                   </motion.button>
                 </motion.div>
 
