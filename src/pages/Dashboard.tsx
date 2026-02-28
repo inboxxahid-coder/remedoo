@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store } from "lucide-react";
-import { motion } from "framer-motion";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -12,26 +12,26 @@ import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import BottomNav from "@/components/BottomNav";
 
 const quickActions = [
-  { icon: Calendar, label: "Book\nAppointment", gradient: "from-primary to-[hsl(190,70%,45%)]", path: "/doctors" },
-  { icon: AlertTriangle, label: "Emergency\nSOS", gradient: "from-emergency to-[hsl(15,80%,50%)]", path: "/emergency" },
-  { icon: Pill, label: "Order\nMedicines", gradient: "from-success to-[hsl(160,55%,48%)]", path: "/pharmacies" },
-  { icon: Heart, label: "Favorites", gradient: "from-warning to-[hsl(25,90%,55%)]", path: "/favorites" },
+  { icon: Calendar, label: "Book\nAppointment", gradient: "from-primary to-[hsl(190,70%,45%)]", path: "/doctors", emoji: "📅" },
+  { icon: AlertTriangle, label: "Emergency\nSOS", gradient: "from-emergency to-[hsl(15,80%,50%)]", path: "/emergency", emoji: "🚨" },
+  { icon: Pill, label: "Order\nMedicines", gradient: "from-success to-[hsl(160,55%,48%)]", path: "/pharmacies", emoji: "💊" },
+  { icon: Heart, label: "Favorites", gradient: "from-warning to-[hsl(25,90%,55%)]", path: "/favorites", emoji: "❤️" },
 ];
 
 const services = [
-  { title: "Doctors", desc: "Find specialists", icon: Stethoscope, path: "/doctors", gradient: "from-primary/10 to-primary/5" },
-  { title: "Hospitals", desc: "Nearby facilities", icon: Building2, path: "/hospitals", gradient: "from-emergency/10 to-emergency/5" },
-  { title: "Labs", desc: "Book tests", icon: FlaskConical, path: "/labs", gradient: "from-success/10 to-success/5" },
-  { title: "Pharmacies", desc: "Order medicines", icon: Store, path: "/pharmacies", gradient: "from-warning/10 to-warning/5" },
+  { title: "Doctors", desc: "Find specialists", icon: Stethoscope, path: "/doctors", color: "text-primary", bgColor: "bg-primary/10", borderHover: "hover:border-primary/40" },
+  { title: "Hospitals", desc: "Nearby facilities", icon: Building2, path: "/hospitals", color: "text-emergency", bgColor: "bg-emergency/10", borderHover: "hover:border-emergency/40" },
+  { title: "Labs", desc: "Book tests", icon: FlaskConical, path: "/labs", color: "text-success", bgColor: "bg-success/10", borderHover: "hover:border-success/40" },
+  { title: "Pharmacies", desc: "Order medicines", icon: Store, path: "/pharmacies", color: "text-warning", bgColor: "bg-warning/10", borderHover: "hover:border-warning/40" },
 ];
 
 const container = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } },
 };
 
 const AnimatedMenuButton = () => {
@@ -60,7 +60,6 @@ const Dashboard = () => {
   const [ads, setAds] = useState<Tables<"ads">[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Real-time toast notifications
   useRealtimeNotifications();
 
   useEffect(() => {
@@ -81,7 +80,6 @@ const Dashboard = () => {
       if (data) setAds(data);
     });
 
-    // Fetch unread notification count
     const fetchUnread = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -94,15 +92,10 @@ const Dashboard = () => {
     };
     fetchUnread();
 
-    // Listen for new notifications to update badge
     const notifChannel = supabase
       .channel("dashboard-badge")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => {
-        fetchUnread();
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications" }, () => {
-        fetchUnread();
-      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => fetchUnread())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications" }, () => fetchUnread())
       .subscribe();
 
     return () => {
@@ -125,16 +118,28 @@ const Dashboard = () => {
           <div className="bg-background pb-24">
             {/* Header */}
             <div className="relative overflow-hidden">
-              <div className="gradient-primary px-5 pt-10 pb-12 rounded-b-[2rem]">
-                {/* Decorative circles */}
-                <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-                <div className="absolute top-20 -right-5 w-24 h-24 rounded-full bg-primary-foreground/5" />
-                <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-primary-foreground/5" />
+              <div className="gradient-primary px-5 pt-10 pb-14 rounded-b-[2.5rem]">
+                {/* Animated decorative shapes */}
+                <motion.div
+                  animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.1, 0.05] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-primary-foreground/5"
+                />
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.08, 0.05] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  className="absolute top-20 -right-5 w-28 h-28 rounded-full bg-primary-foreground/5"
+                />
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                  className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-primary-foreground/5"
+                />
 
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                   className="flex items-center justify-between mb-6 relative z-10"
                 >
                   <div className="flex items-center gap-3">
@@ -145,26 +150,33 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => navigate("/notifications")}
-                    className="relative w-10 h-10 rounded-full bg-primary-foreground/15 flex items-center justify-center border border-primary-foreground/20 backdrop-blur-sm"
+                    className="relative w-11 h-11 rounded-full bg-primary-foreground/15 flex items-center justify-center border border-primary-foreground/20 backdrop-blur-sm"
                   >
                     <Bell className="w-5 h-5 text-primary-foreground" />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-emergency rounded-full border-2 border-primary flex items-center justify-center">
-                        <span className="text-[10px] font-bold text-primary-foreground leading-none">
-                          {unreadCount > 99 ? "99+" : unreadCount}
-                        </span>
-                      </span>
-                    )}
+                    <AnimatePresence>
+                      {unreadCount > 0 && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          className="absolute -top-1 -right-1 min-w-[20px] h-[20px] px-1 bg-emergency rounded-full border-2 border-primary flex items-center justify-center"
+                        >
+                          <span className="text-[10px] font-bold text-primary-foreground leading-none">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                          </span>
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </motion.button>
                 </motion.div>
 
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
+                  transition={{ duration: 0.5, delay: 0.15 }}
                   className="relative z-10"
                 >
                   <UnifiedSearch />
@@ -172,26 +184,27 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="px-5 -mt-5 space-y-7 relative z-10">
+            <div className="px-5 -mt-6 space-y-8 relative z-10">
               {/* Quick Actions — floating glass card */}
               <motion.div
                 variants={container}
                 initial="hidden"
                 animate="show"
-                className="glass rounded-2xl p-4 shadow-xl"
+                className="glass rounded-3xl p-5 shadow-2xl shadow-primary/5"
               >
                 <div className="grid grid-cols-4 gap-3">
                   {quickActions.map((action) => (
                     <motion.button
                       key={action.label}
                       variants={item}
-                      whileHover={{ scale: 1.08, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.1, y: -4 }}
+                      whileTap={{ scale: 0.92 }}
                       onClick={() => navigate(action.path)}
-                      className="flex flex-col items-center gap-2"
+                      className="flex flex-col items-center gap-2.5 group"
                     >
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-lg`}>
+                      <div className={`relative w-[3.75rem] h-[3.75rem] rounded-2xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
                         <action.icon className="w-6 h-6 text-primary-foreground" />
+                        <div className="absolute inset-0 rounded-2xl bg-primary-foreground/0 group-hover:bg-primary-foreground/10 transition-colors duration-300" />
                       </div>
                       <span className="text-[11px] text-center leading-tight text-foreground font-semibold whitespace-pre-line">{action.label}</span>
                     </motion.button>
@@ -200,77 +213,80 @@ const Dashboard = () => {
               </motion.div>
 
               {/* Featured Slider */}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-                <div className="flex items-center justify-between mb-3">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.6 }}>
+                <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold text-foreground">Featured</h2>
-                  <span className="text-xs text-muted-foreground font-medium">Swipe →</span>
+                  <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+                    <Activity className="w-3 h-3" /> Swipe →
+                  </span>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x snap-mandatory">
-                  {slides.length > 0 ? slides.map((slide, idx) => (
+                  {(slides.length > 0 ? slides.map((slide) => ({
+                    id: slide.id,
+                    title: slide.title || "",
+                    desc: slide.description || "",
+                    link: slide.target_link,
+                  })) : [
+                    { id: "1", title: "Stay Hydrated 💧", desc: "Drink at least 8 glasses of water daily", link: null },
+                    { id: "2", title: "Sleep Well 😴", desc: "Get 7-9 hours of quality sleep", link: null },
+                    { id: "3", title: "Stay Active 🏃", desc: "30 min of exercise boosts immunity", link: null },
+                  ]).map((tip, idx) => (
                     <motion.button
-                      key={slide.id}
-                      initial={{ opacity: 0, x: 30 }}
+                      key={tip.id}
+                      initial={{ opacity: 0, x: 40 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + idx * 0.1 }}
-                      onClick={() => slide.target_link && navigate(slide.target_link)}
-                      className="flex-shrink-0 w-72 h-40 rounded-2xl gradient-primary relative overflow-hidden shadow-lg text-left snap-start group"
+                      transition={{ delay: 0.35 + idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                      onClick={() => tip.link && navigate(tip.link)}
+                      className="flex-shrink-0 w-72 h-44 rounded-3xl gradient-primary relative overflow-hidden shadow-xl text-left snap-start group cursor-pointer"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10" />
-                      <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-primary-foreground/10" />
-                      <div className="relative z-10 p-5 flex flex-col justify-end h-full">
-                        <p className="font-bold text-lg text-primary-foreground leading-tight">{slide.title}</p>
-                        <p className="text-sm text-primary-foreground/70 mt-1 line-clamp-2">{slide.description}</p>
+                      <div className="absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-white/10" />
+                      <motion.div
+                        animate={{ rotate: [0, 360] }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full border-2 border-primary-foreground/10"
+                      />
+                      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-primary-foreground/5" />
+                      <div className="relative z-10 p-6 flex flex-col justify-end h-full">
+                        <p className="font-extrabold text-xl text-primary-foreground leading-tight">{tip.title}</p>
+                        <p className="text-sm text-primary-foreground/70 mt-1.5 line-clamp-2">{tip.desc}</p>
+                        <div className="mt-3 flex items-center gap-1 text-primary-foreground/50 text-xs font-semibold group-hover:text-primary-foreground/80 transition-colors">
+                          Learn more <ChevronRight className="w-3 h-3" />
+                        </div>
                       </div>
                     </motion.button>
-                  )) : [
-                    { title: "Stay Hydrated 💧", desc: "Drink at least 8 glasses of water daily" },
-                    { title: "Sleep Well 😴", desc: "Get 7-9 hours of quality sleep" },
-                    { title: "Stay Active 🏃", desc: "30 min of exercise boosts immunity" },
-                  ].map((tip, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: 30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + i * 0.1 }}
-                      className="flex-shrink-0 w-72 h-40 rounded-2xl gradient-primary relative overflow-hidden shadow-lg snap-start"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10" />
-                      <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-primary-foreground/10" />
-                      <div className="relative z-10 p-5 flex flex-col justify-end h-full text-primary-foreground">
-                        <p className="font-bold text-lg leading-tight">{tip.title}</p>
-                        <p className="text-sm opacity-70 mt-1">{tip.desc}</p>
-                      </div>
-                    </motion.div>
                   ))}
                 </div>
               </motion.div>
 
               {/* Top Doctors */}
               {topDoctors.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
-                  <div className="flex items-center justify-between mb-3">
+                <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.6 }}>
+                  <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-bold text-foreground">Top Doctors</h2>
                     <button onClick={() => navigate("/doctors")} className="flex items-center gap-1 text-sm text-primary font-semibold hover:underline">
                       See All <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
+                  <div className="flex gap-3.5 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
                     {topDoctors.map((doc, idx) => (
                       <motion.button
                         key={doc.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.5 + idx * 0.08 }}
-                        whileHover={{ y: -4, boxShadow: "0 12px 24px -8px hsl(168 72% 40% / 0.2)" }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 + idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                        whileHover={{ y: -6, transition: { duration: 0.2 } }}
                         onClick={() => navigate(`/book/doctor/${doc.id}`)}
-                        className="flex-shrink-0 w-40 bg-card rounded-2xl border border-border p-4 shadow-sm text-left snap-start hover:border-primary/30 transition-colors"
+                        className="flex-shrink-0 w-44 bg-card rounded-2xl border border-border p-4 shadow-sm text-left snap-start hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group"
                       >
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-primary/10 flex items-center justify-center text-2xl mb-3">👨‍⚕️</div>
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-primary/15 flex items-center justify-center text-2xl mb-3 group-hover:scale-105 transition-transform duration-300">
+                          👨‍⚕️
+                        </div>
                         <h4 className="font-bold text-sm truncate text-foreground">{doc.name}</h4>
-                        <p className="text-xs text-primary font-medium mt-0.5">{doc.specialization}</p>
-                        <div className="flex items-center gap-1 mt-2">
+                        <p className="text-xs text-primary font-medium mt-0.5 truncate">{doc.specialization}</p>
+                        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border/50">
                           <Star className="w-3.5 h-3.5 fill-warning text-warning" />
                           <span className="text-xs font-bold text-foreground">{doc.rating}</span>
+                          <span className="text-[10px] text-muted-foreground ml-auto">Book →</span>
                         </div>
                       </motion.button>
                     ))}
@@ -283,26 +299,27 @@ const Dashboard = () => {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                   <div className="space-y-3">
                     {ads.map((ad) => (
-                      <a
+                      <motion.a
                         key={ad.id}
+                        whileHover={{ scale: 1.01 }}
                         href={ad.target_link || "#"}
                         target={ad.target_link?.startsWith("http") ? "_blank" : "_self"}
                         rel="noopener noreferrer"
-                        className="block rounded-2xl overflow-hidden shadow-md border border-border"
+                        className="block rounded-2xl overflow-hidden shadow-md border border-border hover:shadow-lg transition-shadow duration-300"
                       >
                         <img
                           src={ad.content_url}
                           alt={ad.title || "Ad"}
-                          className="w-full h-28 object-cover"
+                          className="w-full h-32 object-cover"
                           loading="lazy"
                         />
                         {ad.title && (
-                          <div className="bg-card px-3 py-2">
-                            <p className="text-xs font-medium text-foreground">{ad.title}</p>
+                          <div className="bg-card px-4 py-2.5">
+                            <p className="text-xs font-semibold text-foreground">{ad.title}</p>
                             <p className="text-[10px] text-muted-foreground">Sponsored</p>
                           </div>
                         )}
-                      </a>
+                      </motion.a>
                     ))}
                   </div>
                 </motion.div>
@@ -315,22 +332,25 @@ const Dashboard = () => {
                 animate="show"
                 transition={{ delayChildren: 0.55 }}
               >
-                <h2 className="text-lg font-bold mb-3 text-foreground">Browse Services</h2>
-                <div className="grid grid-cols-2 gap-3">
+                <h2 className="text-lg font-bold mb-4 text-foreground">Browse Services</h2>
+                <div className="grid grid-cols-2 gap-3.5">
                   {services.map((svc) => (
                     <motion.button
                       key={svc.title}
                       variants={item}
-                      whileHover={{ scale: 1.03, y: -2 }}
+                      whileHover={{ scale: 1.04, y: -3 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => navigate(svc.path)}
-                      className={`bg-gradient-to-br ${svc.gradient} rounded-2xl p-4 border border-border/50 text-left shadow-sm hover:shadow-lg transition-all group`}
+                      className={`bg-card rounded-2xl p-5 border border-border text-left shadow-sm hover:shadow-lg transition-all duration-300 group ${svc.borderHover}`}
                     >
-                      <div className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                        <svc.icon className="w-5 h-5 text-primary" />
+                      <div className={`w-12 h-12 rounded-2xl ${svc.bgColor} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                        <svc.icon className={`w-5.5 h-5.5 ${svc.color}`} />
                       </div>
-                      <h3 className="font-bold text-foreground">{svc.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{svc.desc}</p>
+                      <h3 className="font-bold text-foreground text-[15px]">{svc.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">{svc.desc}</p>
+                      <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-primary transition-colors duration-300">
+                        <TrendingUp className="w-3 h-3" /> Explore
+                      </div>
                     </motion.button>
                   ))}
                 </div>
