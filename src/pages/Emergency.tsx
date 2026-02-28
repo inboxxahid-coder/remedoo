@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Phone, MapPin, Navigation, AlertTriangle, Star, Clock, Truck } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
@@ -239,6 +240,7 @@ const Emergency = () => {
           )}
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 };

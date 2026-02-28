@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Package, Clock, Check, Truck, ChevronRight } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 
 type Order = {
@@ -100,6 +101,7 @@ const MyOrders = () => {
           })
         )}
       </div>
+      <BottomNav />
     </div>
   );
 };
