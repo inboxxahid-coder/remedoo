@@ -26,6 +26,7 @@ import Settings from "./pages/Settings";
 import Emergency from "./pages/Emergency";
 import Wallet from "./pages/Wallet";
 import Analytics from "./pages/Analytics";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 // Admin
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/emergency" element={<Emergency />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/notifications" element={<Notifications />} />
 
           {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
