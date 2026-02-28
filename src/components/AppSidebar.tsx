@@ -1,4 +1,4 @@
-import { Calendar, AlertTriangle, Pill, Heart, Home, User, Settings, MapPin } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Home, User, Settings, MapPin, ShoppingBag, Wallet, BarChart3 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -16,6 +16,9 @@ const quickActions = [
   { title: "Emergency SOS", url: "/emergency", icon: AlertTriangle, color: "bg-emergency text-emergency-foreground" },
   { title: "Order Medicines", url: "/pharmacies", icon: Pill, color: "bg-success text-success-foreground" },
   { title: "Favorites", url: "/favorites", icon: Heart, color: "bg-warning text-warning-foreground" },
+  { title: "My Orders", url: "/my-orders", icon: ShoppingBag, color: "bg-accent text-accent-foreground" },
+  { title: "Wallet", url: "/wallet", icon: Wallet, color: "bg-primary text-primary-foreground" },
+  { title: "Analytics", url: "/analytics", icon: BarChart3, color: "bg-secondary text-secondary-foreground" },
 ];
 
 const navigation = [

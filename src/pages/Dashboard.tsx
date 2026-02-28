@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, Star, ShoppingBag, Wallet, BarChart3 } from "lucide-react";
+import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -12,10 +12,7 @@ const quickActions = [
   { icon: Calendar, label: "Book\nAppointment", color: "bg-primary", path: "/doctors" },
   { icon: AlertTriangle, label: "Emergency\nSOS", color: "bg-emergency", path: "/emergency" },
   { icon: Pill, label: "Order\nMedicines", color: "bg-success", path: "/pharmacies" },
-  { icon: ShoppingBag, label: "My\nOrders", color: "bg-accent", path: "/my-orders" },
-  { icon: Wallet, label: "Wallet", color: "bg-warning", path: "/wallet" },
   { icon: Heart, label: "Favorites", color: "bg-primary", path: "/favorites" },
-  { icon: BarChart3, label: "Analytics", color: "bg-secondary", path: "/analytics" },
 ];
 
 const Dashboard = () => {
