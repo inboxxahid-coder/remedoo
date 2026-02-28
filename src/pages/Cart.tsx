@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Minus, Trash2, Upload, FileText, MapPin, X, LocateFixed } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { CartItem } from "./PharmacyDetail";
 import type { Tables } from "@/integrations/supabase/types";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -26,6 +32,15 @@ const Cart = () => {
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => { document.body.removeChild(script); };
+  }, []);
 
   if (!pharmacy || !initialCart) {
     return (
@@ -95,6 +110,107 @@ const Cart = () => {
     );
   };
 
+  const createOrderInDb = async (session: any) => {
+    let prescriptionUrl: string | null = null;
+    if (prescriptionFile) {
+      const path = `${session.user.id}/${Date.now()}-${prescriptionFile.name}`;
+      const { error: upErr } = await supabase.storage.from("prescriptions").upload(path, prescriptionFile);
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("prescriptions").getPublicUrl(path);
+      prescriptionUrl = urlData.publicUrl;
+    }
+
+    const { data: order, error: orderErr } = await supabase.from("orders").insert({
+      user_id: session.user.id,
+      pharmacy_id: pharmacy.id,
+      status: "placed",
+      payment_method: paymentMethod,
+      payment_status: paymentMethod === "cod" ? "pending" : "pending",
+      subtotal,
+      delivery_fee: deliveryFee,
+      total,
+      delivery_address: address,
+      notes: notes || null,
+      prescription_url: prescriptionUrl,
+      estimated_delivery: "25-35 min",
+    }).select().single();
+
+    if (orderErr) throw orderErr;
+
+    const items = cartItems.map((item) => ({
+      order_id: order.id,
+      medicine_id: item.medicine.id,
+      medicine_name: item.medicine.name,
+      quantity: item.quantity,
+      unit_price: item.medicine.price * (1 - (item.medicine.discount_percent || 0) / 100),
+      total_price: item.medicine.price * (1 - (item.medicine.discount_percent || 0) / 100) * item.quantity,
+    }));
+
+    const { error: itemsErr } = await supabase.from("order_items").insert(items);
+    if (itemsErr) throw itemsErr;
+
+    return order;
+  };
+
+  const handleRazorpayPayment = async (order: any, session: any) => {
+    // Create Razorpay order via edge function
+    const { data: rpData, error: rpError } = await supabase.functions.invoke("create-razorpay-order", {
+      body: { order_id: order.id, amount: total },
+    });
+
+    if (rpError || rpData?.error) {
+      throw new Error(rpData?.error || rpError?.message || "Failed to create payment order");
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      const options = {
+        key: rpData.key_id,
+        amount: rpData.amount,
+        currency: rpData.currency,
+        name: "Remedoo",
+        description: `Order from ${pharmacy.name}`,
+        order_id: rpData.razorpay_order_id,
+        prefill: {
+          email: session.user.email || "",
+          name: session.user.user_metadata?.full_name || "",
+        },
+        theme: { color: "#2ABFBF" },
+        handler: async (response: any) => {
+          try {
+            const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-razorpay-payment", {
+              body: {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                order_id: order.id,
+              },
+            });
+
+            if (verifyError || verifyData?.error) {
+              throw new Error(verifyData?.error || verifyError?.message || "Payment verification failed");
+            }
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            reject(new Error("Payment cancelled"));
+          },
+        },
+      };
+
+      if (!window.Razorpay) {
+        reject(new Error("Razorpay SDK not loaded. Please refresh and try again."));
+        return;
+      }
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    });
+  };
+
   const placeOrder = async () => {
     if (!address.trim()) { toast.error("Please enter a delivery address"); return; }
     if (requiresPrescription && !prescriptionFile) { toast.error("Please upload a prescription for Rx medicines"); return; }
@@ -105,45 +221,26 @@ const Cart = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/login"); return; }
 
-      let prescriptionUrl: string | null = null;
-      if (prescriptionFile) {
-        const path = `${session.user.id}/${Date.now()}-${prescriptionFile.name}`;
-        const { error: upErr } = await supabase.storage.from("prescriptions").upload(path, prescriptionFile);
-        if (upErr) throw upErr;
-        const { data: urlData } = supabase.storage.from("prescriptions").getPublicUrl(path);
-        prescriptionUrl = urlData.publicUrl;
+      const order = await createOrderInDb(session);
+
+      if (paymentMethod === "online") {
+        try {
+          await handleRazorpayPayment(order, session);
+          toast.success("Payment successful! Order placed.");
+        } catch (payErr: any) {
+          if (payErr.message === "Payment cancelled") {
+            // Update order status to reflect cancelled payment
+            await supabase.from("orders").update({ payment_status: "failed" }).eq("id", order.id);
+            toast.error("Payment cancelled. You can retry from My Orders.");
+            navigate(`/order/${order.id}`, { replace: true });
+            return;
+          }
+          throw payErr;
+        }
+      } else {
+        toast.success("Order placed successfully!");
       }
 
-      const { data: order, error: orderErr } = await supabase.from("orders").insert({
-        user_id: session.user.id,
-        pharmacy_id: pharmacy.id,
-        status: "placed",
-        payment_method: paymentMethod,
-        payment_status: paymentMethod === "cod" ? "pending" : "pending",
-        subtotal,
-        delivery_fee: deliveryFee,
-        total,
-        delivery_address: address,
-        notes: notes || null,
-        prescription_url: prescriptionUrl,
-        estimated_delivery: "25-35 min",
-      }).select().single();
-
-      if (orderErr) throw orderErr;
-
-      const items = cartItems.map((item) => ({
-        order_id: order.id,
-        medicine_id: item.medicine.id,
-        medicine_name: item.medicine.name,
-        quantity: item.quantity,
-        unit_price: item.medicine.price * (1 - (item.medicine.discount_percent || 0) / 100),
-        total_price: item.medicine.price * (1 - (item.medicine.discount_percent || 0) / 100) * item.quantity,
-      }));
-
-      const { error: itemsErr } = await supabase.from("order_items").insert(items);
-      if (itemsErr) throw itemsErr;
-
-      toast.success("Order placed successfully!");
       navigate(`/order/${order.id}`, { replace: true });
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
@@ -283,7 +380,7 @@ const Cart = () => {
               }`}>
                 {paymentMethod === "online" && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
               </div>
-              <span className="text-sm font-medium text-foreground">💳 Pay Online</span>
+              <span className="text-sm font-medium text-foreground">💳 Pay Online (Razorpay)</span>
             </button>
           </div>
         </div>
@@ -305,7 +402,7 @@ const Cart = () => {
           disabled={loading || cartItems.length === 0}
           className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-semibold text-base"
         >
-          {loading ? "Placing Order..." : `Place Order • ₹${total.toFixed(0)}`}
+          {loading ? "Processing..." : paymentMethod === "online" ? `Pay ₹${total.toFixed(0)} with Razorpay` : `Place Order • ₹${total.toFixed(0)}`}
         </Button>
       </div>
     </div>
