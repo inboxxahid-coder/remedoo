@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
@@ -62,8 +62,48 @@ const Dashboard = () => {
   const [upcomingAppts, setUpcomingAppts] = useState(0);
   const [recentOrders, setRecentOrders] = useState(0);
   const [activeOrders, setActiveOrders] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const touchStartY = useRef(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useRealtimeNotifications();
+
+  const fetchAllData = useCallback(async () => {
+    const [slidesRes, doctorsRes, adsRes] = await Promise.all([
+      supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
+      supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5),
+      supabase.from("ads").select("*").eq("active", true),
+    ]);
+    if (slidesRes.data) setSlides(slidesRes.data);
+    if (doctorsRes.data) setTopDoctors(doctorsRes.data);
+    if (adsRes.data) setAds(adsRes.data);
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const userId = session.user.id;
+
+    const today = new Date().toISOString().split("T")[0];
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+
+    const [notifRes, apptRes, orderRes, activeRes] = await Promise.all([
+      supabase.from("notifications").select("*", { count: "exact", head: true }).eq("user_id", userId).eq("read", false),
+      supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", userId).gte("appointment_date", today).in("status", ["pending", "confirmed"]),
+      supabase.from("orders").select("*", { count: "exact", head: true }).eq("user_id", userId).gte("created_at", thirtyDaysAgo),
+      supabase.from("orders").select("*", { count: "exact", head: true }).eq("user_id", userId).in("status", ["placed", "confirmed", "out_for_delivery"]),
+    ]);
+    setUnreadCount(notifRes.count ?? 0);
+    setUpcomingAppts(apptRes.count ?? 0);
+    setRecentOrders(orderRes.count ?? 0);
+    setActiveOrders(activeRes.count ?? 0);
+  }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await fetchAllData();
+    setIsRefreshing(false);
+    setPullDistance(0);
+  }, [fetchAllData]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
@@ -73,67 +113,42 @@ const Dashboard = () => {
       setUser(session?.user ?? null);
     });
 
-    supabase.from("slider_media").select("*").eq("active", true).order("sort_order").then(({ data }) => {
-      if (data) setSlides(data);
-    });
-    supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5).then(({ data }) => {
-      if (data) setTopDoctors(data);
-    });
-    supabase.from("ads").select("*").eq("active", true).then(({ data }) => {
-      if (data) setAds(data);
-    });
-
-    const fetchUnread = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      const userId = session.user.id;
-      const { count } = await supabase
-        .from("notifications")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("read", false);
-      setUnreadCount(count ?? 0);
-
-      // Upcoming appointments
-      const today = new Date().toISOString().split("T")[0];
-      const { count: apptCount } = await supabase
-        .from("appointments")
-        .select("*", { count: "exact", head: true })
-        .eq("patient_id", userId)
-        .gte("appointment_date", today)
-        .in("status", ["pending", "confirmed"]);
-      setUpcomingAppts(apptCount ?? 0);
-
-      // Recent orders (last 30 days)
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
-      const { count: orderCount } = await supabase
-        .from("orders")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .gte("created_at", thirtyDaysAgo);
-      setRecentOrders(orderCount ?? 0);
-
-      // Active orders
-      const { count: activeCount } = await supabase
-        .from("orders")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .in("status", ["placed", "confirmed", "out_for_delivery"]);
-      setActiveOrders(activeCount ?? 0);
-    };
-    fetchUnread();
+    fetchAllData();
 
     const notifChannel = supabase
       .channel("dashboard-badge")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => fetchUnread())
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications" }, () => fetchUnread())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => fetchAllData())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications" }, () => fetchAllData())
       .subscribe();
 
     return () => {
       subscription.unsubscribe();
       supabase.removeChannel(notifChannel);
     };
-  }, [navigate]);
+  }, [navigate, fetchAllData]);
+
+  // Pull-to-refresh touch handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (isRefreshing) return;
+    const el = scrollRef.current;
+    if (!el || el.scrollTop > 5) return;
+    const delta = e.touches[0].clientY - touchStartY.current;
+    if (delta > 0) {
+      setPullDistance(Math.min(delta * 0.4, 80));
+    }
+  }, [isRefreshing]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (pullDistance > 50) {
+      handleRefresh();
+    } else {
+      setPullDistance(0);
+    }
+  }, [pullDistance, handleRefresh]);
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient";
 
@@ -145,7 +160,36 @@ const Dashboard = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div
+          ref={scrollRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="flex-1 flex flex-col min-w-0 overflow-y-auto"
+          style={{ overscrollBehavior: "none" }}
+        >
+          {/* Pull-to-refresh indicator */}
+          <AnimatePresence>
+            {(pullDistance > 0 || isRefreshing) && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: isRefreshing ? 48 : pullDistance, opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center justify-center bg-background overflow-hidden"
+              >
+                <motion.div
+                  animate={{ rotate: isRefreshing ? 360 : pullDistance * 3.6 }}
+                  transition={isRefreshing ? { duration: 0.8, repeat: Infinity, ease: "linear" } : { duration: 0 }}
+                >
+                  <RefreshCw className={`w-5 h-5 ${pullDistance > 50 || isRefreshing ? "text-primary" : "text-muted-foreground"}`} />
+                </motion.div>
+                {isRefreshing && (
+                  <span className="ml-2 text-xs text-muted-foreground font-medium">Refreshing...</span>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
           <div className="bg-background pb-24">
             {/* Header */}
             <div className="relative overflow-hidden">
