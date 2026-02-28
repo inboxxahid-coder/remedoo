@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarCheck, Search, XCircle, Filter } from "lucide-react";
+import { CalendarCheck, Search, XCircle, Filter, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -67,7 +68,12 @@ export default function AdminAppointments() {
 
   return (
     <div>
-      <h1 className="text-xl md:text-2xl font-bold text-foreground mb-5">Appointment Monitoring</h1>
+      <div className="flex items-center justify-between mb-5">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">Appointment Monitoring</h1>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => exportToCsv("appointments", filtered, ["service_type","appointment_date","appointment_time","status","notes"])}>
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
+      </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
