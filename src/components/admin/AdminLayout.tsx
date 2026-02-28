@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   LayoutDashboard, Stethoscope, Building2, FlaskConical, Store, CalendarCheck,
-  ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill
+  ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill, Menu, X
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ export default function AdminLayout() {
   const { loading, isAdmin } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading || !isAdmin) {
     return (
@@ -39,17 +41,38 @@ export default function AdminLayout() {
     navigate("/admin/login");
   };
 
+  const handleNav = (path: string) => {
+    navigate(path);
+    setSidebarOpen(false);
+  };
+
   return (
     <div className="min-h-screen flex bg-muted/30">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-card border-r border-border flex flex-col shrink-0 sticky top-0 h-screen">
-        <div className="p-5 border-b border-border">
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col shrink-0 transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="p-5 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-primary" />
             <h1 className="text-lg font-bold text-foreground">Admin Panel</h1>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Remedoo Management</p>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg hover:bg-muted">
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
+        <p className="text-xs text-muted-foreground px-5 pt-2">Remedoo Management</p>
 
         <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
           {navItems.map((item) => {
@@ -57,7 +80,7 @@ export default function AdminLayout() {
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNav(item.path)}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                   isActive
@@ -84,9 +107,25 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 p-6 overflow-y-auto">
-        <Outlet />
-      </main>
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Mobile header */}
+        <header className="sticky top-0 z-30 bg-card border-b border-border px-4 py-3 flex items-center gap-3 lg:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl hover:bg-muted transition-colors"
+          >
+            <Menu className="w-5 h-5 text-foreground" />
+          </button>
+          <div className="flex items-center gap-2">
+            <Shield className="w-5 h-5 text-primary" />
+            <span className="font-bold text-foreground">Admin</span>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

@@ -16,6 +16,7 @@ export interface ColumnDef {
   type?: "text" | "number" | "boolean" | "json";
   editable?: boolean;
   render?: (value: any, row: any) => React.ReactNode;
+  hideMobile?: boolean;
 }
 
 interface AdminCrudTableProps {
@@ -89,13 +90,16 @@ export default function AdminCrudTable({
     }
   };
 
+  // Get the first 2-3 visible columns for mobile card view
+  const mobileColumns = columns.filter(c => !c.hideMobile).slice(0, 3);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">{title}</h1>
         {canAdd && (
           <Button onClick={openAdd} size="sm" className="gap-2">
-            <Plus className="w-4 h-4" /> Add New
+            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add New</span><span className="sm:hidden">Add</span>
           </Button>
         )}
       </div>
@@ -106,48 +110,79 @@ export default function AdminCrudTable({
         ) : data.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">No records found</div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {columns.map((col) => (
-                    <TableHead key={col.key} className="text-xs font-semibold">{col.label}</TableHead>
-                  ))}
-                  <TableHead className="text-xs font-semibold w-24">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((row) => (
-                  <TableRow key={row.id}>
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
                     {columns.map((col) => (
-                      <TableCell key={col.key} className="text-sm max-w-[200px] truncate">
+                      <TableHead key={col.key} className="text-xs font-semibold">{col.label}</TableHead>
+                    ))}
+                    <TableHead className="text-xs font-semibold w-24">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.map((row) => (
+                    <TableRow key={row.id}>
+                      {columns.map((col) => (
+                        <TableCell key={col.key} className="text-sm max-w-[200px] truncate">
+                          {col.render
+                            ? col.render(row[col.key], row)
+                            : col.type === "boolean"
+                            ? row[col.key] ? <Check className="w-4 h-4 text-success" /> : <X className="w-4 h-4 text-muted-foreground" />
+                            : String(row[col.key] ?? "—")}
+                        </TableCell>
+                      ))}
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(row)}>
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(row.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile card view */}
+            <div className="md:hidden divide-y divide-border">
+              {data.map((row) => (
+                <div key={row.id} className="p-4 space-y-2">
+                  {mobileColumns.map((col) => (
+                    <div key={col.key} className="flex items-start justify-between gap-2">
+                      <span className="text-xs font-medium text-muted-foreground shrink-0">{col.label}</span>
+                      <span className="text-sm text-foreground text-right truncate max-w-[60%]">
                         {col.render
                           ? col.render(row[col.key], row)
                           : col.type === "boolean"
-                          ? row[col.key] ? <Check className="w-4 h-4 text-success" /> : <X className="w-4 h-4 text-muted-foreground" />
+                          ? row[col.key] ? <Check className="w-4 h-4 text-success inline" /> : <X className="w-4 h-4 text-muted-foreground inline" />
                           : String(row[col.key] ?? "—")}
-                      </TableCell>
-                    ))}
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(row)}>
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(row.id)}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                      </span>
+                    </div>
+                  ))}
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => openEdit(row)}>
+                      <Pencil className="w-3.5 h-3.5" /> Edit
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-1.5 text-destructive border-destructive/30" onClick={() => handleDelete(row.id)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto mx-4">
           <DialogHeader>
             <DialogTitle>{editId ? "Edit" : "Add"} {title.replace(/s$/, "")}</DialogTitle>
           </DialogHeader>
