@@ -24,6 +24,8 @@ import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Emergency from "./pages/Emergency";
+import Wallet from "./pages/Wallet";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +58,8 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/emergency" element={<Emergency />} />
+          <Route path="/wallet" element={<Wallet />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
