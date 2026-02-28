@@ -28,21 +28,28 @@ export default function AdminEmergencies() {
   const [ambulances, setAmbulances] = useState<Record<string, AmbulanceInfo>>({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
-      const [emergRes, ambRes] = await Promise.all([
-        supabase.from("emergency_requests").select("*").order("created_at", { ascending: false }),
-        supabase.from("ambulances").select("*"),
-      ]);
+  const fetchAll = async () => {
+    const [emergRes, ambRes] = await Promise.all([
+      supabase.from("emergency_requests").select("*").order("created_at", { ascending: false }),
+      supabase.from("ambulances").select("*"),
+    ]);
+    setEmergencies((emergRes.data || []) as EmergencyRequest[]);
+    const ambMap: Record<string, AmbulanceInfo> = {};
+    (ambRes.data || []).forEach((a: any) => { ambMap[a.id] = a; });
+    setAmbulances(ambMap);
+    setLoading(false);
+  };
 
-      setEmergencies((emergRes.data || []) as EmergencyRequest[]);
-      const ambMap: Record<string, AmbulanceInfo> = {};
-      (ambRes.data || []).forEach((a: any) => { ambMap[a.id] = a; });
-      setAmbulances(ambMap);
-      setLoading(false);
-    };
-    fetch();
+  useEffect(() => {
+    fetchAll();
+
+    const channel = supabase
+      .channel("admin-emergencies")
+      .on("postgres_changes", { event: "*", schema: "public", table: "emergency_requests" }, () => fetchAll())
+      .on("postgres_changes", { event: "*", schema: "public", table: "ambulances" }, () => fetchAll())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const statusBadge = (status: string) => {
