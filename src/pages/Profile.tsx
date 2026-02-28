@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Camera, Mail, Phone, User, Save } from "lucide-react";
+import { ArrowLeft, Camera, Mail, Phone, User, Save, Loader2 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,9 +11,12 @@ import type { Tables } from "@/integrations/supabase/types";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [form, setForm] = useState({ full_name: "", email: "", phone: "" });
 
   useEffect(() => {
@@ -29,6 +32,7 @@ const Profile = () => {
 
       if (data) {
         setProfile(data);
+        setAvatarUrl(data.avatar_url);
         setForm({
           full_name: data.full_name || "",
           email: data.email || "",
@@ -57,6 +61,53 @@ const Profile = () => {
     else toast.success("Profile updated!");
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setUploading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const ext = file.name.split(".").pop();
+    const filePath = `${session.user.id}/avatar.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      toast.error("Failed to upload avatar");
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ avatar_url: publicUrl })
+      .eq("id", profile.id);
+
+    setUploading(false);
+    if (updateError) {
+      toast.error("Failed to save avatar");
+    } else {
+      setAvatarUrl(publicUrl);
+      toast.success("Avatar updated!");
+    }
+  };
+
   const initials = form.full_name
     ? form.full_name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
     : "?";
@@ -83,11 +134,30 @@ const Profile = () => {
         {/* Avatar */}
         <div className="flex flex-col items-center">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-primary-foreground/20 border-4 border-primary-foreground/30 flex items-center justify-center">
-              <span className="text-3xl font-bold text-primary-foreground">{initials}</span>
-            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="w-24 h-24 rounded-full bg-primary-foreground/20 border-4 border-primary-foreground/30 flex items-center justify-center overflow-hidden"
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-3xl font-bold text-primary-foreground">{initials}</span>
+              )}
+            </button>
             <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-card border-2 border-border flex items-center justify-center shadow-md">
-              <Camera className="w-4 h-4 text-muted-foreground" />
+              {uploading ? (
+                <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4 text-muted-foreground" />
+              )}
             </div>
           </div>
           <h2 className="text-lg font-semibold text-primary-foreground mt-3">{form.full_name || "Patient"}</h2>
