@@ -14,21 +14,36 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const attemptLogin = async (): Promise<boolean> => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        toast.error(error.message);
-      } else {
-        navigate("/dashboard", { replace: true });
+    const maxRetries = 2;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const success = await attemptLogin();
+        if (success) {
+          navigate("/dashboard", { replace: true });
+          return;
+        }
+        break; // Auth error (wrong password etc.) — don't retry
+      } catch (err: any) {
+        if (attempt < maxRetries) {
+          await new Promise((r) => setTimeout(r, 1000)); // wait 1s before retry
+          continue;
+        }
+        toast.error("Network error. Please check your connection and try again.");
       }
-    } catch (err: any) {
-      toast.error("Network error. Please check your connection and try again.");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (
