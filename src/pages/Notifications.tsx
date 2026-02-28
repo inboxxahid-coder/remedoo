@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import BottomNav from "@/components/BottomNav";
 
 type NotificationItem = {
   id: string;
@@ -188,7 +189,7 @@ const Notifications = () => {
     );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="gradient-primary px-5 pt-10 pb-6 rounded-b-[2rem]">
         <div className="flex items-center gap-3">
@@ -252,6 +253,7 @@ const Notifications = () => {
           </div>
         </Tabs>
       </div>
+      <BottomNav />
     </div>
   );
 };

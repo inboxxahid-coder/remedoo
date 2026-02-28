@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import Splash from "./pages/Splash";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
@@ -46,7 +48,27 @@ import AdminAds from "./pages/admin/AdminAds";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  // Apply dark mode from profile on auth
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
+      if (session?.user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("dark_mode")
+          .eq("user_id", session.user.id)
+          .single();
+        if (data?.dark_mode) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -100,6 +122,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

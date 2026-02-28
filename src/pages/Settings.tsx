@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
+import BottomNav from "@/components/BottomNav";
 
 type NotifPrefs = { email: boolean; push: boolean };
 
@@ -74,7 +75,7 @@ const Settings = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="gradient-primary px-5 pt-10 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3">
@@ -171,6 +172,7 @@ const Settings = () => {
 
         <p className="text-center text-xs text-muted-foreground">Remedoo v1.0.0</p>
       </div>
+      <BottomNav />
     </div>
   );
 };

@@ -57,6 +57,7 @@ const Dashboard = () => {
   const [search, setSearch] = useState("");
   const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
+  const [ads, setAds] = useState<Tables<"ads">[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Real-time toast notifications
@@ -75,6 +76,9 @@ const Dashboard = () => {
     });
     supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5).then(({ data }) => {
       if (data) setTopDoctors(data);
+    });
+    supabase.from("ads").select("*").eq("active", true).then(({ data }) => {
+      if (data) setAds(data);
     });
 
     // Fetch unread notification count
@@ -275,6 +279,36 @@ const Dashboard = () => {
                           <span className="text-xs font-bold text-foreground">{doc.rating}</span>
                         </div>
                       </motion.button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Ad Banners */}
+              {ads.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                  <div className="space-y-3">
+                    {ads.map((ad) => (
+                      <a
+                        key={ad.id}
+                        href={ad.target_link || "#"}
+                        target={ad.target_link?.startsWith("http") ? "_blank" : "_self"}
+                        rel="noopener noreferrer"
+                        className="block rounded-2xl overflow-hidden shadow-md border border-border"
+                      >
+                        <img
+                          src={ad.content_url}
+                          alt={ad.title || "Ad"}
+                          className="w-full h-28 object-cover"
+                          loading="lazy"
+                        />
+                        {ad.title && (
+                          <div className="bg-card px-3 py-2">
+                            <p className="text-xs font-medium text-foreground">{ad.title}</p>
+                            <p className="text-[10px] text-muted-foreground">Sponsored</p>
+                          </div>
+                        )}
+                      </a>
                     ))}
                   </div>
                 </motion.div>

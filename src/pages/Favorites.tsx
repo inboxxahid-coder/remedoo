@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Heart, Star, MapPin, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import BottomNav from "@/components/BottomNav";
 
 type FavoriteItem = {
   id: string;
@@ -57,7 +58,7 @@ const Favorites = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-24">
       <div className="gradient-primary px-5 pt-10 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
@@ -104,6 +105,7 @@ const Favorites = () => {
           ))
         )}
       </div>
+      <BottomNav />
     </div>
   );
 };
