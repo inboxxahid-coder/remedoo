@@ -18,21 +18,20 @@ const Hospitals = () => {
   useEffect(() => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/login", { replace: true }); return; }
-      setUserId(session.user.id);
-      const [hRes, fRes] = await Promise.all([
-        supabase.from("hospitals").select("*"),
-        supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "hospital"),
-      ]);
-      if (hRes.data) setHospitals(hRes.data);
-      if (fRes.data) setFavorites(new Set(fRes.data.map((f) => f.provider_id)));
+      if (session) {
+        setUserId(session.user.id);
+        const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "hospital");
+        if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
+      }
+      const { data: hRes } = await supabase.from("hospitals").select("*");
+      if (hRes) setHospitals(hRes);
       setLoading(false);
     };
     load();
   }, [navigate]);
 
   const toggleFavorite = async (id: string) => {
-    if (!userId) return;
+    if (!userId) { toast.error("Please sign in to add favorites"); navigate("/login"); return; }
     if (favorites.has(id)) {
       await supabase.from("favorites").delete().eq("user_id", userId).eq("provider_id", id).eq("provider_type", "hospital");
       setFavorites((p) => { const n = new Set(p); n.delete(id); return n; });
