@@ -16,8 +16,8 @@ const quickActions = [
 ];
 
 const AnimatedMenuButton = () => {
-  const { toggleSidebar, state } = useSidebar();
-  const isOpen = state === "expanded";
+  const { toggleSidebar, open, openMobile, isMobile } = useSidebar();
+  const isOpen = isMobile ? openMobile : open;
 
   return (
     <button
