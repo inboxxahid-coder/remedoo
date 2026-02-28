@@ -1,4 +1,4 @@
-import { Calendar, AlertTriangle, Pill, Heart, ShoppingBag, Wallet, BarChart3, Home, User, Settings, MapPin } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Home, User, Settings, MapPin } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -17,10 +17,7 @@ const quickActions = [
   { title: "Book Appointment", url: "/doctors", icon: Calendar },
   { title: "Emergency SOS", url: "/emergency", icon: AlertTriangle },
   { title: "Order Medicines", url: "/pharmacies", icon: Pill },
-  { title: "My Orders", url: "/my-orders", icon: ShoppingBag },
-  { title: "Wallet", url: "/wallet", icon: Wallet },
   { title: "Favorites", url: "/favorites", icon: Heart },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
 ];
 
 const navigation = [
