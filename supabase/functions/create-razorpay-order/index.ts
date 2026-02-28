@@ -18,6 +18,15 @@ Deno.serve(async (req) => {
       throw new Error("Razorpay credentials not configured");
     }
 
+    console.log("Razorpay Key ID debug:", {
+      length: RAZORPAY_KEY_ID.length,
+      prefix: RAZORPAY_KEY_ID.substring(0, 8),
+    });
+    console.log("Razorpay Key Secret debug:", {
+      length: RAZORPAY_KEY_SECRET.length,
+      prefix: RAZORPAY_KEY_SECRET.substring(0, 4),
+    });
+
     // Authenticate user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
