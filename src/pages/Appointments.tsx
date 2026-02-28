@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, AlertCircle, CalendarClock } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 type AppointmentWithProvider = {
   id: string;
@@ -29,6 +32,16 @@ const Appointments = () => {
   const [appointments, setAppointments] = useState<AppointmentWithProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
+  const [rescheduleApt, setRescheduleApt] = useState<AppointmentWithProvider | null>(null);
+  const [newDate, setNewDate] = useState<Date | undefined>();
+  const [newTime, setNewTime] = useState("");
+  const [rescheduling, setRescheduling] = useState(false);
+
+  const timeSlots = [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "14:00", "14:30", "15:00", "15:30",
+    "16:00", "16:30", "17:00",
+  ];
 
   const loadAppointments = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -56,6 +69,29 @@ const Appointments = () => {
     const { error } = await supabase.from("appointments").update({ status: "cancelled" }).eq("id", id);
     if (error) toast.error("Failed to cancel");
     else { toast.success("Appointment cancelled"); loadAppointments(); }
+  };
+
+  const openReschedule = (apt: AppointmentWithProvider) => {
+    setRescheduleApt(apt);
+    setNewDate(new Date(apt.appointment_date + "T00:00:00"));
+    setNewTime(apt.appointment_time.slice(0, 5));
+  };
+
+  const handleReschedule = async () => {
+    if (!rescheduleApt || !newDate || !newTime) return;
+    setRescheduling(true);
+    const dateStr = format(newDate, "yyyy-MM-dd");
+    const { error } = await supabase
+      .from("appointments")
+      .update({ appointment_date: dateStr, appointment_time: newTime })
+      .eq("id", rescheduleApt.id);
+    setRescheduling(false);
+    if (error) toast.error("Failed to reschedule");
+    else {
+      toast.success("Appointment rescheduled");
+      setRescheduleApt(null);
+      loadAppointments();
+    }
   };
 
   const today = new Date().toISOString().split("T")[0];
@@ -114,8 +150,11 @@ const Appointments = () => {
                   <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{apt.appointment_time}</span>
                 </div>
                 {apt.notes && <p className="text-xs text-muted-foreground mt-2 bg-muted rounded-lg p-2">{apt.notes}</p>}
-                {apt.status === "pending" && tab === "upcoming" && (
+                {(apt.status === "pending" || apt.status === "confirmed") && tab === "upcoming" && (
                   <div className="flex gap-2 mt-3">
+                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => openReschedule(apt)}>
+                      <CalendarClock className="w-3.5 h-3.5 mr-1" />Reschedule
+                    </Button>
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg border-emergency text-emergency" onClick={() => cancelAppointment(apt.id)}>
                       Cancel
                     </Button>
@@ -126,6 +165,52 @@ const Appointments = () => {
           })
         )}
       </div>
+
+      <Dialog open={!!rescheduleApt} onOpenChange={(o) => !o && setRescheduleApt(null)}>
+        <DialogContent className="max-w-[95vw] sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Reschedule Appointment</DialogTitle>
+            <DialogDescription>{rescheduleApt?.provider_name} — {rescheduleApt?.service_type}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium mb-2">Select Date</p>
+              <CalendarPicker
+                mode="single"
+                selected={newDate}
+                onSelect={setNewDate}
+                disabled={(date) => date < new Date(new Date().toDateString())}
+                className={cn("p-3 pointer-events-auto rounded-xl border mx-auto")}
+              />
+            </div>
+            <div>
+              <p className="text-sm font-medium mb-2">Select Time</p>
+              <div className="grid grid-cols-4 gap-2">
+                {timeSlots.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setNewTime(t)}
+                    className={cn(
+                      "px-2 py-1.5 text-xs rounded-lg border transition-colors",
+                      newTime === t ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-accent"
+                    )}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Button
+              className="w-full gradient-primary text-primary-foreground"
+              disabled={!newDate || !newTime || rescheduling}
+              onClick={handleReschedule}
+            >
+              {rescheduling ? "Rescheduling..." : "Confirm Reschedule"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <BottomNav />
     </div>
   );
