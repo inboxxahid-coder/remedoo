@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, User, Home, MapPin, Settings, Star, ShoppingBag, Wallet, BarChart3 } from "lucide-react";
+import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, Star, ShoppingBag, Wallet, BarChart3 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
 import type { Tables } from "@/integrations/supabase/types";
@@ -14,14 +16,6 @@ const quickActions = [
   { icon: Wallet, label: "Wallet", color: "bg-warning", path: "/wallet" },
   { icon: Heart, label: "Favorites", color: "bg-primary", path: "/favorites" },
   { icon: BarChart3, label: "Analytics", color: "bg-secondary", path: "/analytics" },
-];
-
-const bottomTabs = [
-  { icon: Home, label: "Home", path: "/dashboard" },
-  { icon: Calendar, label: "Appointments", path: "/appointments" },
-  { icon: MapPin, label: "Emergency", path: "/emergency" },
-  { icon: User, label: "Profile", path: "/profile" },
-  { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
 const Dashboard = () => {
@@ -53,13 +47,20 @@ const Dashboard = () => {
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient";
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col min-w-0">
+    <div className="bg-background pb-24">
       {/* Header */}
       <div className="gradient-primary px-5 pt-10 pb-8 rounded-b-[1.5rem]">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-primary-foreground/70 text-sm">Good day 👋</p>
-            <h1 className="text-xl font-bold text-primary-foreground">{displayName}</h1>
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="text-primary-foreground" />
+            <div>
+              <p className="text-primary-foreground/70 text-sm">Good day 👋</p>
+              <h1 className="text-xl font-bold text-primary-foreground">{displayName}</h1>
+            </div>
           </div>
           <button onClick={() => navigate("/profile")} className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center border border-primary-foreground/30">
             <Bell className="w-5 h-5 text-primary-foreground" />
@@ -160,18 +161,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Bottom Nav */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border safe-bottom">
-        <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-          {bottomTabs.map((tab) => (
-            <button key={tab.label} onClick={() => navigate(tab.path)} className={`flex flex-col items-center gap-0.5 text-xs ${tab.path === "/dashboard" ? "text-primary" : "text-muted-foreground"}`}>
-              <tab.icon className="w-5 h-5" />
-              <span>{tab.label}</span>
-            </button>
-          ))}
+    </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
