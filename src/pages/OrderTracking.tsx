@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, Clock, Truck, Package, Phone, MapPin } from "lucide-react";
+import { ArrowLeft, Check, Clock, Truck, Package, Phone, MapPin, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { generateOrderReceipt } from "@/lib/generateOrderReceipt";
 
 type Order = {
   id: string;
@@ -202,6 +203,31 @@ const OrderTracking = () => {
           </div>
           <span className="font-bold text-foreground">₹{order.total}</span>
         </div>
+
+        {/* Download Receipt */}
+        {order.status === "delivered" && (
+          <Button
+            onClick={() =>
+              generateOrderReceipt({
+                orderId: order.id,
+                pharmacyName,
+                placedAt: order.placed_at,
+                deliveredAt: order.delivered_at,
+                deliveryAddress: order.delivery_address,
+                paymentMethod: order.payment_method,
+                paymentStatus: order.payment_status,
+                subtotal: order.subtotal,
+                deliveryFee: order.delivery_fee,
+                total: order.total,
+                items,
+              })
+            }
+            className="w-full rounded-2xl h-12 gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Download Receipt (PDF)
+          </Button>
+        )}
       </div>
     </div>
   );
