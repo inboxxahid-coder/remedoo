@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, Star } from "lucide-react";
+import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -53,7 +53,9 @@ const Dashboard = () => {
       <div className="gradient-primary px-5 pt-10 pb-8 rounded-b-[1.5rem]">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <SidebarTrigger className="text-primary-foreground" />
+            <SidebarTrigger className="text-primary-foreground">
+              <Menu className="w-6 h-6" />
+            </SidebarTrigger>
             <div>
               <p className="text-primary-foreground/70 text-sm">Good day 👋</p>
               <h1 className="text-xl font-bold text-primary-foreground">{displayName}</h1>
