@@ -3,19 +3,22 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   LayoutDashboard, Stethoscope, Building2, FlaskConical, Store, CalendarCheck,
-  ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill, Menu, X
+  ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill, Menu, X,
+  CheckSquare, AlertTriangle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
+  { label: "Approvals", path: "/admin/approvals", icon: CheckSquare },
   { label: "Doctors", path: "/admin/doctors", icon: Stethoscope },
   { label: "Hospitals", path: "/admin/hospitals", icon: Building2 },
   { label: "Labs", path: "/admin/labs", icon: FlaskConical },
   { label: "Pharmacies", path: "/admin/pharmacies", icon: Store },
   { label: "Medicines", path: "/admin/medicines", icon: Pill },
   { label: "Appointments", path: "/admin/appointments", icon: CalendarCheck },
+  { label: "Emergencies", path: "/admin/emergencies", icon: AlertTriangle },
   { label: "Orders", path: "/admin/orders", icon: ShoppingBag },
   { label: "Users", path: "/admin/users", icon: Users },
   { label: "Slider", path: "/admin/slider", icon: Image },
