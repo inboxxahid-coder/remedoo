@@ -28,6 +28,21 @@ import Wallet from "./pages/Wallet";
 import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
+// Admin
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDoctors from "./pages/admin/AdminDoctors";
+import AdminHospitals from "./pages/admin/AdminHospitals";
+import AdminLabs from "./pages/admin/AdminLabs";
+import AdminPharmacies from "./pages/admin/AdminPharmacies";
+import AdminMedicines from "./pages/admin/AdminMedicines";
+import AdminAppointments from "./pages/admin/AdminAppointments";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminSlider from "./pages/admin/AdminSlider";
+import AdminAds from "./pages/admin/AdminAds";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -37,6 +52,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Patient routes */}
           <Route path="/" element={<Splash />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/login" element={<Login />} />
@@ -60,6 +76,23 @@ const App = () => (
           <Route path="/emergency" element={<Emergency />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/analytics" element={<Analytics />} />
+
+          {/* Admin routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="doctors" element={<AdminDoctors />} />
+            <Route path="hospitals" element={<AdminHospitals />} />
+            <Route path="labs" element={<AdminLabs />} />
+            <Route path="pharmacies" element={<AdminPharmacies />} />
+            <Route path="medicines" element={<AdminMedicines />} />
+            <Route path="appointments" element={<AdminAppointments />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="slider" element={<AdminSlider />} />
+            <Route path="ads" element={<AdminAds />} />
+          </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
