@@ -17,18 +17,32 @@ const Labs = () => {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUserId(session.user.id);
-        const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "lab");
-        if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
+    // Fetch labs independently of auth
+    const fetchLabs = async () => {
+      try {
+        const { data: lRes } = await supabase.from("labs").select("*");
+        if (lRes) setLabs(lRes);
+      } catch (e) {
+        console.error("Failed to fetch labs:", e);
       }
-      const { data: lRes } = await supabase.from("labs").select("*");
-      if (lRes) setLabs(lRes);
       setLoading(false);
     };
-    load();
+    fetchLabs();
+
+    // Load favorites if logged in (non-blocking)
+    const loadFavorites = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setUserId(session.user.id);
+          const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "lab");
+          if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
+        }
+      } catch (e) {
+        console.error("Failed to load favorites:", e);
+      }
+    };
+    loadFavorites();
   }, []);
 
   const toggleFavorite = async (id: string) => {
