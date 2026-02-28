@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, UserCheck, UserX, Ban, MoreHorizontal } from "lucide-react";
+import { Search, UserCheck, UserX, Ban, MoreHorizontal, Download } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,14 +57,19 @@ export default function AdminUsers() {
     <div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
         <h1 className="text-xl md:text-2xl font-bold text-foreground">User Management</h1>
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, email, phone..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+        <div className="flex items-center gap-2">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, email, phone..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={() => exportToCsv("users", filtered, ["full_name","email","phone","status","created_at"])}>
+            <Download className="w-4 h-4" /> Export
+          </Button>
         </div>
       </div>
 

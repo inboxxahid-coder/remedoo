@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminCrudTable, { ColumnDef } from "@/components/admin/AdminCrudTable";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { exportToCsv } from "@/lib/exportCsv";
 
 const columns: ColumnDef[] = [
   { key: "user_id", label: "User ID", editable: false },
@@ -35,15 +38,22 @@ export default function AdminOrders() {
   useEffect(() => { fetch(); }, []);
 
   return (
-    <AdminCrudTable
-      title="Orders"
-      data={data}
-      columns={columns}
-      loading={loading}
-      canAdd={false}
-      onAdd={async () => {}}
-      onUpdate={async (id, item) => { const { error } = await supabase.from("orders").update(item).eq("id", id); if (error) throw error; fetch(); }}
-      onDelete={async (id) => { const { error } = await supabase.from("orders").delete().eq("id", id); if (error) throw error; fetch(); }}
-    />
+    <>
+      <div className="flex items-center justify-end mb-3">
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => exportToCsv("orders", data, ["user_id","subtotal","total","status","payment_status","payment_method","delivery_address","placed_at"])}>
+          <Download className="w-4 h-4" /> Export CSV
+        </Button>
+      </div>
+      <AdminCrudTable
+        title="Orders"
+        data={data}
+        columns={columns}
+        loading={loading}
+        canAdd={false}
+        onAdd={async () => {}}
+        onUpdate={async (id, item) => { const { error } = await supabase.from("orders").update(item).eq("id", id); if (error) throw error; fetch(); }}
+        onDelete={async (id) => { const { error } = await supabase.from("orders").delete().eq("id", id); if (error) throw error; fetch(); }}
+      />
+    </>
   );
 }
