@@ -17,6 +17,7 @@ const BookAppointment = () => {
   const [time, setTime] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
 
   useEffect(() => {
     const loadProvider = async () => {
@@ -27,6 +28,22 @@ const BookAppointment = () => {
     };
     loadProvider();
   }, [type, id]);
+
+  // Fetch booked slots when date or provider changes
+  useEffect(() => {
+    const fetchBookedSlots = async () => {
+      if (!date || !id || !type) { setBookedSlots([]); return; }
+      const col = type === "doctor" ? "doctor_id" : type === "hospital" ? "hospital_id" : type === "lab" ? "lab_id" : "pharmacy_id";
+      const { data } = await supabase
+        .from("appointments")
+        .select("appointment_time")
+        .eq(col, id)
+        .eq("appointment_date", date)
+        .in("status", ["pending", "confirmed"]);
+      setBookedSlots((data || []).map((r: any) => r.appointment_time?.slice(0, 5)));
+    };
+    fetchBookedSlots();
+  }, [date, id, type]);
 
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,20 +105,27 @@ const BookAppointment = () => {
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><Clock className="w-4 h-4 text-primary" />Select Time</Label>
             <div className="grid grid-cols-3 gap-2">
-              {timeSlots.map((slot) => (
-                <button
-                  key={slot}
-                  type="button"
-                  onClick={() => setTime(slot)}
-                  className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                    time === slot
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background border-border text-foreground hover:border-primary"
-                  }`}
-                >
-                  {slot}
-                </button>
-              ))}
+              {timeSlots.map((slot) => {
+                const isBooked = bookedSlots.includes(slot);
+                return (
+                  <button
+                    key={slot}
+                    type="button"
+                    disabled={isBooked}
+                    onClick={() => setTime(slot)}
+                    className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                      isBooked
+                        ? "bg-muted text-muted-foreground border-border opacity-50 cursor-not-allowed line-through"
+                        : time === slot
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background border-border text-foreground hover:border-primary"
+                    }`}
+                  >
+                    {slot}
+                    {isBooked && <span className="block text-[10px] no-underline leading-tight">Booked</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
