@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
@@ -59,6 +59,9 @@ const Dashboard = () => {
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
   const [ads, setAds] = useState<Tables<"ads">[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [upcomingAppts, setUpcomingAppts] = useState(0);
+  const [recentOrders, setRecentOrders] = useState(0);
+  const [activeOrders, setActiveOrders] = useState(0);
 
   useRealtimeNotifications();
 
@@ -83,12 +86,40 @@ const Dashboard = () => {
     const fetchUnread = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
+      const userId = session.user.id;
       const { count } = await supabase
         .from("notifications")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", session.user.id)
+        .eq("user_id", userId)
         .eq("read", false);
       setUnreadCount(count ?? 0);
+
+      // Upcoming appointments
+      const today = new Date().toISOString().split("T")[0];
+      const { count: apptCount } = await supabase
+        .from("appointments")
+        .select("*", { count: "exact", head: true })
+        .eq("patient_id", userId)
+        .gte("appointment_date", today)
+        .in("status", ["pending", "confirmed"]);
+      setUpcomingAppts(apptCount ?? 0);
+
+      // Recent orders (last 30 days)
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+      const { count: orderCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("created_at", thirtyDaysAgo);
+      setRecentOrders(orderCount ?? 0);
+
+      // Active orders
+      const { count: activeCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .in("status", ["placed", "confirmed", "out_for_delivery"]);
+      setActiveOrders(activeCount ?? 0);
     };
     fetchUnread();
 
@@ -185,6 +216,55 @@ const Dashboard = () => {
             </div>
 
             <div className="px-5 -mt-6 space-y-8 relative z-10">
+              {/* Health Stats Summary */}
+              {user && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
+                  className="glass rounded-3xl p-4 shadow-2xl shadow-primary/5"
+                >
+                  <div className="grid grid-cols-3 gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => navigate("/appointments")}
+                      className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-primary/5 hover:bg-primary/10 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                        <Calendar className="w-5 h-5 text-primary" />
+                      </div>
+                      <span className="text-2xl font-extrabold text-foreground">{upcomingAppts}</span>
+                      <span className="text-[10px] text-muted-foreground font-medium leading-tight text-center">Upcoming Appts</span>
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => navigate("/my-orders")}
+                      className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-success/5 hover:bg-success/10 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-success/15 flex items-center justify-center">
+                        <ShoppingBag className="w-5 h-5 text-success" />
+                      </div>
+                      <span className="text-2xl font-extrabold text-foreground">{recentOrders}</span>
+                      <span className="text-[10px] text-muted-foreground font-medium leading-tight text-center">Orders (30d)</span>
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => navigate("/my-orders")}
+                      className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-warning/5 hover:bg-warning/10 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-warning/15 flex items-center justify-center">
+                        <ClipboardList className="w-5 h-5 text-warning" />
+                      </div>
+                      <span className="text-2xl font-extrabold text-foreground">{activeOrders}</span>
+                      <span className="text-[10px] text-muted-foreground font-medium leading-tight text-center">Active Orders</span>
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Quick Actions — floating glass card */}
               <motion.div
                 variants={container}
