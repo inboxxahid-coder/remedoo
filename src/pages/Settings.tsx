@@ -95,6 +95,29 @@ const Settings = () => {
       </div>
 
       <div className="px-5 mt-4 space-y-4">
+        {/* User Info */}
+        <button
+          onClick={() => navigate("/profile")}
+          className="w-full flex items-center gap-4 bg-card rounded-2xl border border-border shadow-sm p-4 text-left hover:bg-muted/50 transition-colors"
+        >
+          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden shrink-0">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-6 h-6 text-primary" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-semibold text-foreground truncate">
+              {profile?.full_name || (isGuest ? "Guest User" : "User")}
+            </p>
+            <p className="text-sm text-muted-foreground truncate">
+              {profile?.email || "Tap to edit profile"}
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+        </button>
+
         {/* Quick Links */}
         <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
           {menuItems.map((item, i) => (
