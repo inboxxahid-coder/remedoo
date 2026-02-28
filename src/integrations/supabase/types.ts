@@ -285,6 +285,193 @@ export type Database = {
         }
         Relationships: []
       }
+      medicines: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          discount_percent: number | null
+          generic_name: string | null
+          id: string
+          image_url: string | null
+          in_stock: boolean | null
+          name: string
+          pharmacy_id: string
+          price: number
+          requires_prescription: boolean | null
+          stock_quantity: number | null
+          unit: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          generic_name?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          name: string
+          pharmacy_id: string
+          price?: number
+          requires_prescription?: boolean | null
+          stock_quantity?: number | null
+          unit?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          generic_name?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          name?: string
+          pharmacy_id?: string
+          price?: number
+          requires_prescription?: boolean | null
+          stock_quantity?: number | null
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medicines_pharmacy_id_fkey"
+            columns: ["pharmacy_id"]
+            isOneToOne: false
+            referencedRelation: "pharmacies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          medicine_id: string
+          medicine_name: string
+          order_id: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          medicine_id: string
+          medicine_name: string
+          order_id: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          medicine_id?: string
+          medicine_name?: string
+          order_id?: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          cancelled_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          delivered_at: string | null
+          delivery_address: string | null
+          delivery_fee: number
+          estimated_delivery: string | null
+          id: string
+          notes: string | null
+          out_for_delivery_at: string | null
+          payment_method: string
+          payment_status: string
+          pharmacy_id: string
+          placed_at: string
+          prescription_url: string | null
+          status: string
+          stripe_payment_id: string | null
+          subtotal: number
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_fee?: number
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          out_for_delivery_at?: string | null
+          payment_method?: string
+          payment_status?: string
+          pharmacy_id: string
+          placed_at?: string
+          prescription_url?: string | null
+          status?: string
+          stripe_payment_id?: string | null
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_fee?: number
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          out_for_delivery_at?: string | null
+          payment_method?: string
+          payment_status?: string
+          pharmacy_id?: string
+          placed_at?: string
+          prescription_url?: string | null
+          status?: string
+          stripe_payment_id?: string | null
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_pharmacy_id_fkey"
+            columns: ["pharmacy_id"]
+            isOneToOne: false
+            referencedRelation: "pharmacies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pharmacies: {
         Row: {
           created_at: string

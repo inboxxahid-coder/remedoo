@@ -14,6 +14,10 @@ import Doctors from "./pages/Doctors";
 import Hospitals from "./pages/Hospitals";
 import Labs from "./pages/Labs";
 import Pharmacies from "./pages/Pharmacies";
+import PharmacyDetail from "./pages/PharmacyDetail";
+import Cart from "./pages/Cart";
+import OrderTracking from "./pages/OrderTracking";
+import MyOrders from "./pages/MyOrders";
 import Appointments from "./pages/Appointments";
 import BookAppointment from "./pages/BookAppointment";
 import Favorites from "./pages/Favorites";
@@ -42,6 +46,10 @@ const App = () => (
           <Route path="/hospitals" element={<Hospitals />} />
           <Route path="/labs" element={<Labs />} />
           <Route path="/pharmacies" element={<Pharmacies />} />
+          <Route path="/pharmacy/:id" element={<PharmacyDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/order/:id" element={<OrderTracking />} />
+          <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/book/:type/:id" element={<BookAppointment />} />
           <Route path="/favorites" element={<Favorites />} />
