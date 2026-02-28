@@ -19,15 +19,16 @@ const Pharmacies = () => {
   useEffect(() => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/login", { replace: true }); return; }
-      setUserId(session.user.id);
-      const [pRes, fRes, mRes] = await Promise.all([
+      if (session) {
+        setUserId(session.user.id);
+        const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "pharmacy");
+        if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
+      }
+      const [pRes, mRes] = await Promise.all([
         supabase.from("pharmacies").select("*"),
-        supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "pharmacy"),
         supabase.from("medicines").select("pharmacy_id"),
       ]);
       if (pRes.data) setPharmacies(pRes.data);
-      if (fRes.data) setFavorites(new Set(fRes.data.map((f) => f.provider_id)));
       if (mRes.data) {
         const counts: Record<string, number> = {};
         mRes.data.forEach((m) => { counts[m.pharmacy_id] = (counts[m.pharmacy_id] || 0) + 1; });
@@ -40,7 +41,7 @@ const Pharmacies = () => {
 
   const toggleFavorite = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (!userId) return;
+    if (!userId) { toast.error("Please sign in to add favorites"); navigate("/login"); return; }
     if (favorites.has(id)) {
       await supabase.from("favorites").delete().eq("user_id", userId).eq("provider_id", id).eq("provider_type", "pharmacy");
       setFavorites((p) => { const n = new Set(p); n.delete(id); return n; });

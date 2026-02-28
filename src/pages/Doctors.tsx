@@ -19,19 +19,15 @@ const Doctors = () => {
   useEffect(() => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/login", { replace: true }); return; }
-      setUserId(session.user.id);
-
-      const [doctorsRes, favsRes] = await Promise.all([
-        supabase.from("doctors").select("*, hospitals(name)"),
-        supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "doctor"),
-      ]);
-
-      if (doctorsRes.data) {
-        setDoctors(doctorsRes.data.map((d: any) => ({ ...d, hospital_name: d.hospitals?.name })));
+      if (session) {
+        setUserId(session.user.id);
+        const { data: favsRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "doctor");
+        if (favsRes) setFavorites(new Set(favsRes.map((f) => f.provider_id)));
       }
-      if (favsRes.data) {
-        setFavorites(new Set(favsRes.data.map((f) => f.provider_id)));
+
+      const { data: doctorsRes } = await supabase.from("doctors").select("*, hospitals(name)");
+      if (doctorsRes) {
+        setDoctors(doctorsRes.map((d: any) => ({ ...d, hospital_name: d.hospitals?.name })));
       }
       setLoading(false);
     };
@@ -39,7 +35,7 @@ const Doctors = () => {
   }, [navigate]);
 
   const toggleFavorite = async (doctorId: string) => {
-    if (!userId) return;
+    if (!userId) { toast.error("Please sign in to add favorites"); navigate("/login"); return; }
     if (favorites.has(doctorId)) {
       await supabase.from("favorites").delete().eq("user_id", userId).eq("provider_id", doctorId).eq("provider_type", "doctor");
       setFavorites((prev) => { const n = new Set(prev); n.delete(doctorId); return n; });
@@ -101,7 +97,7 @@ const Doctors = () => {
                     )}
                   </div>
                   <div className="flex items-center justify-between mt-3">
-                    <span className="text-sm font-semibold text-primary">${doc.consultation_fee}</span>
+                    <span className="text-sm font-semibold text-primary">₹{doc.consultation_fee}</span>
                     <Button size="sm" className="h-8 rounded-lg gradient-primary text-primary-foreground text-xs" onClick={() => navigate(`/book/doctor/${doc.id}`)}>
                       Book Now
                     </Button>
