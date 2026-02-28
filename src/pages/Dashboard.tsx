@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu } from "lucide-react";
+import { Search, Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
@@ -14,6 +14,31 @@ const quickActions = [
   { icon: Pill, label: "Order\nMedicines", color: "bg-success", path: "/pharmacies" },
   { icon: Heart, label: "Favorites", color: "bg-primary", path: "/favorites" },
 ];
+
+const AnimatedMenuButton = () => {
+  const { toggleSidebar, state } = useSidebar();
+  const isOpen = state === "expanded";
+
+  return (
+    <button
+      onClick={toggleSidebar}
+      className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary-foreground/20 border border-primary-foreground/30 hover:bg-primary-foreground/30 transition-all duration-300 active:scale-90"
+    >
+      <div className="relative w-6 h-6">
+        <Menu
+          className={`w-6 h-6 text-primary-foreground absolute inset-0 transition-all duration-300 ${
+            isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"
+          }`}
+        />
+        <X
+          className={`w-6 h-6 text-primary-foreground absolute inset-0 transition-all duration-300 ${
+            isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"
+          }`}
+        />
+      </div>
+    </button>
+  );
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -53,9 +78,7 @@ const Dashboard = () => {
       <div className="gradient-primary px-5 pt-10 pb-8 rounded-b-[1.5rem]">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <SidebarTrigger className="text-primary-foreground w-10 h-10 flex items-center justify-center rounded-xl bg-primary-foreground/20 border border-primary-foreground/30 hover:bg-primary-foreground/30 transition-colors">
-              <Menu className="w-6 h-6" />
-            </SidebarTrigger>
+            <AnimatedMenuButton />
             <div>
               <p className="text-primary-foreground/70 text-sm">Good day 👋</p>
               <h1 className="text-xl font-bold text-primary-foreground">{displayName}</h1>
