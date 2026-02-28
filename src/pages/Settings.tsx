@@ -4,6 +4,7 @@ import {
   ArrowLeft, Bell, Moon, Globe, Shield, LogOut, ChevronRight, User, Heart, Calendar,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
@@ -17,6 +18,7 @@ const Settings = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [notifEmail, setNotifEmail] = useState(true);
   const [notifPush, setNotifPush] = useState(true);
+  const [language, setLanguage] = useState("en");
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
@@ -36,6 +38,7 @@ const Settings = () => {
         const prefs = (data.notification_preferences as NotifPrefs | null) ?? { email: true, push: true };
         setNotifEmail(prefs.email);
         setNotifPush(prefs.push);
+        setLanguage(data.language ?? "en");
       }
     };
     load();
@@ -61,6 +64,11 @@ const Settings = () => {
   const toggleNotifPush = (val: boolean) => {
     setNotifPush(val);
     updateField("notification_preferences", { email: notifEmail, push: val });
+  };
+
+  const changeLanguage = (val: string) => {
+    setLanguage(val);
+    updateField("language", val);
   };
 
   const handleLogout = async () => {
@@ -140,10 +148,28 @@ const Settings = () => {
               </div>
               <Switch checked={notifPush} onCheckedChange={toggleNotifPush} />
             </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-accent-foreground" />
+                </div>
+                <span className="text-sm text-foreground">Language</span>
+              </div>
+              <Select value={language} onValueChange={changeLanguage}>
+                <SelectTrigger className="w-[130px] h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="hi">हिन्दी</SelectItem>
+                  <SelectItem value="ar">العربية</SelectItem>
+                  <SelectItem value="es">Español</SelectItem>
+                  <SelectItem value="fr">Français</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         )}
-
-        {/* About */}
         <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
           <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left border-b border-border">
             <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center">
