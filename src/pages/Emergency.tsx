@@ -4,7 +4,7 @@ import { ArrowLeft, Phone, MapPin, Navigation, AlertTriangle, Star, Clock } from
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
-const EMERGENCY_NUMBER = "911";
+const EMERGENCY_NUMBER = "112";
 
 const Emergency = () => {
   const navigate = useNavigate();
@@ -122,10 +122,10 @@ const Emergency = () => {
           </h2>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "Ambulance", number: "911", emoji: "🚑" },
-              { label: "Fire Dept", number: "911", emoji: "🚒" },
-              { label: "Police", number: "911", emoji: "🚔" },
-              { label: "Poison Control", number: "1-800-222-1222", emoji: "☠️" },
+              { label: "Ambulance", number: "108", emoji: "🚑" },
+              { label: "Women Helpline", number: "1091", emoji: "👩" },
+              { label: "Police", number: "100", emoji: "🚔" },
+              { label: "Fire Dept", number: "101", emoji: "🚒" },
             ].map((contact) => (
               <button
                 key={contact.label}
