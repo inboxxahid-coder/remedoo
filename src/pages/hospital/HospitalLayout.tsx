@@ -1,6 +1,6 @@
 import { useProviderAuth } from "@/hooks/useProviderAuth";
 import ProviderLayout from "@/components/provider/ProviderLayout";
-import { Building2, LayoutDashboard, CalendarCheck, Stethoscope, BedDouble, Siren, Building, Wrench, Scissors, IndianRupee, BarChart3, ScrollText, User, Settings } from "lucide-react";
+import { Building2, LayoutDashboard, CalendarCheck, Stethoscope, BedDouble, Siren, Building, Wrench, Scissors, IndianRupee, BarChart3, ScrollText, User, Settings, Ambulance, Route, Settings2 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/hospital", icon: LayoutDashboard },
@@ -11,6 +11,9 @@ const navItems = [
   { label: "Departments", path: "/hospital/departments", icon: Building },
   { label: "Operation Theaters", path: "/hospital/ots", icon: Scissors },
   { label: "Equipment", path: "/hospital/equipment", icon: Wrench },
+  { label: "Ambulance Config", path: "/hospital/ambulance-config", icon: Settings2 },
+  { label: "Ambulance Fleet", path: "/hospital/ambulance-fleet", icon: Ambulance },
+  { label: "Ambulance Trips", path: "/hospital/ambulance-trips", icon: Route },
   { label: "Earnings", path: "/hospital/earnings", icon: IndianRupee },
   { label: "Analytics", path: "/hospital/analytics", icon: BarChart3 },
   { label: "Audit Logs", path: "/hospital/audit-logs", icon: ScrollText },

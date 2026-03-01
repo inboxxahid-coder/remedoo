@@ -77,6 +77,9 @@ import HospitalAnalytics from "./pages/hospital/HospitalAnalytics";
 import HospitalAuditLogs from "./pages/hospital/HospitalAuditLogs";
 import HospitalProfile from "./pages/hospital/HospitalProfile";
 import HospitalSettings from "./pages/hospital/HospitalSettings";
+import HospitalAmbulanceConfig from "./pages/hospital/HospitalAmbulanceConfig";
+import HospitalAmbulanceFleet from "./pages/hospital/HospitalAmbulanceFleet";
+import HospitalAmbulanceTrips from "./pages/hospital/HospitalAmbulanceTrips";
 
 // Pharmacy Panel
 import PharmacyLayout from "./pages/pharmacy/PharmacyLayout";
@@ -197,6 +200,9 @@ const App = () => {
             <Route path="equipment" element={<HospitalEquipment />} />
             <Route path="earnings" element={<HospitalEarnings />} />
             <Route path="analytics" element={<HospitalAnalytics />} />
+            <Route path="ambulance-config" element={<HospitalAmbulanceConfig />} />
+            <Route path="ambulance-fleet" element={<HospitalAmbulanceFleet />} />
+            <Route path="ambulance-trips" element={<HospitalAmbulanceTrips />} />
             <Route path="audit-logs" element={<HospitalAuditLogs />} />
             <Route path="profile" element={<HospitalProfile />} />
             <Route path="settings" element={<HospitalSettings />} />
