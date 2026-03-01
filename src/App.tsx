@@ -17,6 +17,7 @@ import Dashboard from "./pages/Dashboard";
 import Doctors from "./pages/Doctors";
 import Hospitals from "./pages/Hospitals";
 import Labs from "./pages/Labs";
+import LabDetail from "./pages/LabDetail";
 import Pharmacies from "./pages/Pharmacies";
 import PharmacyDetail from "./pages/PharmacyDetail";
 import Cart from "./pages/Cart";
@@ -143,6 +144,7 @@ const App = () => {
           <Route path="/doctors" element={<Doctors />} />
           <Route path="/hospitals" element={<Hospitals />} />
           <Route path="/labs" element={<Labs />} />
+          <Route path="/lab/:id" element={<LabDetail />} />
           <Route path="/pharmacies" element={<Pharmacies />} />
           <Route path="/pharmacy/:id" element={<PharmacyDetail />} />
           <Route path="/cart" element={<Cart />} />
