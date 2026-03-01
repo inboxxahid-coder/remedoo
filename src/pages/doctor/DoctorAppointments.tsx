@@ -13,8 +13,9 @@ import { toast } from "sonner";
 import { logAuditAction } from "@/lib/auditLog";
 import {
   Search, Filter, CalendarCheck, FileText, CalendarPlus, MessageSquare,
-  Upload, ChevronLeft, ChevronRight, CheckCircle
+  Upload, ChevronLeft, ChevronRight, CheckCircle, Pill
 } from "lucide-react";
+import PrescriptionBuilder from "@/components/doctor/PrescriptionBuilder";
 
 const PAGE_SIZE = 10;
 
@@ -40,6 +41,9 @@ export default function DoctorAppointments() {
   const [newTime, setNewTime] = useState("");
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showPrescriptionBuilder, setShowPrescriptionBuilder] = useState(false);
+  const [doctorName, setDoctorName] = useState("");
+  const [doctorSpecialization, setDoctorSpecialization] = useState("");
 
   const load = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -47,12 +51,14 @@ export default function DoctorAppointments() {
 
     const { data: doctor } = await supabase
       .from("doctors")
-      .select("id")
+      .select("id, name, specialization")
       .eq("user_id", session.user.id)
       .maybeSingle();
 
     if (!doctor) { setLoading(false); return; }
     setDoctorId(doctor.id);
+    setDoctorName(doctor.name || "");
+    setDoctorSpecialization(doctor.specialization || "");
 
     const { data } = await supabase
       .from("appointments")
@@ -297,6 +303,9 @@ export default function DoctorAppointments() {
                   )}
                   {(apt.status === "confirmed" || apt.status === "completed") && (
                     <div className="flex items-center gap-1">
+                      <Button size="sm" variant="outline" onClick={() => { setSelectedApt(apt); setShowPrescriptionBuilder(true); }}>
+                        <Pill className="w-3.5 h-3.5 mr-1" /> Write Rx
+                      </Button>
                       <input
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png,.webp"
@@ -308,7 +317,7 @@ export default function DoctorAppointments() {
                         }}
                       />
                       <Button size="sm" variant="ghost" onClick={() => document.getElementById(`rx-${apt.id}`)?.click()} disabled={uploading}>
-                        <Upload className="w-3.5 h-3.5 mr-1" /> Rx
+                        <Upload className="w-3.5 h-3.5 mr-1" /> Upload
                       </Button>
                     </div>
                   )}
@@ -396,6 +405,18 @@ export default function DoctorAppointments() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Prescription Builder */}
+      {selectedApt && doctorId && (
+        <PrescriptionBuilder
+          open={showPrescriptionBuilder}
+          onOpenChange={setShowPrescriptionBuilder}
+          appointment={selectedApt}
+          doctorId={doctorId}
+          doctorName={doctorName}
+          specialization={doctorSpecialization}
+        />
+      )}
     </div>
   );
 }
