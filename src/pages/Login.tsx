@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Heart, Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loginMode, setLoginMode] = useState<"password" | "magic">("password");
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +41,30 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin },
+      });
+      if (error) {
+        toast.error(error.message);
+      } else {
+        setMagicLinkSent(true);
+        toast.success("Magic link sent! Check your email.");
+      }
+    } catch (err: any) {
+      toast.error("Something went wrong. Please try again.");
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -53,60 +79,136 @@ const Login = () => {
       {/* Form */}
       <div className="flex-1 px-6 -mt-6">
         <div className="bg-card rounded-2xl shadow-lg border border-border p-6">
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <Link to="/forgot-password" className="text-sm text-primary font-medium">
-                Forgot Password?
-              </Link>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-semibold text-base"
+          {/* Login mode tabs */}
+          <div className="flex gap-2 mb-5">
+            <button
+              type="button"
+              onClick={() => { setLoginMode("password"); setMagicLinkSent(false); }}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
+                loginMode === "password"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
             >
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
-          </form>
+              Password
+            </button>
+            <button
+              type="button"
+              onClick={() => { setLoginMode("magic"); setMagicLinkSent(false); }}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
+                loginMode === "magic"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              Magic Link
+            </button>
+          </div>
+
+          {loginMode === "password" ? (
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Link to="/forgot-password" className="text-sm text-primary font-medium">
+                  Forgot Password?
+                </Link>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-semibold text-base"
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+          ) : (
+            magicLinkSent ? (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2 text-foreground">Check Your Email</h3>
+                <p className="text-muted-foreground text-sm">
+                  We've sent a magic login link to <span className="font-medium text-foreground">{email}</span>
+                </p>
+                <Button
+                  variant="ghost"
+                  className="mt-4 text-primary"
+                  onClick={() => setMagicLinkSent(false)}
+                >
+                  Send again
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleMagicLink} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="magic-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="magic-email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  We'll send you a magic link to sign in instantly — no password needed.
+                </p>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-semibold text-base gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {loading ? "Sending..." : "Send Magic Link"}
+                </Button>
+              </form>
+            )
+          )}
 
           <div className="relative my-5">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
