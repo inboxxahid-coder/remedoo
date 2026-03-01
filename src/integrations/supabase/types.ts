@@ -176,6 +176,7 @@ export type Database = {
           phone: string | null
           rating: number | null
           specialization: string | null
+          user_id: string | null
           vacation_dates: string[] | null
           working_hours: Json | null
         }
@@ -191,6 +192,7 @@ export type Database = {
           phone?: string | null
           rating?: number | null
           specialization?: string | null
+          user_id?: string | null
           vacation_dates?: string[] | null
           working_hours?: Json | null
         }
@@ -206,6 +208,7 @@ export type Database = {
           phone?: string | null
           rating?: number | null
           specialization?: string | null
+          user_id?: string | null
           vacation_dates?: string[] | null
           working_hours?: Json | null
         }
@@ -294,6 +297,7 @@ export type Database = {
           name: string
           phone: string | null
           rating: number | null
+          user_id: string | null
           working_hours: Json | null
         }
         Insert: {
@@ -310,6 +314,7 @@ export type Database = {
           name: string
           phone?: string | null
           rating?: number | null
+          user_id?: string | null
           working_hours?: Json | null
         }
         Update: {
@@ -326,6 +331,7 @@ export type Database = {
           name?: string
           phone?: string | null
           rating?: number | null
+          user_id?: string | null
           working_hours?: Json | null
         }
         Relationships: []
@@ -341,6 +347,7 @@ export type Database = {
           phone: string | null
           rating: number | null
           services: string[] | null
+          user_id: string | null
           working_hours: Json | null
         }
         Insert: {
@@ -353,6 +360,7 @@ export type Database = {
           phone?: string | null
           rating?: number | null
           services?: string[] | null
+          user_id?: string | null
           working_hours?: Json | null
         }
         Update: {
@@ -365,6 +373,7 @@ export type Database = {
           phone?: string | null
           rating?: number | null
           services?: string[] | null
+          user_id?: string | null
           working_hours?: Json | null
         }
         Relationships: []
@@ -636,6 +645,7 @@ export type Database = {
           name: string
           phone: string | null
           rating: number | null
+          user_id: string | null
           working_hours: Json | null
         }
         Insert: {
@@ -648,6 +658,7 @@ export type Database = {
           name: string
           phone?: string | null
           rating?: number | null
+          user_id?: string | null
           working_hours?: Json | null
         }
         Update: {
@@ -660,6 +671,7 @@ export type Database = {
           name?: string
           phone?: string | null
           rating?: number | null
+          user_id?: string | null
           working_hours?: Json | null
         }
         Relationships: []
@@ -807,7 +819,14 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "doctor"
+        | "hospital_admin"
+        | "lab_admin"
+        | "pharmacy_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -935,7 +954,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "doctor",
+        "hospital_admin",
+        "lab_admin",
+        "pharmacy_admin",
+      ],
     },
   },
 } as const

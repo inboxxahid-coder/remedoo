@@ -48,6 +48,36 @@ import AdminAds from "./pages/admin/AdminAds";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminEmergencies from "./pages/admin/AdminEmergencies";
 
+// Doctor Panel
+import DoctorLayout from "./pages/doctor/DoctorLayout";
+import DoctorDashboard from "./pages/doctor/DoctorDashboard";
+import DoctorAppointments from "./pages/doctor/DoctorAppointments";
+import DoctorProfile from "./pages/doctor/DoctorProfile";
+import DoctorSettings from "./pages/doctor/DoctorSettings";
+
+// Hospital Panel
+import HospitalLayout from "./pages/hospital/HospitalLayout";
+import HospitalDashboard from "./pages/hospital/HospitalDashboard";
+import HospitalAppointments from "./pages/hospital/HospitalAppointments";
+import HospitalDoctors from "./pages/hospital/HospitalDoctors";
+import HospitalProfile from "./pages/hospital/HospitalProfile";
+import HospitalSettings from "./pages/hospital/HospitalSettings";
+
+// Pharmacy Panel
+import PharmacyLayout from "./pages/pharmacy/PharmacyLayout";
+import PharmacyDashboard from "./pages/pharmacy/PharmacyDashboard";
+import PharmacyOrders from "./pages/pharmacy/PharmacyOrders";
+import PharmacyMedicines from "./pages/pharmacy/PharmacyMedicines";
+import PharmacyProfile from "./pages/pharmacy/PharmacyProfile";
+import PharmacySettings from "./pages/pharmacy/PharmacySettings";
+
+// Lab Panel
+import LabLayout from "./pages/lab/LabLayout";
+import LabDashboard from "./pages/lab/LabDashboard";
+import LabAppointments from "./pages/lab/LabAppointments";
+import LabProfile from "./pages/lab/LabProfile";
+import LabSettings from "./pages/lab/LabSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -119,6 +149,40 @@ const App = () => {
             <Route path="users" element={<AdminUsers />} />
             <Route path="slider" element={<AdminSlider />} />
             <Route path="ads" element={<AdminAds />} />
+          </Route>
+
+          {/* Doctor routes */}
+          <Route path="/doctor" element={<DoctorLayout />}>
+            <Route index element={<DoctorDashboard />} />
+            <Route path="appointments" element={<DoctorAppointments />} />
+            <Route path="profile" element={<DoctorProfile />} />
+            <Route path="settings" element={<DoctorSettings />} />
+          </Route>
+
+          {/* Hospital routes */}
+          <Route path="/hospital" element={<HospitalLayout />}>
+            <Route index element={<HospitalDashboard />} />
+            <Route path="appointments" element={<HospitalAppointments />} />
+            <Route path="doctors" element={<HospitalDoctors />} />
+            <Route path="profile" element={<HospitalProfile />} />
+            <Route path="settings" element={<HospitalSettings />} />
+          </Route>
+
+          {/* Pharmacy routes */}
+          <Route path="/pharmacy-panel" element={<PharmacyLayout />}>
+            <Route index element={<PharmacyDashboard />} />
+            <Route path="orders" element={<PharmacyOrders />} />
+            <Route path="medicines" element={<PharmacyMedicines />} />
+            <Route path="profile" element={<PharmacyProfile />} />
+            <Route path="settings" element={<PharmacySettings />} />
+          </Route>
+
+          {/* Lab routes */}
+          <Route path="/lab" element={<LabLayout />}>
+            <Route index element={<LabDashboard />} />
+            <Route path="appointments" element={<LabAppointments />} />
+            <Route path="profile" element={<LabProfile />} />
+            <Route path="settings" element={<LabSettings />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

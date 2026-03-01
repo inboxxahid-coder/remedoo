@@ -1,0 +1,31 @@
+import { useProviderAuth } from "@/hooks/useProviderAuth";
+import ProviderLayout from "@/components/provider/ProviderLayout";
+import { FlaskConical, LayoutDashboard, CalendarCheck, User, Settings } from "lucide-react";
+
+const navItems = [
+  { label: "Dashboard", path: "/lab", icon: LayoutDashboard },
+  { label: "Appointments", path: "/lab/appointments", icon: CalendarCheck },
+  { label: "Profile", path: "/lab/profile", icon: User },
+  { label: "Settings", path: "/lab/settings", icon: Settings },
+];
+
+export default function LabLayout() {
+  const { loading, isAuthorized } = useProviderAuth("lab_admin");
+
+  if (loading || !isAuthorized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <ProviderLayout
+      title="Lab Panel"
+      subtitle="Manage your laboratory"
+      icon={FlaskConical}
+      navItems={navItems}
+    />
+  );
+}
