@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Heart, Mail, Lock, User, Eye, EyeOff, Stethoscope, Building2, FlaskConical, Store, Phone, MapPin, FileText } from "lucide-react";
+import { Heart, Mail, Lock, User, Eye, EyeOff, Stethoscope, Building2, FlaskConical, Store, Phone, MapPin, FileText, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,7 @@ const ProviderRegister = () => {
   const [location, setLocation] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [bio, setBio] = useState("");
+  const [certificateFile, setCertificateFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +81,23 @@ const ProviderRegister = () => {
       return;
     }
 
-    // 3. Insert provider record
+    // 3. Upload certificate if provided (doctor only)
+    let certificateUrl: string | null = null;
+    if (selectedType === "doctor" && certificateFile) {
+      const fileExt = certificateFile.name.split('.').pop();
+      const filePath = `${userId}/${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from("certificates")
+        .upload(filePath, certificateFile);
+      if (uploadError) {
+        console.error("Certificate upload error:", uploadError);
+        toast.error("Failed to upload certificate: " + uploadError.message);
+      } else {
+        certificateUrl = filePath;
+      }
+    }
+
+    // 4. Insert provider record
     let providerData: Record<string, any> = {
       name: providerName,
       phone,
@@ -91,6 +108,7 @@ const ProviderRegister = () => {
     if (selectedType === "doctor") {
       providerData.specialization = specialization;
       providerData.bio = bio;
+      if (certificateUrl) providerData.certificate_url = certificateUrl;
     } else {
       providerData.location = location;
     }
@@ -240,6 +258,28 @@ const ProviderRegister = () => {
                   <div className="space-y-2">
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea id="bio" placeholder="Brief description of your practice..." value={bio} onChange={(e) => setBio(e.target.value)} rows={3} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="certificate">Upload Certificate / Documents</Label>
+                    <div className="relative">
+                      <label
+                        htmlFor="certificate"
+                        className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30"
+                      >
+                        <Upload className="w-5 h-5 text-muted-foreground shrink-0" />
+                        <span className="text-sm text-muted-foreground truncate">
+                          {certificateFile ? certificateFile.name : "Upload degree, license, or ID proof (PDF/Image)"}
+                        </span>
+                      </label>
+                      <input
+                        id="certificate"
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.webp"
+                        className="hidden"
+                        onChange={(e) => setCertificateFile(e.target.files?.[0] || null)}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">Max 5MB. Accepted: PDF, JPG, PNG</p>
                   </div>
                 </>
               ) : (
