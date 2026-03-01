@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   CheckCircle2, XCircle, Clock, Stethoscope, Building2, FlaskConical, Store,
   FileText, ExternalLink, ArrowLeft, Phone, MapPin, Mail, Calendar, Star,
-  Briefcase, IndianRupee, User, ClipboardList
+  Briefcase, IndianRupee, User, ClipboardList, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +48,10 @@ export default function AdminApprovals() {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectNote, setRejectNote] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Send-back dialog state
+  const [sendBackDialogOpen, setSendBackDialogOpen] = useState(false);
+  const [sendBackNote, setSendBackNote] = useState("");
 
   const fetchAll = async () => {
     setLoading(true);
@@ -97,15 +101,33 @@ export default function AdminApprovals() {
   };
 
   const handleReject = async () => {
-    if (!selectedProvider || !selectedType) return;
+    if (!selectedProvider || !selectedType || !rejectNote.trim()) return;
     setActionLoading(true);
-    // Store rejection note in bio/location field as admin note (or just update status)
-    const { error } = await supabase.from(selectedType).update({ approval_status: "rejected" }).eq("id", selectedProvider.id);
+    const { error } = await supabase.from(selectedType).update({
+      approval_status: "rejected",
+      admin_note: rejectNote.trim(),
+    } as any).eq("id", selectedProvider.id);
     setActionLoading(false);
     if (error) { toast.error("Failed to reject"); return; }
     toast.success(`${selectedProvider.name} has been rejected`);
     setRejectDialogOpen(false);
     setRejectNote("");
+    closeDetail();
+    fetchAll();
+  };
+
+  const handleSendBack = async () => {
+    if (!selectedProvider || !selectedType || !sendBackNote.trim()) return;
+    setActionLoading(true);
+    const { error } = await supabase.from(selectedType).update({
+      approval_status: "returned",
+      admin_note: sendBackNote.trim(),
+    } as any).eq("id", selectedProvider.id);
+    setActionLoading(false);
+    if (error) { toast.error("Failed to send back"); return; }
+    toast.success(`${selectedProvider.name} sent back for revision`);
+    setSendBackDialogOpen(false);
+    setSendBackNote("");
     closeDetail();
     fetchAll();
   };
@@ -122,6 +144,7 @@ export default function AdminApprovals() {
       case "approved": return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">Approved</Badge>;
       case "rejected": return <Badge className="bg-red-500/10 text-red-600 border-red-200">Rejected</Badge>;
       case "pending": return <Badge className="bg-amber-500/10 text-amber-600 border-amber-200">Pending</Badge>;
+      case "returned": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Returned</Badge>;
       default: return <Badge variant="secondary">{status}</Badge>;
     }
   };
@@ -234,13 +257,13 @@ export default function AdminApprovals() {
         )}
 
         {/* Action buttons */}
-        {p.approval_status === "pending" && (
+        {(p.approval_status === "pending" || p.approval_status === "returned") && (
           <div className="flex flex-col sm:flex-row gap-3">
             <Button onClick={handleApprove} disabled={actionLoading} className="flex-1 gap-1.5 bg-emerald-600 hover:bg-emerald-700 h-11">
               <CheckCircle2 className="w-4 h-4" /> {actionLoading ? "Processing..." : "Approve"}
             </Button>
-            <Button variant="outline" onClick={closeDetail} className="flex-1 gap-1.5 h-11">
-              <ArrowLeft className="w-4 h-4" /> Go Back
+            <Button variant="outline" onClick={() => { setSendBackNote(""); setSendBackDialogOpen(true); }} disabled={actionLoading} className="flex-1 gap-1.5 h-11 text-blue-600 border-blue-200 hover:bg-blue-50">
+              <RotateCcw className="w-4 h-4" /> Send Back
             </Button>
             <Button variant="destructive" onClick={() => { setRejectNote(""); setRejectDialogOpen(true); }} disabled={actionLoading} className="flex-1 gap-1.5 h-11">
               <XCircle className="w-4 h-4" /> Reject
@@ -253,8 +276,8 @@ export default function AdminApprovals() {
 
   const renderList = (type: ProviderType, subtitleKey: string) => {
     const items = providers[type];
-    const pending = items.filter(p => p.approval_status === "pending");
-    const others = items.filter(p => p.approval_status !== "pending");
+    const pending = items.filter(p => p.approval_status === "pending" || p.approval_status === "returned");
+    const others = items.filter(p => p.approval_status !== "pending" && p.approval_status !== "returned");
 
     return (
       <div className="space-y-4">
@@ -337,7 +360,7 @@ export default function AdminApprovals() {
         <Tabs defaultValue="doctors" className="space-y-4">
           <TabsList className="grid grid-cols-4 w-full max-w-lg">
             {providerConfig.map(({ type, label, icon: Icon }) => {
-              const pending = providers[type].filter(p => p.approval_status === "pending").length;
+              const pending = providers[type].filter(p => p.approval_status === "pending" || p.approval_status === "returned").length;
               return (
                 <TabsTrigger key={type} value={type} className="gap-1.5 text-xs sm:text-sm relative">
                   <Icon className="w-4 h-4" />
@@ -391,6 +414,41 @@ export default function AdminApprovals() {
               className="gap-1.5"
             >
               <XCircle className="w-4 h-4" /> {actionLoading ? "Rejecting..." : "Confirm Rejection"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Send Back Dialog */}
+      <Dialog open={sendBackDialogOpen} onOpenChange={setSendBackDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-blue-600">
+              <RotateCcw className="w-5 h-5" /> Send Back {selectedProvider?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Describe what documents or information the provider needs to re-upload or correct. They will see this note and can update their submission.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="sendback-note">Revision Note</Label>
+            <Textarea
+              id="sendback-note"
+              placeholder="e.g. Please upload a clearer copy of your medical degree certificate. The current document is blurry and unreadable..."
+              value={sendBackNote}
+              onChange={(e) => setSendBackNote(e.target.value)}
+              rows={4}
+              autoFocus
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setSendBackDialogOpen(false)}>Cancel</Button>
+            <Button
+              disabled={actionLoading || !sendBackNote.trim()}
+              onClick={handleSendBack}
+              className="gap-1.5 bg-blue-600 hover:bg-blue-700"
+            >
+              <RotateCcw className="w-4 h-4" /> {actionLoading ? "Sending..." : "Send Back for Revision"}
             </Button>
           </DialogFooter>
         </DialogContent>

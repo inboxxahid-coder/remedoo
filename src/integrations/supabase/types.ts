@@ -329,6 +329,7 @@ export type Database = {
       doctors: {
         Row: {
           account_status: string
+          admin_note: string | null
           approval_status: string
           bio: string | null
           certificate_url: string | null
@@ -351,6 +352,7 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          admin_note?: string | null
           approval_status?: string
           bio?: string | null
           certificate_url?: string | null
@@ -373,6 +375,7 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          admin_note?: string | null
           approval_status?: string
           bio?: string | null
           certificate_url?: string | null
@@ -465,6 +468,7 @@ export type Database = {
       }
       hospitals: {
         Row: {
+          admin_note: string | null
           approval_status: string
           beds: number | null
           created_at: string
@@ -483,6 +487,7 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
+          admin_note?: string | null
           approval_status?: string
           beds?: number | null
           created_at?: string
@@ -501,6 +506,7 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
+          admin_note?: string | null
           approval_status?: string
           beds?: number | null
           created_at?: string
@@ -522,6 +528,7 @@ export type Database = {
       }
       labs: {
         Row: {
+          admin_note: string | null
           approval_status: string
           created_at: string
           id: string
@@ -537,6 +544,7 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
+          admin_note?: string | null
           approval_status?: string
           created_at?: string
           id?: string
@@ -552,6 +560,7 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
+          admin_note?: string | null
           approval_status?: string
           created_at?: string
           id?: string
@@ -826,6 +835,7 @@ export type Database = {
       }
       pharmacies: {
         Row: {
+          admin_note: string | null
           approval_status: string
           created_at: string
           id: string
@@ -841,6 +851,7 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
+          admin_note?: string | null
           approval_status?: string
           created_at?: string
           id?: string
@@ -856,6 +867,7 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
+          admin_note?: string | null
           approval_status?: string
           created_at?: string
           id?: string
