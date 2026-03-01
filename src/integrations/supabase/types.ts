@@ -952,6 +952,7 @@ export type Database = {
           description: string | null
           discount_percent: number | null
           home_collection: boolean | null
+          home_collection_fee: number | null
           id: string
           is_popular: boolean | null
           lab_id: string
@@ -967,6 +968,7 @@ export type Database = {
           description?: string | null
           discount_percent?: number | null
           home_collection?: boolean | null
+          home_collection_fee?: number | null
           id?: string
           is_popular?: boolean | null
           lab_id: string
@@ -982,6 +984,7 @@ export type Database = {
           description?: string | null
           discount_percent?: number | null
           home_collection?: boolean | null
+          home_collection_fee?: number | null
           id?: string
           is_popular?: boolean | null
           lab_id?: string

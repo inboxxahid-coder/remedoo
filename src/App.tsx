@@ -101,6 +101,7 @@ const LabDashboard = lazy(() => import("./pages/lab/LabDashboard"));
 const LabAppointments = lazy(() => import("./pages/lab/LabAppointments"));
 const LabProfile = lazy(() => import("./pages/lab/LabProfile"));
 const LabSettings = lazy(() => import("./pages/lab/LabSettings"));
+const LabTests = lazy(() => import("./pages/lab/LabTests"));
 
 const queryClient = new QueryClient();
 
@@ -235,6 +236,7 @@ const App = () => {
             <Route path="/lab" element={<LabLayout />}>
               <Route index element={<LabDashboard />} />
               <Route path="appointments" element={<LabAppointments />} />
+              <Route path="tests" element={<LabTests />} />
               <Route path="profile" element={<LabProfile />} />
               <Route path="settings" element={<LabSettings />} />
             </Route>
