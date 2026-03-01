@@ -41,8 +41,8 @@ export default function AdminApprovals() {
   // Detail view state
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [selectedType, setSelectedType] = useState<ProviderType | null>(null);
-  const [certUrl, setCertUrl] = useState<string | null>(null);
-  const [certLoading, setCertLoading] = useState(false);
+  const [docUrls, setDocUrls] = useState<Record<string, string>>({});
+  const [docsLoading, setDocsLoading] = useState(false);
 
   // Reject dialog state
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -73,20 +73,44 @@ export default function AdminApprovals() {
   const openDetail = async (type: ProviderType, provider: Provider) => {
     setSelectedProvider(provider);
     setSelectedType(type);
-    setCertUrl(null);
+    setDocUrls({});
+    setDocsLoading(true);
 
-    if (type === "doctors" && provider.certificate_url) {
-      setCertLoading(true);
-      const { data, error } = await supabase.storage.from("certificates").createSignedUrl(provider.certificate_url, 3600);
-      setCertUrl(data?.signedUrl || null);
-      setCertLoading(false);
+    // Collect all storage paths to sign
+    const pathsToSign: { key: string; path: string }[] = [];
+
+    if (provider.license_url) pathsToSign.push({ key: "license", path: provider.license_url });
+    if (provider.gst_url) pathsToSign.push({ key: "gst", path: provider.gst_url });
+    if (provider.certificate_url) pathsToSign.push({ key: "certificate", path: provider.certificate_url });
+    if (provider.image_url) pathsToSign.push({ key: "photo", path: provider.image_url });
+    if (provider.additional_docs_urls && Array.isArray(provider.additional_docs_urls)) {
+      provider.additional_docs_urls.forEach((url: string, i: number) => {
+        if (url) pathsToSign.push({ key: `additional_${i}`, path: url });
+      });
     }
+
+    // Sign all URLs in parallel
+    const signedResults = await Promise.all(
+      pathsToSign.map(async ({ key, path }) => {
+        // If it's already a full URL (public bucket like avatars), use directly
+        if (path.startsWith("http")) return { key, url: path };
+        const { data } = await supabase.storage.from("certificates").createSignedUrl(path, 3600);
+        return { key, url: data?.signedUrl || null };
+      })
+    );
+
+    const urls: Record<string, string> = {};
+    signedResults.forEach(({ key, url }) => {
+      if (url) urls[key] = url;
+    });
+    setDocUrls(urls);
+    setDocsLoading(false);
   };
 
   const closeDetail = () => {
     setSelectedProvider(null);
     setSelectedType(null);
-    setCertUrl(null);
+    setDocUrls({});
   };
 
   const handleApprove = async () => {
@@ -162,6 +186,28 @@ export default function AdminApprovals() {
       </div>
     );
   };
+  // Document preview helper
+  const DocumentPreview = ({ label, url }: { label: string; url: string }) => {
+    const isImage = url.match(/\.(jpg|jpeg|png|webp)/i) || url.includes("image");
+    return (
+      <div className="space-y-2">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        {isImage && (
+          <div className="rounded-xl border border-border overflow-hidden bg-muted/30">
+            <img src={url} alt={label} className="w-full max-h-60 object-contain" />
+          </div>
+        )}
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          <ExternalLink className="w-4 h-4" /> Open {label}
+        </a>
+      </div>
+    );
+  };
 
   // Render the detail view for a selected provider
   const renderDetailView = () => {
@@ -222,39 +268,44 @@ export default function AdminApprovals() {
           <InfoRow icon={Calendar} label="Created At" value={new Date(p.created_at).toLocaleString()} />
         </div>
 
-        {/* Documents card (doctors only) */}
-        {isDoctors && (
-          <div className="bg-card rounded-2xl border border-border p-5">
-            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-primary" /> Uploaded Documents
-            </h3>
+        {/* Documents card (all providers) */}
+        <div className="bg-card rounded-2xl border border-border p-5">
+          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-primary" /> Uploaded Documents
+          </h3>
 
-            {certLoading && <p className="text-sm text-muted-foreground">Loading document...</p>}
+          {docsLoading && <p className="text-sm text-muted-foreground">Loading documents...</p>}
 
-            {!certLoading && certUrl && (
-              <div className="space-y-3">
-                {/* Preview if image */}
-                {p.certificate_url?.match(/\.(jpg|jpeg|png|webp)$/i) && (
-                  <div className="rounded-xl border border-border overflow-hidden bg-muted/30">
-                    <img src={certUrl} alt="Certificate" className="w-full max-h-96 object-contain" />
-                  </div>
-                )}
-                <a
-                  href={certUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-                >
-                  <ExternalLink className="w-4 h-4" /> Open Document in New Tab
-                </a>
-              </div>
-            )}
+          {!docsLoading && Object.keys(docUrls).length === 0 && (
+            <p className="text-sm text-muted-foreground">No documents were uploaded during registration.</p>
+          )}
 
-            {!certLoading && !p.certificate_url && (
-              <p className="text-sm text-muted-foreground">No documents were uploaded during registration.</p>
-            )}
-          </div>
-        )}
+          {!docsLoading && Object.keys(docUrls).length > 0 && (
+            <div className="space-y-4">
+              {docUrls.photo && (
+                <DocumentPreview label="Facility / Profile Photo" url={docUrls.photo} />
+              )}
+              {docUrls.license && (
+                <DocumentPreview label="License / Registration Certificate" url={docUrls.license} />
+              )}
+              {docUrls.gst && (
+                <DocumentPreview label="GST Certificate" url={docUrls.gst} />
+              )}
+              {docUrls.certificate && (
+                <DocumentPreview label="Medical Certificate / Degree" url={docUrls.certificate} />
+              )}
+              {Object.entries(docUrls)
+                .filter(([key]) => key.startsWith("additional_"))
+                .map(([key, url]) => (
+                  <DocumentPreview
+                    key={key}
+                    label={`Additional Document ${parseInt(key.split("_")[1]) + 1}`}
+                    url={url}
+                  />
+                ))}
+            </div>
+          )}
+        </div>
 
         {/* Action buttons */}
         {(p.approval_status === "pending" || p.approval_status === "returned") && (
@@ -297,7 +348,7 @@ export default function AdminApprovals() {
                     <p className="font-medium text-foreground">{p.name}</p>
                     <p className="text-sm text-muted-foreground">{p[subtitleKey] || "—"}</p>
                     <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</p>
-                    {type === "doctors" && p.certificate_url && (
+                    {(p.license_url || p.certificate_url || p.gst_url || p.additional_docs_urls?.length > 0) && (
                       <span className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-primary">
                         <FileText className="w-3.5 h-3.5" /> Documents attached
                       </span>
