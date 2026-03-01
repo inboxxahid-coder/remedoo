@@ -13,9 +13,11 @@ import { toast } from "sonner";
 import { logAuditAction } from "@/lib/auditLog";
 import {
   Search, Filter, CalendarCheck, FileText, CalendarPlus, MessageSquare,
-  Upload, ChevronLeft, ChevronRight, CheckCircle, Pill
+  Upload, ChevronLeft, ChevronRight, CheckCircle, Pill, User, Hash
 } from "lucide-react";
 import PrescriptionBuilder from "@/components/doctor/PrescriptionBuilder";
+import PatientHistory from "@/components/doctor/PatientHistory";
+import LiveQueue from "@/components/doctor/LiveQueue";
 
 const PAGE_SIZE = 10;
 
@@ -42,6 +44,8 @@ export default function DoctorAppointments() {
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [showPrescriptionBuilder, setShowPrescriptionBuilder] = useState(false);
+  const [showPatientHistory, setShowPatientHistory] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [doctorName, setDoctorName] = useState("");
   const [doctorSpecialization, setDoctorSpecialization] = useState("");
 
@@ -217,6 +221,9 @@ export default function DoctorAppointments() {
         </Badge>
       </div>
 
+      {/* Live Queue Panel */}
+      {doctorId && <LiveQueue doctorId={doctorId} />}
+
       {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="relative sm:col-span-2 lg:col-span-1">
@@ -259,6 +266,11 @@ export default function DoctorAppointments() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold text-foreground">{apt.service_type}</p>
                     <Badge variant={statusColor(apt.status)}>{apt.status}</Badge>
+                    {apt.token_number && (
+                      <Badge variant="outline" className="text-xs gap-1">
+                        <Hash className="w-3 h-3" /> Token {apt.token_number}
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     📅 {apt.appointment_date} · 🕐 {apt.appointment_time}
@@ -280,6 +292,10 @@ export default function DoctorAppointments() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
+                  {/* Patient History Button - always visible */}
+                  <Button size="sm" variant="ghost" onClick={() => { setSelectedPatientId(apt.patient_id); setShowPatientHistory(true); }}>
+                    <User className="w-3.5 h-3.5 mr-1" /> History
+                  </Button>
                   {apt.status === "pending" && (
                     <>
                       <Button size="sm" onClick={() => handleAccept(apt.id)}>Accept</Button>
@@ -415,6 +431,16 @@ export default function DoctorAppointments() {
           doctorId={doctorId}
           doctorName={doctorName}
           specialization={doctorSpecialization}
+        />
+      )}
+
+      {/* Patient History */}
+      {selectedPatientId && doctorId && (
+        <PatientHistory
+          open={showPatientHistory}
+          onOpenChange={setShowPatientHistory}
+          patientId={selectedPatientId}
+          doctorId={doctorId}
         />
       )}
     </div>
