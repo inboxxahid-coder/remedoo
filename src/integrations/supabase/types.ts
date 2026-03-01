@@ -472,6 +472,7 @@ export type Database = {
           icu_available: boolean | null
           id: string
           image_url: string | null
+          is_government: boolean
           latitude: number | null
           location: string | null
           longitude: number | null
@@ -489,6 +490,7 @@ export type Database = {
           icu_available?: boolean | null
           id?: string
           image_url?: string | null
+          is_government?: boolean
           latitude?: number | null
           location?: string | null
           longitude?: number | null
@@ -506,6 +508,7 @@ export type Database = {
           icu_available?: boolean | null
           id?: string
           image_url?: string | null
+          is_government?: boolean
           latitude?: number | null
           location?: string | null
           longitude?: number | null
