@@ -19,28 +19,21 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const maxRetries = 4;
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          // Auth error (wrong credentials) — don't retry
-          toast.error(error.message);
-          break;
-        }
-        if (data?.session) {
-          const redirectPath = await getRoleRedirectPath(data.session.user.id);
-          navigate(redirectPath, { replace: true });
-          return;
-        }
-      } catch (err: any) {
-        console.log(`Login attempt ${attempt + 1}/${maxRetries + 1} failed:`, err?.message);
-        if (attempt < maxRetries) {
-          await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
-          continue;
-        }
-        toast.error("Network error. Please check your connection and try again.");
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        toast.error(error.message);
+        setLoading(false);
+        return;
       }
+      if (data?.session) {
+        const redirectPath = await getRoleRedirectPath(data.session.user.id);
+        navigate(redirectPath, { replace: true });
+        return;
+      }
+    } catch (err: any) {
+      console.error("Login error:", err?.message);
+      toast.error("Network error. Please check your connection and try again.");
     }
     setLoading(false);
   };
