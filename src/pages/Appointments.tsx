@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import PatientQueueView from "@/components/patient/PatientQueueView";
@@ -36,6 +37,7 @@ const Appointments = () => {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   const [rescheduleApt, setRescheduleApt] = useState<AppointmentWithProvider | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<AppointmentWithProvider | null>(null);
   const [newDate, setNewDate] = useState<Date | undefined>();
   const [newTime, setNewTime] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
@@ -170,7 +172,7 @@ const Appointments = () => {
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => openReschedule(apt)}>
                       <CalendarClock className="w-3.5 h-3.5 mr-1" />Reschedule
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg border-emergency text-emergency" onClick={() => cancelAppointment(apt.id)}>
+                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg border-emergency text-emergency" onClick={() => setCancelTarget(apt)}>
                       Cancel
                     </Button>
                   </div>
@@ -225,6 +227,39 @@ const Appointments = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!cancelTarget} onOpenChange={(o) => !o && setCancelTarget(null)}>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
+              {cancelTarget?.status === "confirmed" ? (
+                <>
+                  ⚠️ This appointment is already <strong>confirmed</strong>. If you paid online, please note that <strong>refunds will not be processed</strong> for cancelled confirmed appointments.
+                  <br /><br />
+                  Are you sure you want to cancel?
+                </>
+              ) : (
+                "Are you sure you want to cancel this appointment? This action cannot be undone."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Go Back</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (cancelTarget) {
+                  cancelAppointment(cancelTarget.id);
+                  setCancelTarget(null);
+                }
+              }}
+            >
+              Yes, Cancel
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <BottomNav />
     </div>
