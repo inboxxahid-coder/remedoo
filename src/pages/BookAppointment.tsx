@@ -1,17 +1,22 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, CreditCard, Banknote } from "lucide-react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Calendar, Clock, CreditCard, Banknote, TestTube, Check, Beaker } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import type { Tables } from "@/integrations/supabase/types";
 
 const timeSlots = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
 
 const BookAppointment = () => {
   const navigate = useNavigate();
   const { type, id } = useParams<{ type: string; id: string }>();
+  const [searchParams] = useSearchParams();
+  const preselectedTestId = searchParams.get("test");
+
   const [providerName, setProviderName] = useState("");
   const [consultationFee, setConsultationFee] = useState<number | null>(null);
   const [date, setDate] = useState("");
@@ -21,22 +26,38 @@ const BookAppointment = () => {
   const [loading, setLoading] = useState(false);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
 
+  // Lab test selection
+  const [labTests, setLabTests] = useState<Tables<"lab_tests">[]>([]);
+  const [selectedTests, setSelectedTests] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     const loadProvider = async () => {
       if (!type || !id) return;
       const table = type === "doctor" ? "doctors" : type === "hospital" ? "hospitals" : type === "lab" ? "labs" : "pharmacies";
       const { data } = await supabase.from(table).select("name").eq("id", id).single();
-      if (data) {
-        setProviderName(data.name);
-      }
-      // Fetch consultation fee for doctors
+      if (data) setProviderName(data.name);
+
       if (type === "doctor") {
         const { data: docData } = await supabase.from("doctors").select("consultation_fee").eq("id", id).single();
         if (docData?.consultation_fee) setConsultationFee(docData.consultation_fee);
       }
+
+      if (type === "lab") {
+        const { data: tests } = await supabase
+          .from("lab_tests")
+          .select("*")
+          .eq("lab_id", id)
+          .order("is_popular", { ascending: false });
+        if (tests) {
+          setLabTests(tests);
+          if (preselectedTestId) {
+            setSelectedTests(new Set([preselectedTestId]));
+          }
+        }
+      }
     };
     loadProvider();
-  }, [type, id]);
+  }, [type, id, preselectedTestId]);
 
   // Fetch booked slots when date or provider changes
   useEffect(() => {
@@ -54,9 +75,32 @@ const BookAppointment = () => {
     fetchBookedSlots();
   }, [date, id, type]);
 
+  const toggleTest = (testId: string) => {
+    setSelectedTests((prev) => {
+      const next = new Set(prev);
+      if (next.has(testId)) next.delete(testId);
+      else next.add(testId);
+      return next;
+    });
+  };
+
+  const selectedTestTotal = labTests
+    .filter((t) => selectedTests.has(t.id))
+    .reduce((sum, t) => {
+      const discount = t.discount_percent ?? 0;
+      return sum + t.price * (1 - discount / 100);
+    }, 0);
+
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!date || !time) { toast.error("Please select date and time"); return; }
+    // Build notes with selected test names for lab bookings
+    const testNames = type === "lab"
+      ? labTests.filter((t) => selectedTests.has(t.id)).map((t) => t.name)
+      : [];
+    const fullNotes = type === "lab"
+      ? `Tests: ${testNames.join(", ")}${notes ? ` | ${notes}` : ""}`
+      : notes || null;
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { navigate("/login"); return; }
@@ -72,7 +116,7 @@ const BookAppointment = () => {
           service_type: type,
           appointment_date: date,
           appointment_time: time,
-          notes: notes || null,
+           notes: fullNotes,
           payment_method: "online",
           payment_status: "pending",
         };
@@ -155,7 +199,7 @@ const BookAppointment = () => {
       service_type: type,
       appointment_date: date,
       appointment_time: time,
-      notes: notes || null,
+      notes: fullNotes,
       payment_method: paymentMethod,
       payment_status: "pending",
     };
@@ -196,6 +240,73 @@ const BookAppointment = () => {
               {consultationFee != null && consultationFee > 0 && (
                 <p className="text-xs font-semibold text-foreground">· ₹{consultationFee}</p>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Lab Test Selection */}
+        {type === "lab" && labTests.length > 0 && (
+          <div className="bg-card rounded-2xl border border-border p-4 mb-4 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2 text-base">
+                <TestTube className="w-4 h-4 text-primary" />Select Tests
+              </Label>
+              {selectedTests.size > 0 && (
+                <div className="text-right">
+                  <p className="text-sm font-bold text-primary">₹{Math.round(selectedTestTotal)}</p>
+                  <p className="text-[10px] text-muted-foreground">{selectedTests.size} test{selectedTests.size > 1 ? "s" : ""}</p>
+                </div>
+              )}
+            </div>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {labTests.map((test) => {
+                const isSelected = selectedTests.has(test.id);
+                const discountedPrice = test.discount_percent
+                  ? Math.round(test.price * (1 - (test.discount_percent ?? 0) / 100))
+                  : test.price;
+                return (
+                  <button
+                    key={test.id}
+                    type="button"
+                    onClick={() => toggleTest(test.id)}
+                    className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                        isSelected ? "bg-primary border-primary" : "border-muted-foreground/40"
+                      }`}>
+                        {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-sm font-medium text-foreground">{test.name}</p>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-sm font-bold text-primary">₹{discountedPrice}</p>
+                            {test.discount_percent != null && test.discount_percent > 0 && (
+                              <p className="text-[10px] text-muted-foreground line-through">₹{test.price}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                            <Beaker className="w-3 h-3" />{test.sample_type || "Blood"}
+                          </span>
+                          {test.turnaround_time && (
+                            <span className="text-[10px] text-muted-foreground">· {test.turnaround_time}</span>
+                          )}
+                          {test.is_popular && (
+                            <Badge variant="secondary" className="text-[10px] h-4 px-1.5">Popular</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
