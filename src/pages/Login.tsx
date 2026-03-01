@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { getRoleRedirectPath } from "@/hooks/useRoleRedirect";
 import { toast } from "sonner";
 
 const Login = () => {
@@ -28,7 +29,8 @@ const Login = () => {
           break;
         }
         if (data?.session) {
-          navigate("/dashboard", { replace: true });
+          const redirectPath = await getRoleRedirectPath(data.session.user.id);
+          navigate(redirectPath, { replace: true });
           return;
         }
       } catch (err: any) {
