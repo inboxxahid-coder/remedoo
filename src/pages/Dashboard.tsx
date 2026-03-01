@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
@@ -59,6 +59,7 @@ const Dashboard = () => {
   const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
   const [ads, setAds] = useState<Tables<"ads">[]>([]);
+  const [popularMedicines, setPopularMedicines] = useState<(Tables<"medicines"> & { pharmacy_name?: string })[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [upcomingAppts, setUpcomingAppts] = useState(0);
   const [recentOrders, setRecentOrders] = useState(0);
@@ -72,14 +73,18 @@ const Dashboard = () => {
   useRealtimeNotifications();
 
   const fetchAllData = useCallback(async () => {
-    const [slidesRes, doctorsRes, adsRes] = await Promise.all([
+    const [slidesRes, doctorsRes, adsRes, medsRes] = await Promise.all([
       supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
       supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5),
       supabase.from("ads").select("*").eq("active", true),
+      supabase.from("medicines").select("*, pharmacies(name)").eq("in_stock", true).order("created_at", { ascending: false }).limit(10),
     ]);
     if (slidesRes.data) setSlides(slidesRes.data);
     if (doctorsRes.data) setTopDoctors(doctorsRes.data);
     if (adsRes.data) setAds(adsRes.data);
+    if (medsRes.data) {
+      setPopularMedicines(medsRes.data.map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name })));
+    }
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setIsLoading(false); return; }
@@ -472,7 +477,51 @@ const Dashboard = () => {
                 </motion.div>
               )}
 
-              {/* Ad Banners */}
+              {/* Popular Medicines */}
+              {popularMedicines.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.6 }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-foreground">Medicines</h2>
+                    <button onClick={() => navigate("/pharmacies")} className="flex items-center gap-1 text-sm text-primary font-semibold hover:underline">
+                      Browse All <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex gap-3.5 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
+                    {popularMedicines.map((med, idx) => {
+                      const discounted = med.discount_percent && med.discount_percent > 0;
+                      const finalPrice = discounted ? med.price * (1 - (med.discount_percent || 0) / 100) : med.price;
+                      return (
+                        <motion.button
+                          key={med.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.55 + idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                          whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                          onClick={() => navigate(`/pharmacies`)}
+                          className="flex-shrink-0 w-40 bg-card rounded-2xl border border-border p-4 shadow-sm text-left snap-start hover:border-success/30 hover:shadow-lg hover:shadow-success/5 transition-all duration-300 group"
+                        >
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-success/10 to-success/20 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-300">
+                            <Pill className="w-6 h-6 text-success" />
+                          </div>
+                          <h4 className="font-bold text-sm truncate text-foreground">{med.name}</h4>
+                          <p className="text-xs text-muted-foreground mt-0.5 truncate">{med.pharmacy_name || med.category}</p>
+                          <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border/50">
+                            <IndianRupee className="w-3 h-3 text-foreground" />
+                            <span className="text-xs font-bold text-foreground">₹{Math.round(finalPrice)}</span>
+                            {discounted && (
+                              <>
+                                <span className="text-[10px] text-muted-foreground line-through">₹{med.price}</span>
+                                <span className="text-[10px] text-success font-semibold ml-auto flex items-center gap-0.5"><Tag className="w-2.5 h-2.5" />{med.discount_percent}%</span>
+                              </>
+                            )}
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+
               {ads.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                   <div className="space-y-3">
