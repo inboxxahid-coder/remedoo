@@ -1,10 +1,73 @@
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { logAuditAction } from "@/lib/auditLog";
 
 export default function HospitalSettings() {
+  const [hospital, setHospital] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [commissionPercent, setCommissionPercent] = useState(10);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data } = await supabase.from("hospitals").select("*").eq("user_id", session.user.id).maybeSingle();
+      if (data) {
+        setHospital(data);
+        setCommissionPercent(data.platform_commission_percent ?? 10);
+      }
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  const handleSave = async () => {
+    if (!hospital) return;
+    setSaving(true);
+    const { error } = await supabase.from("hospitals").update({
+      platform_commission_percent: commissionPercent,
+      icu_available: hospital.icu_available,
+    }).eq("id", hospital.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Settings saved");
+      logAuditAction({ action: "update_hospital_settings", entityType: "hospital", entityId: hospital.id });
+    }
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  if (!hospital) return <p className="text-center text-muted-foreground py-12">No linked hospital</p>;
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">Settings</h1>
-      <Card className="p-6"><p className="text-muted-foreground">Hospital settings coming soon — manage working hours, holidays, and ICU availability.</p></Card>
+    <div className="max-w-2xl space-y-6">
+      <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+
+      <Card className="p-6 space-y-4">
+        <h3 className="font-semibold text-foreground">Financial Settings</h3>
+        <div>
+          <Label>Platform Commission (%)</Label>
+          <Input type="number" min={0} max={100} value={commissionPercent} onChange={e => setCommissionPercent(Number(e.target.value))} />
+          <p className="text-xs text-muted-foreground mt-1">Percentage deducted from each appointment earning</p>
+        </div>
+      </Card>
+
+      <Card className="p-6 space-y-4">
+        <h3 className="font-semibold text-foreground">Facility Settings</h3>
+        <div className="flex items-center gap-3">
+          <Switch checked={hospital.icu_available || false} onCheckedChange={v => setHospital({ ...hospital, icu_available: v })} />
+          <Label>ICU Available</Label>
+        </div>
+      </Card>
+
+      <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save Settings"}</Button>
     </div>
   );
 }
