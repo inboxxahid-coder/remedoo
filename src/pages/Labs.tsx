@@ -121,7 +121,10 @@ const Labs = () => {
         ) : (
           filtered.map((lab: any) => {
             const tests = labTests[lab.id] || [];
-            const isExpanded = expandedLab === lab.id;
+            const q = search.toLowerCase();
+            const isTestSearch = q.length > 0 && !lab.name.toLowerCase().includes(q);
+            const matchedTests = isTestSearch ? tests.filter((t) => t.name.toLowerCase().includes(q)) : [];
+            const isExpanded = expandedLab === lab.id || (isTestSearch && matchedTests.length > 0);
             const categories = getCategoriesForLab(lab.id);
             const currentCat = activeCategory[lab.id] || "All";
             const visibleTests = getFilteredTests(lab.id);
@@ -150,6 +153,11 @@ const Labs = () => {
                         {tests.length > 0 && (
                           <Badge variant="secondary" className="text-[10px] h-5">
                             <Beaker className="w-3 h-3 mr-0.5" />{tests.length} tests
+                          </Badge>
+                        )}
+                        {isTestSearch && matchedTests.length > 0 && (
+                          <Badge className="text-[10px] h-5 bg-primary/15 text-primary border-primary/30">
+                            <Search className="w-3 h-3 mr-0.5" />{matchedTests.length} matched
                           </Badge>
                         )}
                       </div>
@@ -199,8 +207,10 @@ const Labs = () => {
 
                     {/* Test List */}
                     <div className="p-4 pt-3 space-y-2 max-h-80 overflow-y-auto">
-                      {visibleTests.map((test) => (
-                        <div key={test.id} className="bg-muted/50 rounded-xl p-3 flex items-start gap-3">
+                      {visibleTests.map((test) => {
+                        const isMatch = isTestSearch && test.name.toLowerCase().includes(search.toLowerCase());
+                        return (
+                        <div key={test.id} className={`rounded-xl p-3 flex items-start gap-3 ${isMatch ? "bg-primary/10 ring-1 ring-primary/30" : "bg-muted/50"}`}>
                           <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center flex-shrink-0 mt-0.5">
                             <TestTube className="w-4 h-4 text-primary" />
                           </div>
@@ -246,7 +256,8 @@ const Labs = () => {
                             </div>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
