@@ -526,7 +526,9 @@ export type Database = {
           created_at: string
           id: string
           image_url: string | null
+          latitude: number | null
           location: string | null
+          longitude: number | null
           name: string
           phone: string | null
           rating: number | null
@@ -539,7 +541,9 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name: string
           phone?: string | null
           rating?: number | null
@@ -552,7 +556,9 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name?: string
           phone?: string | null
           rating?: number | null
@@ -825,7 +831,9 @@ export type Database = {
           id: string
           image_url: string | null
           inventory: Json | null
+          latitude: number | null
           location: string | null
+          longitude: number | null
           name: string
           phone: string | null
           rating: number | null
@@ -838,7 +846,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           inventory?: Json | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name: string
           phone?: string | null
           rating?: number | null
@@ -851,7 +861,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           inventory?: Json | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name?: string
           phone?: string | null
           rating?: number | null

@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, Heart, MapPin, TestTube } from "lucide-react";
+import { ArrowLeft, Star, Search, Heart, MapPin, TestTube, Navigation } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
+import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolocation";
 
 const Labs = () => {
   const navigate = useNavigate();
@@ -15,21 +16,18 @@ const Labs = () => {
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
+  const { location } = useGeolocation();
 
   useEffect(() => {
-    // Fetch labs independently of auth
     const fetchLabs = async () => {
       try {
         const { data: lRes } = await supabase.from("labs").select("*");
         if (lRes) setLabs(lRes);
-      } catch (e) {
-        console.error("Failed to fetch labs:", e);
-      }
+      } catch (e) { console.error("Failed to fetch labs:", e); }
       setLoading(false);
     };
     fetchLabs();
 
-    // Load favorites if logged in (non-blocking)
     const loadFavorites = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -38,9 +36,7 @@ const Labs = () => {
           const { data: fRes } = await supabase.from("favorites").select("provider_id").eq("user_id", session.user.id).eq("provider_type", "lab");
           if (fRes) setFavorites(new Set(fRes.map((f) => f.provider_id)));
         }
-      } catch (e) {
-        console.error("Failed to load favorites:", e);
-      }
+      } catch (e) { console.error("Failed to load favorites:", e); }
     };
     loadFavorites();
   }, []);
@@ -58,7 +54,11 @@ const Labs = () => {
     }
   };
 
-  const filtered = labs.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = useMemo(() => {
+    const searched = labs.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()));
+    if (location) return sortByDistance(searched, location.latitude, location.longitude);
+    return searched;
+  }, [labs, search, location]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -66,6 +66,11 @@ const Labs = () => {
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-xl font-bold text-primary-foreground">Labs</h1>
+          {location && (
+            <span className="ml-auto flex items-center gap-1 text-xs text-primary-foreground/70">
+              <Navigation className="w-3 h-3" />Nearby
+            </span>
+          )}
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -78,7 +83,7 @@ const Labs = () => {
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">No labs found</div>
         ) : (
-          filtered.map((lab) => (
+          filtered.map((lab: any) => (
             <div key={lab.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm">
               <div className="flex gap-3">
                 <div className="w-16 h-16 rounded-xl bg-accent flex items-center justify-center text-3xl flex-shrink-0">🔬</div>
@@ -92,10 +97,15 @@ const Labs = () => {
                   {lab.location && <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{lab.location}</p>}
                   <div className="flex items-center gap-2 mt-1">
                     <Star className="w-3.5 h-3.5 fill-warning text-warning" /><span className="text-xs font-medium">{lab.rating}</span>
+                    {lab.distance_km != null && (
+                      <span className="text-xs text-primary font-medium flex items-center gap-0.5">
+                        <Navigation className="w-3 h-3" />{formatDistance(lab.distance_km)}
+                      </span>
+                    )}
                   </div>
                   {lab.services && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {(lab.services as string[]).slice(0, 3).map((s) => (
+                      {(lab.services as string[]).slice(0, 3).map((s: string) => (
                         <span key={s} className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
                           <TestTube className="w-3 h-3" />{s}
                         </span>
