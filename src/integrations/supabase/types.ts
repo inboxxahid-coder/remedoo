@@ -47,6 +47,103 @@ export type Database = {
         }
         Relationships: []
       }
+      ambulance_trips: {
+        Row: {
+          ambulance_id: string | null
+          base_fare: number | null
+          completed_at: string | null
+          created_at: string
+          distance_fare: number | null
+          distance_km: number | null
+          driver_name: string | null
+          driver_phone: string | null
+          emergency_request_id: string | null
+          hospital_id: string
+          id: string
+          is_free: boolean | null
+          patient_id: string
+          payment_method: string | null
+          payment_status: string | null
+          reached_at: string | null
+          response_time_minutes: number | null
+          started_at: string | null
+          status: string
+          surcharge: number | null
+          total_fare: number | null
+          updated_at: string
+        }
+        Insert: {
+          ambulance_id?: string | null
+          base_fare?: number | null
+          completed_at?: string | null
+          created_at?: string
+          distance_fare?: number | null
+          distance_km?: number | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          emergency_request_id?: string | null
+          hospital_id: string
+          id?: string
+          is_free?: boolean | null
+          patient_id: string
+          payment_method?: string | null
+          payment_status?: string | null
+          reached_at?: string | null
+          response_time_minutes?: number | null
+          started_at?: string | null
+          status?: string
+          surcharge?: number | null
+          total_fare?: number | null
+          updated_at?: string
+        }
+        Update: {
+          ambulance_id?: string | null
+          base_fare?: number | null
+          completed_at?: string | null
+          created_at?: string
+          distance_fare?: number | null
+          distance_km?: number | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          emergency_request_id?: string | null
+          hospital_id?: string
+          id?: string
+          is_free?: boolean | null
+          patient_id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          reached_at?: string | null
+          response_time_minutes?: number | null
+          started_at?: string | null
+          status?: string
+          surcharge?: number | null
+          total_fare?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambulance_trips_ambulance_id_fkey"
+            columns: ["ambulance_id"]
+            isOneToOne: false
+            referencedRelation: "ambulances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulance_trips_emergency_request_id_fkey"
+            columns: ["emergency_request_id"]
+            isOneToOne: false
+            referencedRelation: "emergency_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulance_trips_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ambulances: {
         Row: {
           assigned_patient_id: string | null
@@ -55,10 +152,13 @@ export type Database = {
           current_longitude: number | null
           driver_name: string | null
           driver_phone: string | null
+          equipment_details: string | null
+          hospital_id: string | null
           id: string
           status: string
           updated_at: string
           vehicle_number: string
+          vehicle_type: string | null
         }
         Insert: {
           assigned_patient_id?: string | null
@@ -67,10 +167,13 @@ export type Database = {
           current_longitude?: number | null
           driver_name?: string | null
           driver_phone?: string | null
+          equipment_details?: string | null
+          hospital_id?: string | null
           id?: string
           status?: string
           updated_at?: string
           vehicle_number: string
+          vehicle_type?: string | null
         }
         Update: {
           assigned_patient_id?: string | null
@@ -79,12 +182,23 @@ export type Database = {
           current_longitude?: number | null
           driver_name?: string | null
           driver_phone?: string | null
+          equipment_details?: string | null
+          hospital_id?: string | null
           id?: string
           status?: string
           updated_at?: string
           vehicle_number?: string
+          vehicle_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ambulances_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       appointments: {
         Row: {
@@ -523,6 +637,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      hospital_ambulance_config: {
+        Row: {
+          base_fare: number | null
+          created_at: string
+          emergency_surcharge: number | null
+          hospital_id: string
+          id: string
+          minimum_charge: number | null
+          night_surcharge: number | null
+          per_km_charge: number | null
+          service_enabled: boolean | null
+          service_type: string
+          updated_at: string
+        }
+        Insert: {
+          base_fare?: number | null
+          created_at?: string
+          emergency_surcharge?: number | null
+          hospital_id: string
+          id?: string
+          minimum_charge?: number | null
+          night_surcharge?: number | null
+          per_km_charge?: number | null
+          service_enabled?: boolean | null
+          service_type?: string
+          updated_at?: string
+        }
+        Update: {
+          base_fare?: number | null
+          created_at?: string
+          emergency_surcharge?: number | null
+          hospital_id?: string
+          id?: string
+          minimum_charge?: number | null
+          night_surcharge?: number | null
+          per_km_charge?: number | null
+          service_enabled?: boolean | null
+          service_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hospital_ambulance_config_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: true
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hospital_earnings: {
         Row: {
