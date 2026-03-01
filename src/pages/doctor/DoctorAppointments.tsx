@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import LiveQueue from "@/components/doctor/LiveQueue";
 const PAGE_SIZE = 10;
 
 export default function DoctorAppointments() {
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [doctorId, setDoctorId] = useState<string | null>(null);
@@ -314,9 +316,19 @@ export default function DoctorAppointments() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    📅 {apt.appointment_date} · 🕐 {apt.appointment_time}
-                  </p>
+                   <p className="text-sm text-muted-foreground">
+                     📅 {apt.appointment_date} · 🕐 {apt.appointment_time}
+                   </p>
+                   <div className="flex items-center gap-1.5 flex-wrap">
+                     <span className="text-xs text-muted-foreground">
+                       {apt.payment_method === "online" ? "💳 Online" : "🏥 At Clinic"}
+                     </span>
+                     {apt.payment_method === "online" && (
+                       <Badge variant={apt.payment_status === "paid" ? "default" : "outline"} className="text-[10px] px-1.5 py-0">
+                         {apt.payment_status === "paid" ? "Paid" : "Unpaid"}
+                       </Badge>
+                     )}
+                   </div>
                   {apt.notes && <p className="text-xs text-muted-foreground">📝 {apt.notes}</p>}
                   {(apt as any).consultation_notes && (
                     <div className="flex items-center gap-1">
@@ -343,7 +355,9 @@ export default function DoctorAppointments() {
                   </Button>
                   {apt.status === "pending" && (
                     <>
-                      <Button size="sm" onClick={() => handleAccept(apt.id)}>Accept</Button>
+                      <Button size="sm" onClick={() => navigate(`/doctor/appointments/${apt.id}`)}>
+                        Review & Confirm
+                      </Button>
                       <Button size="sm" variant="destructive" onClick={() => { setSelectedApt(apt); setShowRejectDialog(true); }}>
                         Reject
                       </Button>

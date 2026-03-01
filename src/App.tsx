@@ -61,6 +61,7 @@ import DoctorNotifications from "./pages/doctor/DoctorNotifications";
 import DoctorProfile from "./pages/doctor/DoctorProfile";
 import DoctorAuditLogs from "./pages/doctor/DoctorAuditLogs";
 import DoctorSettings from "./pages/doctor/DoctorSettings";
+import DoctorAppointmentDetail from "./pages/doctor/DoctorAppointmentDetail";
 
 // Hospital Panel
 import HospitalLayout from "./pages/hospital/HospitalLayout";
@@ -179,6 +180,7 @@ const App = () => {
           <Route path="/doctor" element={<DoctorLayout />}>
             <Route index element={<DoctorDashboard />} />
             <Route path="appointments" element={<DoctorAppointments />} />
+            <Route path="appointments/:appointmentId" element={<DoctorAppointmentDetail />} />
             <Route path="schedule" element={<DoctorSchedule />} />
             <Route path="earnings" element={<DoctorEarnings />} />
             <Route path="emergencies" element={<DoctorEmergencies />} />
