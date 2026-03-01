@@ -1,55 +1,38 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Clock, CalendarOff, Bell, Save, X, Plus } from "lucide-react";
-
-interface WorkingHours {
-  [key: string]: string;
-}
+import { logAuditAction } from "@/lib/auditLog";
+import { Bell, Moon, Save, Shield } from "lucide-react";
 
 export default function DoctorSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [doctorId, setDoctorId] = useState<string | null>(null);
-  const [workingHours, setWorkingHours] = useState<WorkingHours>({
-    "Monday": "09:00-17:00",
-    "Tuesday": "09:00-17:00",
-    "Wednesday": "09:00-17:00",
-    "Thursday": "09:00-17:00",
-    "Friday": "09:00-17:00",
-    "Saturday": "09:00-14:00",
-    "Sunday": "closed",
-  });
-  const [vacationDates, setVacationDates] = useState<string[]>([]);
-  const [newVacationDate, setNewVacationDate] = useState("");
-  const [notifAppointment, setNotifAppointment] = useState(true);
-  const [notifReminder, setNotifReminder] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [notifEmail, setNotifEmail] = useState(true);
+  const [notifPush, setNotifPush] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { setLoading(false); return; }
 
-      const { data: doctor } = await supabase
-        .from("doctors")
-        .select("id, working_hours, vacation_dates")
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("dark_mode, notification_preferences")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      if (doctor) {
-        setDoctorId(doctor.id);
-        if (doctor.working_hours && typeof doctor.working_hours === "object") {
-          setWorkingHours(prev => ({ ...prev, ...(doctor.working_hours as WorkingHours) }));
-        }
-        if (doctor.vacation_dates) {
-          setVacationDates(doctor.vacation_dates);
+      if (profile) {
+        setDarkMode(profile.dark_mode ?? false);
+        const prefs = profile.notification_preferences as any;
+        if (prefs) {
+          setNotifEmail(prefs.email ?? true);
+          setNotifPush(prefs.push ?? true);
         }
       }
       setLoading(false);
@@ -58,112 +41,54 @@ export default function DoctorSettings() {
   }, []);
 
   const handleSave = async () => {
-    if (!doctorId) return;
     setSaving(true);
-    const { error } = await supabase.from("doctors").update({
-      working_hours: workingHours,
-      vacation_dates: vacationDates,
-    }).eq("id", doctorId);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setSaving(false); return; }
+
+    const { error } = await supabase.from("profiles").update({
+      dark_mode: darkMode,
+      notification_preferences: { email: notifEmail, push: notifPush },
+    }).eq("user_id", session.user.id);
 
     if (error) toast.error(error.message);
-    else toast.success("Settings saved successfully");
-    setSaving(false);
-  };
-
-  const addVacationDate = () => {
-    if (!newVacationDate) return;
-    if (vacationDates.includes(newVacationDate)) {
-      toast.error("Date already added");
-      return;
+    else {
+      if (darkMode) document.documentElement.classList.add("dark");
+      else document.documentElement.classList.remove("dark");
+      toast.success("Settings saved");
+      logAuditAction({ action: "update_settings", entityType: "settings" });
     }
-    setVacationDates([...vacationDates, newVacationDate].sort());
-    setNewVacationDate("");
-  };
-
-  const removeVacationDate = (date: string) => {
-    setVacationDates(vacationDates.filter(d => d !== date));
-  };
-
-  const updateHours = (day: string, value: string) => {
-    setWorkingHours(prev => ({ ...prev, [day]: value }));
+    setSaving(false);
   };
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-2xl">
         <Skeleton className="w-32 h-8 rounded" />
-        <Skeleton className="h-64 rounded-2xl" />
-        <Skeleton className="h-40 rounded-2xl" />
+        {[1, 2].map(i => <Skeleton key={i} className="h-40 rounded-2xl" />)}
       </div>
     );
   }
-
-  if (!doctorId) {
-    return <p className="text-center text-muted-foreground py-12">No linked doctor profile found</p>;
-  }
-
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   return (
     <div className="space-y-6 max-w-2xl">
       <h1 className="text-2xl font-bold text-foreground">Settings</h1>
 
-      {/* Working Hours */}
+      {/* Appearance */}
       <Card className="p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Clock className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-semibold text-foreground">Working Hours</h2>
+          <Moon className="w-5 h-5 text-primary" />
+          <h2 className="text-lg font-semibold text-foreground">Appearance</h2>
         </div>
-        <div className="space-y-3">
-          {days.map(day => (
-            <div key={day} className="flex items-center gap-3">
-              <span className="w-24 text-sm font-medium text-foreground">{day}</span>
-              <Input
-                value={workingHours[day] || "closed"}
-                onChange={e => updateHours(day, e.target.value)}
-                placeholder="e.g. 09:00-17:00 or closed"
-                className="flex-1"
-              />
-            </div>
-          ))}
-          <p className="text-xs text-muted-foreground mt-1">Format: HH:MM-HH:MM or "closed"</p>
-        </div>
-      </Card>
-
-      {/* Vacation Dates */}
-      <Card className="p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <CalendarOff className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-semibold text-foreground">Vacation / Leave Dates</h2>
-        </div>
-        <div className="flex gap-2 mb-3">
-          <Input
-            type="date"
-            value={newVacationDate}
-            onChange={e => setNewVacationDate(e.target.value)}
-            className="flex-1"
-          />
-          <Button variant="outline" size="sm" onClick={addVacationDate}>
-            <Plus className="w-4 h-4 mr-1" /> Add
-          </Button>
-        </div>
-        {vacationDates.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No vacation dates set</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {vacationDates.map(date => (
-              <Badge key={date} variant="secondary" className="gap-1 py-1">
-                {date}
-                <button onClick={() => removeVacationDate(date)} className="hover:text-destructive">
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            ))}
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm font-medium">Dark Mode</Label>
+            <p className="text-xs text-muted-foreground">Toggle dark theme</p>
           </div>
-        )}
+          <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+        </div>
       </Card>
 
-      {/* Notification Preferences */}
+      {/* Notifications */}
       <Card className="p-5">
         <div className="flex items-center gap-2 mb-4">
           <Bell className="w-5 h-5 text-primary" />
@@ -172,25 +97,36 @@ export default function DoctorSettings() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-sm font-medium">Appointment Notifications</Label>
-              <p className="text-xs text-muted-foreground">Get notified for new and updated appointments</p>
+              <Label className="text-sm font-medium">Email Notifications</Label>
+              <p className="text-xs text-muted-foreground">Receive updates via email</p>
             </div>
-            <Switch checked={notifAppointment} onCheckedChange={setNotifAppointment} />
+            <Switch checked={notifEmail} onCheckedChange={setNotifEmail} />
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-sm font-medium">Daily Reminders</Label>
-              <p className="text-xs text-muted-foreground">Receive a summary of today's appointments</p>
+              <Label className="text-sm font-medium">Push Notifications</Label>
+              <p className="text-xs text-muted-foreground">Browser push notifications</p>
             </div>
-            <Switch checked={notifReminder} onCheckedChange={setNotifReminder} />
+            <Switch checked={notifPush} onCheckedChange={setNotifPush} />
           </div>
         </div>
       </Card>
 
-      {/* Save Button */}
+      {/* Security Info */}
+      <Card className="p-5">
+        <div className="flex items-center gap-2 mb-2">
+          <Shield className="w-5 h-5 text-primary" />
+          <h2 className="text-lg font-semibold text-foreground">Security</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          All actions are logged in the Activity Log. Your data is protected with role-based access control
+          and encrypted at rest. Only you can access your patient data and appointment records.
+        </p>
+      </Card>
+
       <Button onClick={handleSave} disabled={saving} className="w-full">
         <Save className="w-4 h-4 mr-2" />
-        {saving ? "Saving..." : "Save All Settings"}
+        {saving ? "Saving..." : "Save Settings"}
       </Button>
     </div>
   );
