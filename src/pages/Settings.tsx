@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Bell, Moon, Globe, Shield, LogOut, ChevronRight, User, Heart, Calendar,
+  FileText, IndianRupee, Trash2, AlertTriangle,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import BottomNav from "@/components/BottomNav";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 type NotifPrefs = { email: boolean; push: boolean };
 
@@ -20,6 +23,9 @@ const Settings = () => {
   const [notifPush, setNotifPush] = useState(true);
   const [language, setLanguage] = useState("en");
   const [isGuest, setIsGuest] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -80,8 +86,28 @@ const Settings = () => {
   const menuItems = [
     { icon: User, label: "Edit Profile", action: () => navigate("/profile") },
     { icon: Calendar, label: "My Appointments", action: () => navigate("/appointments") },
+    { icon: FileText, label: "Medical History", action: () => navigate("/medical-history") },
     { icon: Heart, label: "My Favorites", action: () => navigate("/favorites") },
+    { icon: IndianRupee, label: "Refund Status", action: () => navigate("/refunds") },
   ];
+
+  const handleDeleteAccountRequest = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    setDeletingAccount(true);
+    const { error } = await supabase.from("account_deletion_requests").insert({
+      user_id: session.user.id,
+      reason: deleteReason.trim() || null,
+    });
+    setDeletingAccount(false);
+    if (error) {
+      toast.error("Failed to submit request");
+    } else {
+      toast.success("Account deletion request submitted. We'll review it within 48 hours.");
+      setShowDeleteDialog(false);
+      setDeleteReason("");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -220,8 +246,53 @@ const Settings = () => {
           {isGuest ? "Sign In" : "Log Out"}
         </button>
 
+        {/* Delete Account */}
+        {!isGuest && (
+          <button
+            onClick={() => setShowDeleteDialog(true)}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-destructive/60 hover:text-destructive text-xs font-medium transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Request Account Deletion
+          </button>
+        )}
+
         <p className="text-center text-xs text-muted-foreground">Remedoo v1.0.0</p>
       </div>
+
+      {/* Account Deletion Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Delete Account?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
+              This will submit a request to permanently delete your account and all associated data.
+              Our team will review and process it within 48 hours. This action <strong>cannot be undone</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Textarea
+            placeholder="Please tell us why you want to leave (optional)"
+            value={deleteReason}
+            onChange={(e) => setDeleteReason(e.target.value)}
+            rows={3}
+            className="rounded-xl"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deletingAccount}
+              onClick={(e) => { e.preventDefault(); handleDeleteAccountRequest(); }}
+            >
+              {deletingAccount ? "Submitting..." : "Delete My Account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <BottomNav />
     </div>
   );

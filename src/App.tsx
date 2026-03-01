@@ -34,6 +34,9 @@ const Emergency = lazy(() => import("./pages/Emergency"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const Notifications = lazy(() => import("./pages/Notifications"));
+const MedicalHistory = lazy(() => import("./pages/MedicalHistory"));
+const PaymentFailure = lazy(() => import("./pages/PaymentFailure"));
+const RefundTracking = lazy(() => import("./pages/RefundTracking"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Admin
@@ -168,6 +171,9 @@ const App = () => {
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/medical-history" element={<MedicalHistory />} />
+            <Route path="/payment-failure" element={<PaymentFailure />} />
+            <Route path="/refunds" element={<RefundTracking />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

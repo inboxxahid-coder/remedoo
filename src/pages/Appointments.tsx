@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, AlertCircle, CalendarClock, Hash } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, AlertCircle, CalendarClock, Hash, Star, Download } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,8 @@ import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { cn } from "@/lib/utils";
 import PatientQueueView from "@/components/patient/PatientQueueView";
+import ReviewDialog from "@/components/patient/ReviewDialog";
+import { generateAppointmentInvoice } from "@/lib/generateAppointmentInvoice";
 
 type AppointmentWithProvider = {
   id: string;
@@ -49,6 +51,7 @@ const Appointments = () => {
   const [otpSending, setOtpSending] = useState(false);
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [otpChannels, setOtpChannels] = useState<string[]>([]);
+  const [reviewTarget, setReviewTarget] = useState<AppointmentWithProvider | null>(null);
 
   const timeSlots = [
     "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -259,6 +262,29 @@ const Appointments = () => {
                     </Button>
                   </div>
                 )}
+                {apt.status === "completed" && (
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => setReviewTarget(apt)}>
+                      <Star className="w-3.5 h-3.5 mr-1" />Rate
+                    </Button>
+                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => {
+                      generateAppointmentInvoice({
+                        appointmentId: apt.id,
+                        providerName: apt.provider_name,
+                        providerType: apt.service_type,
+                        patientName: "Patient",
+                        appointmentDate: apt.appointment_date,
+                        appointmentTime: apt.appointment_time,
+                        consultationFee: 0,
+                        paymentMethod: "at_clinic",
+                        paymentStatus: "paid",
+                        tokenNumber: apt.token_number,
+                      });
+                    }}>
+                      <Download className="w-3.5 h-3.5 mr-1" />Invoice
+                    </Button>
+                  </div>
+                )}
               </div>
             );
           })
@@ -390,6 +416,19 @@ const Appointments = () => {
           )}
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Review Dialog */}
+      {reviewTarget && (
+        <ReviewDialog
+          open={!!reviewTarget}
+          onOpenChange={(open) => !open && setReviewTarget(null)}
+          providerId={reviewTarget.doctor_id || reviewTarget.id}
+          providerType={reviewTarget.service_type}
+          providerName={reviewTarget.provider_name}
+          appointmentId={reviewTarget.id}
+          onReviewSubmitted={loadAppointments}
+        />
+      )}
 
       <BottomNav />
     </div>

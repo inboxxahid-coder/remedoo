@@ -5,6 +5,7 @@ import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import AmbulanceMap from "@/components/patient/AmbulanceMap";
 
 const EMERGENCY_NUMBER = "112";
 
@@ -160,6 +161,19 @@ const Emergency = () => {
                     📞 Call Driver: {assignedAmbulance.driver_phone}
                   </button>
                 )}
+              </div>
+            )}
+            {/* Live Ambulance Map */}
+            {userLocation && assignedAmbulance && (
+              <div className="mt-3">
+                <p className="text-xs font-medium text-foreground mb-2">📍 Live Tracking</p>
+                <AmbulanceMap
+                  userLat={userLocation.lat}
+                  userLng={userLocation.lng}
+                  ambulanceLat={assignedAmbulance.current_latitude}
+                  ambulanceLng={assignedAmbulance.current_longitude}
+                  ambulanceInfo={`🚑 ${assignedAmbulance.vehicle_number} — ${assignedAmbulance.driver_name || "Driver"}`}
+                />
               </div>
             )}
             <button onClick={cancelRequest} className="w-full py-2 rounded-xl border border-destructive text-destructive text-sm font-medium">
