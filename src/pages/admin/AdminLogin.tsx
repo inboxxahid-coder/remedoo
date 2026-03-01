@@ -16,30 +16,36 @@ export default function AdminLogin() {
     e.preventDefault();
     setLoading(true);
 
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError || !authData.user) {
-      toast.error("Invalid credentials");
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError || !authData.user) {
+        toast.error(authError?.message || "Invalid credentials");
+        setLoading(false);
+        return;
+      }
+
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", authData.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!roleData) {
+        await supabase.auth.signOut();
+        toast.error("You are not authorized as an admin");
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Welcome, Admin!");
+      navigate("/admin");
+    } catch (err: any) {
+      console.error("Admin login error:", err);
+      toast.error("Network error. Please check your connection and try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", authData.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!roleData) {
-      await supabase.auth.signOut();
-      toast.error("You are not authorized as an admin");
-      setLoading(false);
-      return;
-    }
-
-    toast.success("Welcome, Admin!");
-    navigate("/admin");
-    setLoading(false);
   };
 
   return (
