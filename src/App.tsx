@@ -66,7 +66,15 @@ import DoctorSettings from "./pages/doctor/DoctorSettings";
 import HospitalLayout from "./pages/hospital/HospitalLayout";
 import HospitalDashboard from "./pages/hospital/HospitalDashboard";
 import HospitalAppointments from "./pages/hospital/HospitalAppointments";
-import HospitalDoctors from "./pages/hospital/HospitalDoctors";
+import HospitalBeds from "./pages/hospital/HospitalBeds";
+import HospitalEmergencies from "./pages/hospital/HospitalEmergencies";
+import HospitalDoctorManagement from "./pages/hospital/HospitalDoctorManagement";
+import HospitalDepartments from "./pages/hospital/HospitalDepartments";
+import HospitalOTs from "./pages/hospital/HospitalOTs";
+import HospitalEquipment from "./pages/hospital/HospitalEquipment";
+import HospitalEarnings from "./pages/hospital/HospitalEarnings";
+import HospitalAnalytics from "./pages/hospital/HospitalAnalytics";
+import HospitalAuditLogs from "./pages/hospital/HospitalAuditLogs";
 import HospitalProfile from "./pages/hospital/HospitalProfile";
 import HospitalSettings from "./pages/hospital/HospitalSettings";
 
@@ -181,7 +189,15 @@ const App = () => {
           <Route path="/hospital" element={<HospitalLayout />}>
             <Route index element={<HospitalDashboard />} />
             <Route path="appointments" element={<HospitalAppointments />} />
-            <Route path="doctors" element={<HospitalDoctors />} />
+            <Route path="beds" element={<HospitalBeds />} />
+            <Route path="emergencies" element={<HospitalEmergencies />} />
+            <Route path="doctors" element={<HospitalDoctorManagement />} />
+            <Route path="departments" element={<HospitalDepartments />} />
+            <Route path="ots" element={<HospitalOTs />} />
+            <Route path="equipment" element={<HospitalEquipment />} />
+            <Route path="earnings" element={<HospitalEarnings />} />
+            <Route path="analytics" element={<HospitalAnalytics />} />
+            <Route path="audit-logs" element={<HospitalAuditLogs />} />
             <Route path="profile" element={<HospitalProfile />} />
             <Route path="settings" element={<HospitalSettings />} />
           </Route>

@@ -93,6 +93,7 @@ export type Database = {
           completed_at: string | null
           consultation_notes: string | null
           created_at: string
+          department: string | null
           doctor_id: string | null
           follow_up_date: string | null
           hospital_id: string | null
@@ -114,6 +115,7 @@ export type Database = {
           completed_at?: string | null
           consultation_notes?: string | null
           created_at?: string
+          department?: string | null
           doctor_id?: string | null
           follow_up_date?: string | null
           hospital_id?: string | null
@@ -135,6 +137,7 @@ export type Database = {
           completed_at?: string | null
           consultation_notes?: string | null
           created_at?: string
+          department?: string | null
           doctor_id?: string | null
           follow_up_date?: string | null
           hospital_id?: string | null
@@ -285,6 +288,51 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          created_at: string
+          description: string | null
+          head_doctor_id: string | null
+          hospital_id: string
+          id: string
+          is_active: boolean | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          head_doctor_id?: string | null
+          hospital_id: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          head_doctor_id?: string | null
+          hospital_id?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_head_doctor_id_fkey"
+            columns: ["head_doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "departments_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       doctor_blocked_slots: {
         Row: {
           blocked_date: string
@@ -336,6 +384,7 @@ export type Database = {
           consultation_duration: number | null
           consultation_fee: number | null
           created_at: string
+          department_id: string | null
           emergency_available: boolean | null
           experience_years: number | null
           hospital_id: string | null
@@ -359,6 +408,7 @@ export type Database = {
           consultation_duration?: number | null
           consultation_fee?: number | null
           created_at?: string
+          department_id?: string | null
           emergency_available?: boolean | null
           experience_years?: number | null
           hospital_id?: string | null
@@ -382,6 +432,7 @@ export type Database = {
           consultation_duration?: number | null
           consultation_fee?: number | null
           created_at?: string
+          department_id?: string | null
           emergency_available?: boolean | null
           experience_years?: number | null
           hospital_id?: string | null
@@ -397,6 +448,13 @@ export type Database = {
           working_hours?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "doctors_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "doctors_hospital_id_fkey"
             columns: ["hospital_id"]
@@ -466,12 +524,120 @@ export type Database = {
         }
         Relationships: []
       }
+      hospital_earnings: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          created_at: string
+          description: string | null
+          hospital_id: string
+          id: string
+          net_earning: number
+          platform_commission: number
+          type: string
+        }
+        Insert: {
+          amount?: number
+          appointment_id?: string | null
+          created_at?: string
+          description?: string | null
+          hospital_id: string
+          id?: string
+          net_earning?: number
+          platform_commission?: number
+          type?: string
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          created_at?: string
+          description?: string | null
+          hospital_id?: string
+          id?: string
+          net_earning?: number
+          platform_commission?: number
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hospital_earnings_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_earnings_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hospital_equipment: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          hospital_id: string
+          id: string
+          last_maintenance_date: string | null
+          maintenance_notes: string | null
+          name: string
+          next_maintenance_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          hospital_id: string
+          id?: string
+          last_maintenance_date?: string | null
+          maintenance_notes?: string | null
+          name: string
+          next_maintenance_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          hospital_id?: string
+          id?: string
+          last_maintenance_date?: string | null
+          maintenance_notes?: string | null
+          name?: string
+          next_maintenance_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hospital_equipment_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_equipment_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hospitals: {
         Row: {
           admin_note: string | null
           approval_status: string
+          available_beds: number | null
+          available_icu_beds: number | null
           beds: number | null
           created_at: string
+          emergency_contact: string | null
           holidays: string[] | null
           icu_available: boolean | null
           id: string
@@ -482,15 +648,21 @@ export type Database = {
           longitude: number | null
           name: string
           phone: string | null
+          platform_commission_percent: number | null
           rating: number | null
+          total_beds: number | null
+          total_icu_beds: number | null
           user_id: string | null
           working_hours: Json | null
         }
         Insert: {
           admin_note?: string | null
           approval_status?: string
+          available_beds?: number | null
+          available_icu_beds?: number | null
           beds?: number | null
           created_at?: string
+          emergency_contact?: string | null
           holidays?: string[] | null
           icu_available?: boolean | null
           id?: string
@@ -501,15 +673,21 @@ export type Database = {
           longitude?: number | null
           name: string
           phone?: string | null
+          platform_commission_percent?: number | null
           rating?: number | null
+          total_beds?: number | null
+          total_icu_beds?: number | null
           user_id?: string | null
           working_hours?: Json | null
         }
         Update: {
           admin_note?: string | null
           approval_status?: string
+          available_beds?: number | null
+          available_icu_beds?: number | null
           beds?: number | null
           created_at?: string
+          emergency_contact?: string | null
           holidays?: string[] | null
           icu_available?: boolean | null
           id?: string
@@ -520,7 +698,10 @@ export type Database = {
           longitude?: number | null
           name?: string
           phone?: string | null
+          platform_commission_percent?: number | null
           rating?: number | null
+          total_beds?: number | null
+          total_icu_beds?: number | null
           user_id?: string | null
           working_hours?: Json | null
         }
@@ -668,6 +849,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      operation_theaters: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          hospital_id: string
+          id: string
+          name: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          hospital_id: string
+          id?: string
+          name: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          hospital_id?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operation_theaters_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operation_theaters_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
