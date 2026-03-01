@@ -74,10 +74,14 @@ const Labs = () => {
   };
 
   const filtered = useMemo(() => {
-    const searched = labs.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()));
+    const q = search.toLowerCase();
+    const searched = labs.filter((l) =>
+      l.name.toLowerCase().includes(q) ||
+      (labTests[l.id] || []).some((t) => t.name.toLowerCase().includes(q))
+    );
     if (location) return sortByDistance(searched, location.latitude, location.longitude);
     return searched;
-  }, [labs, search, location]);
+  }, [labs, search, location, labTests]);
 
   const getCategoriesForLab = (labId: string): string[] => {
     const tests = labTests[labId] || [];
