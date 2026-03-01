@@ -72,21 +72,9 @@ const Settings = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Logout error:", error);
-        toast.error("Failed to log out. Please try again.");
-        return;
-      }
-      toast.success("Logged out successfully");
-      navigate("/login", { replace: true });
-    } catch (err) {
-      console.error("Logout error:", err);
-      toast.error("An unexpected error occurred during logout.");
-      // Force navigate even on error
-      navigate("/login", { replace: true });
-    }
+    await supabase.auth.signOut().catch(() => {});
+    toast.success("Logged out successfully");
+    navigate("/login", { replace: true });
   };
 
   const menuItems = [

@@ -85,18 +85,21 @@ const queryClient = new QueryClient();
 const App = () => {
   // Apply dark mode from profile on auth
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       if (session?.user) {
-        const { data } = await supabase
+        // Non-blocking: don't await, use .then() so it doesn't block auth flow
+        supabase
           .from("profiles")
           .select("dark_mode")
           .eq("user_id", session.user.id)
-          .single();
-        if (data?.dark_mode) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
+          .single()
+          .then(({ data }) => {
+            if (data?.dark_mode) {
+              document.documentElement.classList.add("dark");
+            } else {
+              document.documentElement.classList.remove("dark");
+            }
+          });
       }
     });
     return () => subscription.unsubscribe();
