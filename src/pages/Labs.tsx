@@ -137,7 +137,7 @@ const Labs = () => {
                     <div className="w-16 h-16 rounded-xl bg-accent flex items-center justify-center text-3xl flex-shrink-0">🔬</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
-                        <h3 className="font-semibold text-foreground truncate">{lab.name}</h3>
+                        <h3 className="font-semibold text-foreground truncate cursor-pointer hover:text-primary transition-colors" onClick={() => navigate(`/lab/${lab.id}`)}>{lab.name}</h3>
                         <button onClick={() => toggleFavorite(lab.id)}>
                           <Heart className={`w-5 h-5 ${favorites.has(lab.id) ? "fill-emergency text-emergency" : "text-muted-foreground"}`} />
                         </button>
