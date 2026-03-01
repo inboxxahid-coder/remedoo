@@ -146,6 +146,12 @@ const Login = () => {
             Sign Up
           </Link>
         </p>
+        <p className="text-center mt-2 text-sm text-muted-foreground">
+          Are you a provider?{" "}
+          <Link to="/provider-register" className="text-primary font-semibold">
+            Register as Provider
+          </Link>
+        </p>
       </div>
     </div>
   );
