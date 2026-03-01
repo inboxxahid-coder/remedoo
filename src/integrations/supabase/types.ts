@@ -215,6 +215,8 @@ export type Database = {
           lab_id: string | null
           notes: string | null
           patient_id: string
+          payment_method: string
+          payment_status: string
           pharmacy_id: string | null
           prescription_url: string | null
           rejection_reason: string | null
@@ -237,6 +239,8 @@ export type Database = {
           lab_id?: string | null
           notes?: string | null
           patient_id: string
+          payment_method?: string
+          payment_status?: string
           pharmacy_id?: string | null
           prescription_url?: string | null
           rejection_reason?: string | null
@@ -259,6 +263,8 @@ export type Database = {
           lab_id?: string | null
           notes?: string | null
           patient_id?: string
+          payment_method?: string
+          payment_status?: string
           pharmacy_id?: string | null
           prescription_url?: string | null
           rejection_reason?: string | null

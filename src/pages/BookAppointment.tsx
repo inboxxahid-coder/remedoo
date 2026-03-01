@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CreditCard, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +13,11 @@ const BookAppointment = () => {
   const navigate = useNavigate();
   const { type, id } = useParams<{ type: string; id: string }>();
   const [providerName, setProviderName] = useState("");
+  const [consultationFee, setConsultationFee] = useState<number | null>(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [notes, setNotes] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"at_clinic" | "online">("at_clinic");
   const [loading, setLoading] = useState(false);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
 
@@ -24,7 +26,14 @@ const BookAppointment = () => {
       if (!type || !id) return;
       const table = type === "doctor" ? "doctors" : type === "hospital" ? "hospitals" : type === "lab" ? "labs" : "pharmacies";
       const { data } = await supabase.from(table).select("name").eq("id", id).single();
-      if (data) setProviderName(data.name);
+      if (data) {
+        setProviderName(data.name);
+      }
+      // Fetch consultation fee for doctors
+      if (type === "doctor") {
+        const { data: docData } = await supabase.from("doctors").select("consultation_fee").eq("id", id).single();
+        if (docData?.consultation_fee) setConsultationFee(docData.consultation_fee);
+      }
     };
     loadProvider();
   }, [type, id]);
@@ -53,12 +62,102 @@ const BookAppointment = () => {
     if (!session) { navigate("/login"); return; }
 
     setLoading(true);
+
+    // If online payment selected, initiate Razorpay first
+    if (paymentMethod === "online" && consultationFee && consultationFee > 0) {
+      try {
+        // Create a temporary appointment first to get an ID
+        const record: any = {
+          patient_id: session.user.id,
+          service_type: type,
+          appointment_date: date,
+          appointment_time: time,
+          notes: notes || null,
+          payment_method: "online",
+          payment_status: "pending",
+        };
+        if (type === "doctor") record.doctor_id = id;
+        else if (type === "hospital") record.hospital_id = id;
+        else if (type === "lab") record.lab_id = id;
+        else if (type === "pharmacy") record.pharmacy_id = id;
+
+        const { data: aptData, error: aptError } = await supabase.from("appointments").insert(record).select("id").single();
+        if (aptError) { toast.error("Failed to create appointment"); setLoading(false); return; }
+
+        const aptId = aptData.id;
+
+        // Create Razorpay order
+        const { data: rzData, error: rzError } = await supabase.functions.invoke("create-razorpay-order", {
+          body: { order_id: aptId, amount: consultationFee },
+        });
+
+        if (rzError || !rzData?.razorpay_order_id) {
+          toast.error("Payment gateway error. Appointment saved as pending.");
+          setLoading(false);
+          navigate("/appointments");
+          return;
+        }
+
+        // Open Razorpay checkout
+        const options = {
+          key: rzData.key_id,
+          amount: rzData.amount,
+          currency: rzData.currency,
+          name: providerName,
+          description: `Appointment - ${type}`,
+          order_id: rzData.razorpay_order_id,
+          handler: async (response: any) => {
+            // Verify payment
+            const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-razorpay-payment", {
+              body: {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                order_id: aptId,
+              },
+            });
+
+            if (verifyError || !verifyData?.success) {
+              toast.error("Payment verification failed");
+            } else {
+              // Update appointment payment status - this will trigger auto-confirm
+              await supabase.from("appointments").update({ payment_status: "paid" } as any).eq("id", aptId);
+              toast.success("Payment successful! Appointment auto-confirmed.");
+            }
+            navigate("/appointments");
+          },
+          modal: {
+            ondismiss: () => {
+              toast.info("Payment cancelled. Appointment saved as pending.");
+              navigate("/appointments");
+            },
+          },
+          prefill: {
+            email: session.user.email,
+          },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+        setLoading(false);
+        return;
+      } catch (err) {
+        console.error("Payment error:", err);
+        toast.error("Payment failed");
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Regular booking (at_clinic)
     const record: any = {
       patient_id: session.user.id,
       service_type: type,
       appointment_date: date,
       appointment_time: time,
       notes: notes || null,
+      payment_method: paymentMethod,
+      payment_status: "pending",
     };
     if (type === "doctor") record.doctor_id = id;
     else if (type === "hospital") record.hospital_id = id;
@@ -92,7 +191,12 @@ const BookAppointment = () => {
           <div className="bg-card rounded-2xl border border-border p-4 mb-4 shadow-sm">
             <p className="text-sm text-muted-foreground">Booking with</p>
             <h2 className="font-semibold text-lg text-foreground">{providerName}</h2>
-            <p className="text-xs text-primary capitalize">{type}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-primary capitalize">{type}</p>
+              {consultationFee != null && consultationFee > 0 && (
+                <p className="text-xs font-semibold text-foreground">· ₹{consultationFee}</p>
+              )}
+            </div>
           </div>
         )}
 
@@ -134,8 +238,47 @@ const BookAppointment = () => {
             <Input placeholder="Any specific concerns..." value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
 
+          {/* Payment Method Selection */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-primary" /> Payment Method
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("at_clinic")}
+                className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-colors ${
+                  paymentMethod === "at_clinic"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                <Banknote className={`w-5 h-5 ${paymentMethod === "at_clinic" ? "text-primary" : "text-muted-foreground"}`} />
+                <div className="text-left">
+                  <p className={`text-sm font-medium ${paymentMethod === "at_clinic" ? "text-primary" : "text-foreground"}`}>At Clinic</p>
+                  <p className="text-[10px] text-muted-foreground">Pay when you visit</p>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("online")}
+                className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-colors ${
+                  paymentMethod === "online"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                <CreditCard className={`w-5 h-5 ${paymentMethod === "online" ? "text-primary" : "text-muted-foreground"}`} />
+                <div className="text-left">
+                  <p className={`text-sm font-medium ${paymentMethod === "online" ? "text-primary" : "text-foreground"}`}>Pay Online</p>
+                  <p className="text-[10px] text-muted-foreground">Auto-confirm</p>
+                </div>
+              </button>
+            </div>
+          </div>
+
           <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-semibold">
-            {loading ? "Booking..." : "Confirm Booking"}
+            {loading ? "Processing..." : paymentMethod === "online" ? "Pay & Book" : "Confirm Booking"}
           </Button>
         </form>
       </div>
