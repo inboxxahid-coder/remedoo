@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, Heart, MapPin, Bed, ShieldCheck, CalendarPlus, Building2, Landmark } from "lucide-react";
+import { ArrowLeft, Star, Search, Heart, MapPin, Bed, ShieldCheck, CalendarPlus, Building2, Landmark, Navigation } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolocation";
 
 const Hospitals = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Hospitals = () => {
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
+  const { location } = useGeolocation();
 
   useEffect(() => {
     const fetchHospitals = async () => {
@@ -51,9 +53,14 @@ const Hospitals = () => {
     }
   };
 
-  const filtered = hospitals.filter((h) => h.name.toLowerCase().includes(search.toLowerCase()) || h.location?.toLowerCase().includes(search.toLowerCase()));
-  const govtHospitals = filtered.filter((h: any) => h.is_government);
-  const privateHospitals = filtered.filter((h: any) => !h.is_government);
+  const sorted = useMemo(() => {
+    const searched = hospitals.filter((h) => h.name.toLowerCase().includes(search.toLowerCase()) || h.location?.toLowerCase().includes(search.toLowerCase()));
+    if (location) return sortByDistance(searched, location.latitude, location.longitude);
+    return searched;
+  }, [hospitals, search, location]);
+
+  const govtHospitals = sorted.filter((h: any) => h.is_government);
+  const privateHospitals = sorted.filter((h: any) => !h.is_government);
 
   const renderCard = (h: any) => (
     <div key={h.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm">
@@ -80,6 +87,11 @@ const Hospitals = () => {
             <div className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-warning text-warning" /><span className="text-xs font-medium">{h.rating}</span></div>
             <span className="text-xs text-muted-foreground flex items-center gap-1"><Bed className="w-3 h-3" />{h.beds} beds</span>
             {h.icu_available && <span className="text-xs bg-success/10 text-success px-2 py-0.5 rounded-full flex items-center gap-1"><ShieldCheck className="w-3 h-3" />ICU</span>}
+            {h.distance_km != null && (
+              <span className="text-xs text-primary font-medium flex items-center gap-0.5">
+                <Navigation className="w-3 h-3" />{formatDistance(h.distance_km)}
+              </span>
+            )}
           </div>
           <button
             onClick={() => navigate(`/book/hospital/${h.id}`)}
@@ -98,6 +110,11 @@ const Hospitals = () => {
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-xl font-bold text-primary-foreground">Hospitals</h1>
+          {location && (
+            <span className="ml-auto flex items-center gap-1 text-xs text-primary-foreground/70">
+              <Navigation className="w-3 h-3" />Nearby
+            </span>
+          )}
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -111,7 +128,7 @@ const Hospitals = () => {
           <Tabs defaultValue="all" className="space-y-3">
             <TabsList className="grid grid-cols-3 w-full">
               <TabsTrigger value="all" className="text-xs gap-1.5">
-                <Building2 className="w-3.5 h-3.5" />All ({filtered.length})
+                <Building2 className="w-3.5 h-3.5" />All ({sorted.length})
               </TabsTrigger>
               <TabsTrigger value="govt" className="text-xs gap-1.5">
                 <Landmark className="w-3.5 h-3.5" />Govt ({govtHospitals.length})
@@ -121,7 +138,7 @@ const Hospitals = () => {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="all" className="space-y-3">
-              {filtered.length === 0 ? <p className="text-center py-12 text-muted-foreground">No hospitals found</p> : filtered.map(renderCard)}
+              {sorted.length === 0 ? <p className="text-center py-12 text-muted-foreground">No hospitals found</p> : sorted.map(renderCard)}
             </TabsContent>
             <TabsContent value="govt" className="space-y-3">
               {govtHospitals.length === 0 ? <p className="text-center py-12 text-muted-foreground">No government hospitals found</p> : govtHospitals.map(renderCard)}

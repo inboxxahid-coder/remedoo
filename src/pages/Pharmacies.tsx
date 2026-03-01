@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, Heart, MapPin, Clock, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Star, Search, Heart, MapPin, Clock, ShoppingBag, Navigation } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
+import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolocation";
 
 const Pharmacies = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Pharmacies = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [medicineCounts, setMedicineCounts] = useState<Record<string, number>>({});
+  const { location } = useGeolocation();
 
   useEffect(() => {
     const fetchPharmacies = async () => {
@@ -61,7 +63,11 @@ const Pharmacies = () => {
     }
   };
 
-  const filtered = pharmacies.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = useMemo(() => {
+    const searched = pharmacies.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+    if (location) return sortByDistance(searched, location.latitude, location.longitude);
+    return searched;
+  }, [pharmacies, search, location]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -69,6 +75,11 @@ const Pharmacies = () => {
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-xl font-bold text-primary-foreground">Order Medicines</h1>
+          {location && (
+            <span className="ml-auto flex items-center gap-1 text-xs text-primary-foreground/70">
+              <Navigation className="w-3 h-3" />Nearby
+            </span>
+          )}
         </div>
         <p className="text-primary-foreground/70 text-sm mb-3">Get medicines delivered to your doorstep</p>
         <div className="relative">
@@ -83,7 +94,7 @@ const Pharmacies = () => {
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">No pharmacies found</div>
         ) : (
-          filtered.map((p) => (
+          filtered.map((p: any) => (
             <button
               key={p.id}
               onClick={() => navigate(`/pharmacy/${p.id}`)}
@@ -103,6 +114,11 @@ const Pharmacies = () => {
                     <span className="flex items-center gap-1 text-xs"><Star className="w-3.5 h-3.5 fill-warning text-warning" /><span className="font-medium">{p.rating}</span></span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground"><ShoppingBag className="w-3 h-3" />{medicineCounts[p.id] || 0} items</span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="w-3 h-3" />25-35 min</span>
+                    {p.distance_km != null && (
+                      <span className="text-xs text-primary font-medium flex items-center gap-0.5">
+                        <Navigation className="w-3 h-3" />{formatDistance(p.distance_km)}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
