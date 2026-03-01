@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, XCircle, Clock, Stethoscope, Building2, FlaskConical, Store } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Stethoscope, Building2, FlaskConical, Store, FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -53,6 +53,22 @@ export default function AdminApprovals() {
     fetchAll();
   };
 
+  const getCertificateUrl = (provider: Provider) => {
+    if (!provider.certificate_url) return null;
+    const { data } = supabase.storage.from("certificates").getPublicUrl(provider.certificate_url);
+    // Since bucket is private, generate signed URL instead
+    return provider.certificate_url;
+  };
+
+  const openCertificate = async (path: string) => {
+    const { data, error } = await supabase.storage.from("certificates").createSignedUrl(path, 3600);
+    if (error || !data?.signedUrl) {
+      toast.error("Failed to load document");
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
+  };
+
   const statusBadge = (status: string) => {
     switch (status) {
       case "approved": return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">Approved</Badge>;
@@ -81,6 +97,17 @@ export default function AdminApprovals() {
                     <p className="font-medium text-foreground">{p.name}</p>
                     <p className="text-sm text-muted-foreground">{p[subtitleKey] || "—"}</p>
                     <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</p>
+                    {type === "doctors" && p.certificate_url && (
+                      <button
+                        onClick={() => openCertificate(p.certificate_url)}
+                        className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-primary hover:underline"
+                      >
+                        <FileText className="w-3.5 h-3.5" /> View Documents <ExternalLink className="w-3 h-3" />
+                      </button>
+                    )}
+                    {type === "doctors" && !p.certificate_url && (
+                      <p className="text-xs text-muted-foreground/60 mt-1">No documents uploaded</p>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => updateApproval(type, p.id, "approved")} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700">
