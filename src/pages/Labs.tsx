@@ -253,6 +253,13 @@ const Labs = () => {
                               {test.is_popular && (
                                 <Badge variant="secondary" className="text-[10px] h-4 px-1.5">Popular</Badge>
                               )}
+                              <Button
+                                size="sm"
+                                className="h-6 px-2.5 rounded-md text-[10px] gradient-primary text-primary-foreground ml-auto"
+                                onClick={() => navigate(`/book/lab/${lab.id}?test=${test.id}`)}
+                              >
+                                Book
+                              </Button>
                             </div>
                           </div>
                         </div>
