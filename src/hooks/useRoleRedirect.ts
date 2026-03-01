@@ -21,22 +21,22 @@ async function fetchRolePath(userId: string): Promise<string> {
 
   if (roleSet.has("doctor")) {
     const { data } = await supabase.from("doctors").select("approval_status").eq("user_id", userId).maybeSingle();
-    if (data?.approval_status === "pending") return "/pending-approval";
+    if (data?.approval_status === "pending" || data?.approval_status === "returned") return "/pending-approval";
     return "/doctor";
   }
   if (roleSet.has("hospital_admin")) {
     const { data } = await supabase.from("hospitals").select("approval_status").eq("user_id", userId).maybeSingle();
-    if (data?.approval_status === "pending") return "/pending-approval";
+    if (data?.approval_status === "pending" || data?.approval_status === "returned") return "/pending-approval";
     return "/hospital";
   }
   if (roleSet.has("lab_admin")) {
     const { data } = await supabase.from("labs").select("approval_status").eq("user_id", userId).maybeSingle();
-    if (data?.approval_status === "pending") return "/pending-approval";
+    if (data?.approval_status === "pending" || data?.approval_status === "returned") return "/pending-approval";
     return "/lab";
   }
   if (roleSet.has("pharmacy_admin")) {
     const { data } = await supabase.from("pharmacies").select("approval_status").eq("user_id", userId).maybeSingle();
-    if (data?.approval_status === "pending") return "/pending-approval";
+    if (data?.approval_status === "pending" || data?.approval_status === "returned") return "/pending-approval";
     return "/pharmacy-panel";
   }
 
