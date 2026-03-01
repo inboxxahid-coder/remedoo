@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { cn } from "@/lib/utils";
 import PatientQueueView from "@/components/patient/PatientQueueView";
 
@@ -42,6 +43,13 @@ const Appointments = () => {
   const [newTime, setNewTime] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
 
+  // OTP state
+  const [otpStep, setOtpStep] = useState<"confirm" | "otp" | null>(null);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpChannels, setOtpChannels] = useState<string[]>([]);
+
   const timeSlots = [
     "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
     "12:00", "12:30", "14:00", "14:30", "15:00", "15:30",
@@ -74,6 +82,80 @@ const Appointments = () => {
     const { error } = await supabase.from("appointments").update({ status: "cancelled" }).eq("id", id);
     if (error) toast.error("Failed to cancel");
     else { toast.success("Appointment cancelled"); loadAppointments(); }
+  };
+
+  const handleCancelClick = (apt: AppointmentWithProvider) => {
+    setCancelTarget(apt);
+    setOtpStep("confirm");
+    setOtpCode("");
+    setOtpChannels([]);
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!cancelTarget) return;
+
+    // For confirmed appointments, check if OTP is required
+    if (cancelTarget.status === "confirmed") {
+      setOtpSending(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("send-cancellation-otp", {
+          body: { appointment_id: cancelTarget.id },
+        });
+
+        if (error) throw error;
+
+        if (data?.otp_required) {
+          setOtpChannels(data.channels_used || []);
+          setOtpStep("otp");
+          toast.info(`OTP sent via ${(data.channels_used || []).join(", ")}`);
+        } else {
+          // OTP not required by admin, cancel directly
+          cancelAppointment(cancelTarget.id);
+          closeCancelDialog();
+        }
+      } catch (err: any) {
+        console.error("OTP send error:", err);
+        toast.error("Failed to send OTP. Please try again.");
+      } finally {
+        setOtpSending(false);
+      }
+    } else {
+      // Pending appointments - cancel directly
+      cancelAppointment(cancelTarget.id);
+      closeCancelDialog();
+    }
+  };
+
+  const handleOtpVerify = async () => {
+    if (!cancelTarget || otpCode.length !== 6) return;
+    setOtpVerifying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-cancellation-otp", {
+        body: { appointment_id: cancelTarget.id, otp_code: otpCode },
+      });
+
+      if (error) throw error;
+
+      if (data?.verified) {
+        toast.success("Appointment cancelled successfully");
+        closeCancelDialog();
+        loadAppointments();
+      } else {
+        toast.error(data?.error || "Invalid OTP");
+      }
+    } catch (err: any) {
+      console.error("OTP verify error:", err);
+      toast.error("Verification failed. Please try again.");
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  const closeCancelDialog = () => {
+    setCancelTarget(null);
+    setOtpStep(null);
+    setOtpCode("");
+    setOtpChannels([]);
   };
 
   const openReschedule = (apt: AppointmentWithProvider) => {
@@ -172,7 +254,7 @@ const Appointments = () => {
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => openReschedule(apt)}>
                       <CalendarClock className="w-3.5 h-3.5 mr-1" />Reschedule
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg border-emergency text-emergency" onClick={() => setCancelTarget(apt)}>
+                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg border-emergency text-emergency" onClick={() => handleCancelClick(apt)}>
                       Cancel
                     </Button>
                   </div>
@@ -183,6 +265,7 @@ const Appointments = () => {
         )}
       </div>
 
+      {/* Reschedule Dialog */}
       <Dialog open={!!rescheduleApt} onOpenChange={(o) => !o && setRescheduleApt(null)}>
         <DialogContent className="max-w-[95vw] sm:max-w-md rounded-2xl">
           <DialogHeader>
@@ -228,36 +311,83 @@ const Appointments = () => {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={!!cancelTarget} onOpenChange={(o) => !o && setCancelTarget(null)}>
+      {/* Cancel Confirmation + OTP Dialog */}
+      <AlertDialog open={!!cancelTarget} onOpenChange={(o) => !o && closeCancelDialog()}>
         <AlertDialogContent className="max-w-[90vw] sm:max-w-md rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm">
-              {cancelTarget?.status === "confirmed" ? (
-                <>
-                  ⚠️ This appointment is already <strong>confirmed</strong>. If you paid online, please note that <strong>refunds will not be processed</strong> for cancelled confirmed appointments.
+          {otpStep === "confirm" && (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm">
+                  {cancelTarget?.status === "confirmed" ? (
+                    <>
+                      ⚠️ This appointment is already <strong>confirmed</strong>. If you paid online, please note that <strong>refunds will not be processed</strong> for cancelled confirmed appointments.
+                      <br /><br />
+                      {cancelTarget?.status === "confirmed" && "An OTP will be sent to verify your identity before cancellation."}
+                    </>
+                  ) : (
+                    "Are you sure you want to cancel this appointment? This action cannot be undone."
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={closeCancelDialog}>Go Back</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  disabled={otpSending}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCancelConfirm();
+                  }}
+                >
+                  {otpSending ? "Sending OTP..." : "Yes, Cancel"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </>
+          )}
+
+          {otpStep === "otp" && (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Enter Verification Code</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm">
+                  A 6-digit OTP has been sent via{" "}
+                  <strong>{otpChannels.join(", ")}</strong>. Enter it below to confirm cancellation.
                   <br /><br />
-                  Are you sure you want to cancel?
-                </>
-              ) : (
-                "Are you sure you want to cancel this appointment? This action cannot be undone."
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Go Back</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => {
-                if (cancelTarget) {
-                  cancelAppointment(cancelTarget.id);
-                  setCancelTarget(null);
-                }
-              }}
-            >
-              Yes, Cancel
-            </AlertDialogAction>
-          </AlertDialogFooter>
+                  <span className="text-destructive font-medium">
+                    ⚠️ Refunds will not be reflected for confirmed appointments.
+                  </span>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <div className="flex justify-center py-4">
+                <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={closeCancelDialog}>Go Back</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  disabled={otpCode.length !== 6 || otpVerifying}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleOtpVerify();
+                  }}
+                >
+                  {otpVerifying ? "Verifying..." : "Confirm Cancellation"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </>
+          )}
         </AlertDialogContent>
       </AlertDialog>
 

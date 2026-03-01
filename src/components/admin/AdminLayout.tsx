@@ -4,7 +4,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   LayoutDashboard, Stethoscope, Building2, FlaskConical, Store, CalendarCheck,
   ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill, Menu, X,
-  CheckSquare, AlertTriangle, FilePenLine
+  CheckSquare, AlertTriangle, FilePenLine, KeyRound
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ const navItems = [
   { label: "Slider", path: "/admin/slider", icon: Image },
   { label: "Ads", path: "/admin/ads", icon: Megaphone },
   { label: "Edit Requests", path: "/admin/edit-requests", icon: FilePenLine },
+  { label: "OTP Settings", path: "/admin/otp-settings", icon: KeyRound },
 ];
 
 export default function AdminLayout() {
