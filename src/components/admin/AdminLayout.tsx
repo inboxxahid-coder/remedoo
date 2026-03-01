@@ -25,6 +25,11 @@ const navItems = [
   { label: "Ads", path: "/admin/ads", icon: Megaphone },
   { label: "Edit Requests", path: "/admin/edit-requests", icon: FilePenLine },
   { label: "OTP Settings", path: "/admin/otp-settings", icon: KeyRound },
+  { label: "Commission Config", path: "/admin/commission", icon: KeyRound },
+  { label: "Platform Revenue", path: "/admin/revenue", icon: ShoppingBag },
+  { label: "Payouts", path: "/admin/payouts", icon: Users },
+  { label: "Support Tickets", path: "/admin/support-tickets", icon: Megaphone },
+  { label: "Suspicious Activity", path: "/admin/suspicious-activity", icon: AlertTriangle },
 ];
 
 export default function AdminLayout() {

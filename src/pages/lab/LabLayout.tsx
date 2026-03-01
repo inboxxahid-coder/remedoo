@@ -1,11 +1,13 @@
 import { useProviderAuth } from "@/hooks/useProviderAuth";
 import ProviderLayout from "@/components/provider/ProviderLayout";
-import { FlaskConical, LayoutDashboard, CalendarCheck, User, Settings, TestTube } from "lucide-react";
+import { FlaskConical, LayoutDashboard, CalendarCheck, User, Settings, TestTube, Droplets, IndianRupee } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/lab", icon: LayoutDashboard },
   { label: "Appointments", path: "/lab/appointments", icon: CalendarCheck },
   { label: "Tests", path: "/lab/tests", icon: TestTube },
+  { label: "Sample Collections", path: "/lab/samples", icon: Droplets },
+  { label: "Earnings", path: "/lab/earnings", icon: IndianRupee },
   { label: "Profile", path: "/lab/profile", icon: User },
   { label: "Settings", path: "/lab/settings", icon: Settings },
 ];
