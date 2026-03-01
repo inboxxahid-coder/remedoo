@@ -945,6 +945,62 @@ export type Database = {
         }
         Relationships: []
       }
+      lab_tests: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          discount_percent: number | null
+          home_collection: boolean | null
+          id: string
+          is_popular: boolean | null
+          lab_id: string
+          name: string
+          price: number
+          requires_fasting: boolean | null
+          sample_type: string | null
+          turnaround_time: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          home_collection?: boolean | null
+          id?: string
+          is_popular?: boolean | null
+          lab_id: string
+          name: string
+          price?: number
+          requires_fasting?: boolean | null
+          sample_type?: string | null
+          turnaround_time?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          home_collection?: boolean | null
+          id?: string
+          is_popular?: boolean | null
+          lab_id?: string
+          name?: string
+          price?: number
+          requires_fasting?: boolean | null
+          sample_type?: string | null
+          turnaround_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_tests_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       labs: {
         Row: {
           admin_note: string | null
