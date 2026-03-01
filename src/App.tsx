@@ -49,7 +49,7 @@ import AdminSlider from "./pages/admin/AdminSlider";
 import AdminAds from "./pages/admin/AdminAds";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminEmergencies from "./pages/admin/AdminEmergencies";
-
+import AdminEditRequests from "./pages/admin/AdminEditRequests";
 // Doctor Panel
 import DoctorLayout from "./pages/doctor/DoctorLayout";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
@@ -161,6 +161,7 @@ const App = () => {
             <Route path="users" element={<AdminUsers />} />
             <Route path="slider" element={<AdminSlider />} />
             <Route path="ads" element={<AdminAds />} />
+            <Route path="edit-requests" element={<AdminEditRequests />} />
           </Route>
 
           {/* Doctor routes */}

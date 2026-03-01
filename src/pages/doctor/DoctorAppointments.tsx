@@ -13,7 +13,8 @@ import { toast } from "sonner";
 import { logAuditAction } from "@/lib/auditLog";
 import {
   Search, Filter, CalendarCheck, FileText, CalendarPlus, MessageSquare,
-  Upload, ChevronLeft, ChevronRight, CheckCircle, Pill, User, Hash
+  Upload, ChevronLeft, ChevronRight, CheckCircle, Pill, User, Hash,
+  LockKeyhole, FilePenLine
 } from "lucide-react";
 import PrescriptionBuilder from "@/components/doctor/PrescriptionBuilder";
 import PatientHistory from "@/components/doctor/PatientHistory";
@@ -36,6 +37,8 @@ export default function DoctorAppointments() {
   const [showNotesDialog, setShowNotesDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
+  const [showEditRequestDialog, setShowEditRequestDialog] = useState(false);
+  const [editRequestValue, setEditRequestValue] = useState("");
   const [consultationNotes, setConsultationNotes] = useState("");
   const [followUpDate, setFollowUpDate] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
@@ -48,6 +51,8 @@ export default function DoctorAppointments() {
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [doctorName, setDoctorName] = useState("");
   const [doctorSpecialization, setDoctorSpecialization] = useState("");
+
+  const LOCK_HOURS = 24;
 
   const load = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -94,6 +99,12 @@ export default function DoctorAppointments() {
     const today = new Date().toISOString().split("T")[0];
     const apt = appointments.find(a => a.id === id);
 
+    // Prevent modifying locked completed records
+    if (apt && isLocked(apt)) {
+      toast.error("This record is locked. Please submit an edit request instead.");
+      return;
+    }
+
     // Prevent modifying past completed records
     if (apt?.status === "completed" && apt.appointment_date < today) {
       toast.error("Cannot modify past completed appointments");
@@ -128,13 +139,44 @@ export default function DoctorAppointments() {
 
   const handleComplete = () => {
     if (!selectedApt) return;
-    const extra: any = {};
+    const extra: any = { completed_at: new Date().toISOString() };
     if (consultationNotes.trim()) extra.consultation_notes = consultationNotes;
     if (followUpDate) extra.follow_up_date = followUpDate;
     updateStatus(selectedApt.id, "completed", extra);
     setShowNotesDialog(false);
     setConsultationNotes("");
     setFollowUpDate("");
+  };
+
+  const isLocked = (apt: any) => {
+    if (apt.status !== "completed") return false;
+    const completedAt = apt.completed_at ? new Date(apt.completed_at) : new Date(apt.updated_at);
+    const hoursSince = (Date.now() - completedAt.getTime()) / (1000 * 60 * 60);
+    return hoursSince >= LOCK_HOURS;
+  };
+
+  const handleRequestEdit = async () => {
+    if (!selectedApt || !editRequestValue.trim() || !doctorId) {
+      toast.error("Please provide updated notes");
+      return;
+    }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { error } = await supabase.from("consultation_edit_requests").insert({
+      appointment_id: selectedApt.id,
+      doctor_id: doctorId,
+      requested_by: session.user.id,
+      field_name: "consultation_notes",
+      old_value: (selectedApt as any).consultation_notes || null,
+      new_value: editRequestValue,
+    } as any);
+
+    if (error) { toast.error(error.message); return; }
+    toast.success("Edit request submitted for admin approval");
+    logAuditAction({ action: "request_edit_locked_notes", entityType: "appointment", entityId: selectedApt.id });
+    setShowEditRequestDialog(false);
+    setEditRequestValue("");
   };
 
   const handleReschedule = () => {
@@ -277,10 +319,13 @@ export default function DoctorAppointments() {
                   </p>
                   {apt.notes && <p className="text-xs text-muted-foreground">📝 {apt.notes}</p>}
                   {(apt as any).consultation_notes && (
-                    <p className="text-xs text-primary">💊 Notes: {(apt as any).consultation_notes}</p>
+                    <div className="flex items-center gap-1">
+                      <p className="text-xs text-primary">💊 Notes: {(apt as any).consultation_notes}</p>
+                      {isLocked(apt) && <LockKeyhole className="w-3 h-3 text-muted-foreground" />}
+                    </div>
                   )}
                   {(apt as any).follow_up_date && (
-                    <p className="text-xs text-blue-500">📋 Follow-up: {(apt as any).follow_up_date}</p>
+                    <p className="text-xs text-muted-foreground">📋 Follow-up: {(apt as any).follow_up_date}</p>
                   )}
                   {(apt as any).rejection_reason && (
                     <p className="text-xs text-destructive">❌ Reason: {(apt as any).rejection_reason}</p>
@@ -336,6 +381,15 @@ export default function DoctorAppointments() {
                         <Upload className="w-3.5 h-3.5 mr-1" /> Upload
                       </Button>
                     </div>
+                  )}
+                  {apt.status === "completed" && isLocked(apt) && (
+                    <Button size="sm" variant="outline" className="text-xs" onClick={() => {
+                      setSelectedApt(apt);
+                      setEditRequestValue((apt as any).consultation_notes || "");
+                      setShowEditRequestDialog(true);
+                    }}>
+                      <FilePenLine className="w-3.5 h-3.5 mr-1" /> Request Edit
+                    </Button>
                   )}
                 </div>
               </div>
@@ -443,6 +497,35 @@ export default function DoctorAppointments() {
           doctorId={doctorId}
         />
       )}
+
+      {/* Edit Request Dialog for Locked Notes */}
+      <Dialog open={showEditRequestDialog} onOpenChange={setShowEditRequestDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <LockKeyhole className="w-4 h-4 text-muted-foreground" />
+              Request Edit — Locked Record
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              This record is locked ({LOCK_HOURS}h after completion). Your edit request will be sent to an admin for approval.
+            </p>
+            <div>
+              <Label>Current Notes</Label>
+              <p className="text-sm bg-muted/50 p-2 rounded-lg mt-1">{selectedApt?.consultation_notes || "No notes"}</p>
+            </div>
+            <div>
+              <Label>Updated Notes *</Label>
+              <Textarea value={editRequestValue} onChange={e => setEditRequestValue(e.target.value)} placeholder="Enter updated consultation notes..." rows={4} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditRequestDialog(false)}>Cancel</Button>
+            <Button onClick={handleRequestEdit}>Submit Request</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
