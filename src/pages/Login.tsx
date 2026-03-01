@@ -23,19 +23,25 @@ const Login = () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         toast.error(error.message);
-        setLoading(false);
         return;
       }
       if (data?.session) {
-        const redirectPath = await getRoleRedirectPath(data.session.user.id);
-        navigate(redirectPath, { replace: true });
+        try {
+          const redirectPath = await getRoleRedirectPath(data.session.user.id);
+          navigate(redirectPath, { replace: true });
+        } catch (redirectErr) {
+          console.error("Role redirect error:", redirectErr);
+          navigate("/dashboard", { replace: true });
+        }
         return;
       }
+      toast.error("Login failed. Please try again.");
     } catch (err: any) {
       console.error("Login error:", err?.message);
       toast.error("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
