@@ -10,6 +10,7 @@ import type { User as SupaUser } from "@supabase/supabase-js";
 import type { Tables } from "@/integrations/supabase/types";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import BottomNav from "@/components/BottomNav";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const quickActions = [
   { icon: Calendar, label: "Book\nAppointment", gradient: "from-primary to-[hsl(190,70%,45%)]", path: "/doctors", emoji: "📅" },
@@ -63,6 +64,7 @@ const Dashboard = () => {
   const [recentOrders, setRecentOrders] = useState(0);
   const [activeOrders, setActiveOrders] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [pullDistance, setPullDistance] = useState(0);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -80,7 +82,7 @@ const Dashboard = () => {
     if (adsRes.data) setAds(adsRes.data);
 
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) { setIsLoading(false); return; }
     const userId = session.user.id;
 
     const today = new Date().toISOString().split("T")[0];
@@ -96,6 +98,7 @@ const Dashboard = () => {
     setUpcomingAppts(apptRes.count ?? 0);
     setRecentOrders(orderRes.count ?? 0);
     setActiveOrders(activeRes.count ?? 0);
+    setIsLoading(false);
   }, []);
 
   const handleRefresh = useCallback(async () => {
@@ -260,6 +263,57 @@ const Dashboard = () => {
             </div>
 
             <div className="px-5 -mt-6 space-y-8 relative z-10">
+              {/* Loading Skeleton */}
+              {isLoading ? (
+                <div className="space-y-6 pt-2">
+                  {/* Stats skeleton */}
+                  <div className="glass rounded-3xl p-4 shadow-2xl shadow-primary/5">
+                    <div className="grid grid-cols-3 gap-3">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-muted/30">
+                          <Skeleton className="w-10 h-10 rounded-xl" />
+                          <Skeleton className="w-10 h-7 rounded" />
+                          <Skeleton className="w-16 h-3 rounded" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Quick actions skeleton */}
+                  <div className="glass rounded-3xl p-5 shadow-2xl shadow-primary/5">
+                    <div className="grid grid-cols-4 gap-3">
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="flex flex-col items-center gap-2.5">
+                          <Skeleton className="w-[3.75rem] h-[3.75rem] rounded-2xl" />
+                          <Skeleton className="w-12 h-3 rounded" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Featured skeleton */}
+                  <div>
+                    <Skeleton className="w-24 h-5 rounded mb-4" />
+                    <div className="flex gap-4 overflow-hidden">
+                      {[1, 2].map(i => (
+                        <Skeleton key={i} className="flex-shrink-0 w-72 h-44 rounded-3xl" />
+                      ))}
+                    </div>
+                  </div>
+                  {/* Services skeleton */}
+                  <div>
+                    <Skeleton className="w-32 h-5 rounded mb-4" />
+                    <div className="grid grid-cols-2 gap-3.5">
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="bg-card rounded-2xl p-5 border border-border">
+                          <Skeleton className="w-12 h-12 rounded-2xl mb-3" />
+                          <Skeleton className="w-20 h-4 rounded mb-2" />
+                          <Skeleton className="w-28 h-3 rounded" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+              <>
               {/* Health Stats Summary */}
               {user && (
                 <motion.div
@@ -479,6 +533,8 @@ const Dashboard = () => {
                   ))}
                 </div>
               </motion.div>
+            </>
+              )}
             </div>
           </div>
         </div>
