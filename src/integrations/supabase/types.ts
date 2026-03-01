@@ -104,6 +104,7 @@ export type Database = {
           rejection_reason: string | null
           service_type: string
           status: string
+          token_number: number | null
           updated_at: string
         }
         Insert: {
@@ -123,6 +124,7 @@ export type Database = {
           rejection_reason?: string | null
           service_type: string
           status?: string
+          token_number?: number | null
           updated_at?: string
         }
         Update: {
@@ -142,6 +144,7 @@ export type Database = {
           rejection_reason?: string | null
           service_type?: string
           status?: string
+          token_number?: number | null
           updated_at?: string
         }
         Relationships: [
