@@ -90,6 +90,7 @@ export type Database = {
         Row: {
           appointment_date: string
           appointment_time: string
+          completed_at: string | null
           consultation_notes: string | null
           created_at: string
           doctor_id: string | null
@@ -110,6 +111,7 @@ export type Database = {
         Insert: {
           appointment_date: string
           appointment_time: string
+          completed_at?: string | null
           consultation_notes?: string | null
           created_at?: string
           doctor_id?: string | null
@@ -130,6 +132,7 @@ export type Database = {
         Update: {
           appointment_date?: string
           appointment_time?: string
+          completed_at?: string | null
           consultation_notes?: string | null
           created_at?: string
           doctor_id?: string | null
@@ -215,6 +218,66 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "audit_logs_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consultation_edit_requests: {
+        Row: {
+          admin_notes: string | null
+          appointment_id: string
+          created_at: string
+          doctor_id: string
+          field_name: string
+          id: string
+          new_value: string
+          old_value: string | null
+          requested_by: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          appointment_id: string
+          created_at?: string
+          doctor_id: string
+          field_name?: string
+          id?: string
+          new_value: string
+          old_value?: string | null
+          requested_by: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          appointment_id?: string
+          created_at?: string
+          doctor_id?: string
+          field_name?: string
+          id?: string
+          new_value?: string
+          old_value?: string | null
+          requested_by?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_edit_requests_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultation_edit_requests_doctor_id_fkey"
             columns: ["doctor_id"]
             isOneToOne: false
             referencedRelation: "doctors"

@@ -71,10 +71,40 @@ export default function LiveQueue({ doctorId }: LiveQueueProps) {
       return;
     }
     const next = confirmed[0];
-    // Mark current as "in cabin" by completing the previous or just moving forward
     setCurrentToken(next.token_number);
     toast.success(`Now serving Token #${next.token_number}`);
     logAuditAction({ action: "call_next_patient", entityType: "appointment", entityId: next.id, details: { token: next.token_number } });
+
+    // Send push notification to the patient whose turn is next
+    try {
+      await supabase.functions.invoke("send-push-notification", {
+        body: {
+          user_id: next.patient_id,
+          title: "Your Turn Is Next! 🏥",
+          message: `Token #${next.token_number} — Please proceed to the doctor's cabin.`,
+          path: "/appointments",
+        },
+      });
+    } catch (e) {
+      console.error("Push notification failed:", e);
+    }
+
+    // Also notify the patient AFTER next (2nd in line) that they're coming up
+    if (confirmed.length > 1) {
+      const afterNext = confirmed[1];
+      try {
+        await supabase.functions.invoke("send-push-notification", {
+          body: {
+            user_id: afterNext.patient_id,
+            title: "Almost Your Turn! ⏳",
+            message: `Token #${afterNext.token_number} — You are next in line. Please be ready.`,
+            path: "/appointments",
+          },
+        });
+      } catch (e) {
+        console.error("Push notification failed:", e);
+      }
+    }
   };
 
   const confirmedQueue = queue.filter(a => a.status === "confirmed");
