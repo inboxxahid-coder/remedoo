@@ -565,6 +565,7 @@ export type Database = {
       doctors: {
         Row: {
           account_status: string
+          additional_docs_urls: string[] | null
           admin_note: string | null
           approval_status: string
           bio: string | null
@@ -575,9 +576,11 @@ export type Database = {
           department_id: string | null
           emergency_available: boolean | null
           experience_years: number | null
+          gst_url: string | null
           hospital_id: string | null
           id: string
           image_url: string | null
+          license_url: string | null
           max_appointments_per_day: number | null
           name: string
           phone: string | null
@@ -589,6 +592,7 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          additional_docs_urls?: string[] | null
           admin_note?: string | null
           approval_status?: string
           bio?: string | null
@@ -599,9 +603,11 @@ export type Database = {
           department_id?: string | null
           emergency_available?: boolean | null
           experience_years?: number | null
+          gst_url?: string | null
           hospital_id?: string | null
           id?: string
           image_url?: string | null
+          license_url?: string | null
           max_appointments_per_day?: number | null
           name: string
           phone?: string | null
@@ -613,6 +619,7 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          additional_docs_urls?: string[] | null
           admin_note?: string | null
           approval_status?: string
           bio?: string | null
@@ -623,9 +630,11 @@ export type Database = {
           department_id?: string | null
           emergency_available?: boolean | null
           experience_years?: number | null
+          gst_url?: string | null
           hospital_id?: string | null
           id?: string
           image_url?: string | null
+          license_url?: string | null
           max_appointments_per_day?: number | null
           name?: string
           phone?: string | null
@@ -869,6 +878,7 @@ export type Database = {
       }
       hospitals: {
         Row: {
+          additional_docs_urls: string[] | null
           admin_note: string | null
           approval_status: string
           available_beds: number | null
@@ -876,12 +886,14 @@ export type Database = {
           beds: number | null
           created_at: string
           emergency_contact: string | null
+          gst_url: string | null
           holidays: string[] | null
           icu_available: boolean | null
           id: string
           image_url: string | null
           is_government: boolean
           latitude: number | null
+          license_url: string | null
           location: string | null
           longitude: number | null
           name: string
@@ -894,6 +906,7 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
+          additional_docs_urls?: string[] | null
           admin_note?: string | null
           approval_status?: string
           available_beds?: number | null
@@ -901,12 +914,14 @@ export type Database = {
           beds?: number | null
           created_at?: string
           emergency_contact?: string | null
+          gst_url?: string | null
           holidays?: string[] | null
           icu_available?: boolean | null
           id?: string
           image_url?: string | null
           is_government?: boolean
           latitude?: number | null
+          license_url?: string | null
           location?: string | null
           longitude?: number | null
           name: string
@@ -919,6 +934,7 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
+          additional_docs_urls?: string[] | null
           admin_note?: string | null
           approval_status?: string
           available_beds?: number | null
@@ -926,12 +942,14 @@ export type Database = {
           beds?: number | null
           created_at?: string
           emergency_contact?: string | null
+          gst_url?: string | null
           holidays?: string[] | null
           icu_available?: boolean | null
           id?: string
           image_url?: string | null
           is_government?: boolean
           latitude?: number | null
+          license_url?: string | null
           location?: string | null
           longitude?: number | null
           name?: string
@@ -1006,12 +1024,15 @@ export type Database = {
       }
       labs: {
         Row: {
+          additional_docs_urls: string[] | null
           admin_note: string | null
           approval_status: string
           created_at: string
+          gst_url: string | null
           id: string
           image_url: string | null
           latitude: number | null
+          license_url: string | null
           location: string | null
           longitude: number | null
           name: string
@@ -1022,12 +1043,15 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
+          additional_docs_urls?: string[] | null
           admin_note?: string | null
           approval_status?: string
           created_at?: string
+          gst_url?: string | null
           id?: string
           image_url?: string | null
           latitude?: number | null
+          license_url?: string | null
           location?: string | null
           longitude?: number | null
           name: string
@@ -1038,12 +1062,15 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
+          additional_docs_urls?: string[] | null
           admin_note?: string | null
           approval_status?: string
           created_at?: string
+          gst_url?: string | null
           id?: string
           image_url?: string | null
           latitude?: number | null
+          license_url?: string | null
           location?: string | null
           longitude?: number | null
           name?: string
@@ -1361,13 +1388,16 @@ export type Database = {
       }
       pharmacies: {
         Row: {
+          additional_docs_urls: string[] | null
           admin_note: string | null
           approval_status: string
           created_at: string
+          gst_url: string | null
           id: string
           image_url: string | null
           inventory: Json | null
           latitude: number | null
+          license_url: string | null
           location: string | null
           longitude: number | null
           name: string
@@ -1377,13 +1407,16 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
+          additional_docs_urls?: string[] | null
           admin_note?: string | null
           approval_status?: string
           created_at?: string
+          gst_url?: string | null
           id?: string
           image_url?: string | null
           inventory?: Json | null
           latitude?: number | null
+          license_url?: string | null
           location?: string | null
           longitude?: number | null
           name: string
@@ -1393,13 +1426,16 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
+          additional_docs_urls?: string[] | null
           admin_note?: string | null
           approval_status?: string
           created_at?: string
+          gst_url?: string | null
           id?: string
           image_url?: string | null
           inventory?: Json | null
           latitude?: number | null
+          license_url?: string | null
           location?: string | null
           longitude?: number | null
           name?: string
