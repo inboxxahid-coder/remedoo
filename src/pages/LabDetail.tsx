@@ -276,6 +276,7 @@ const LabDetail = () => {
                         {test.home_collection && (
                           <span className="text-[10px] text-success flex items-center gap-0.5">
                             <Home className="w-3 h-3" />Home collection
+                            {(test as any).home_collection_fee > 0 && ` (+₹${(test as any).home_collection_fee})`}
                           </span>
                         )}
                         {test.requires_fasting && (

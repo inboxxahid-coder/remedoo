@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, CreditCard, Banknote, TestTube, Check, Beaker } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CreditCard, Banknote, TestTube, Check, Beaker, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,7 @@ const BookAppointment = () => {
   // Lab test selection
   const [labTests, setLabTests] = useState<Tables<"lab_tests">[]>([]);
   const [selectedTests, setSelectedTests] = useState<Set<string>>(new Set());
+  const [wantHomeCollection, setWantHomeCollection] = useState(false);
 
   useEffect(() => {
     const loadProvider = async () => {
@@ -84,12 +85,22 @@ const BookAppointment = () => {
     });
   };
 
+  const homeCollectionFee = wantHomeCollection
+    ? labTests
+        .filter((t) => selectedTests.has(t.id) && t.home_collection)
+        .reduce((sum, t) => sum + ((t as any).home_collection_fee ?? 0), 0)
+    : 0;
+
   const selectedTestTotal = labTests
     .filter((t) => selectedTests.has(t.id))
     .reduce((sum, t) => {
       const discount = t.discount_percent ?? 0;
       return sum + t.price * (1 - discount / 100);
-    }, 0);
+    }, 0) + homeCollectionFee;
+
+  const anyHomeCollectionAvailable = labTests.some(
+    (t) => selectedTests.has(t.id) && t.home_collection
+  );
 
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,8 +109,9 @@ const BookAppointment = () => {
     const testNames = type === "lab"
       ? labTests.filter((t) => selectedTests.has(t.id)).map((t) => t.name)
       : [];
+    const homeNote = wantHomeCollection ? " | Home Collection" : "";
     const fullNotes = type === "lab"
-      ? `Tests: ${testNames.join(", ")}${notes ? ` | ${notes}` : ""}`
+      ? `Tests: ${testNames.join(", ")}${homeNote}${notes ? ` | ${notes}` : ""}`
       : notes || null;
 
     const { data: { session } } = await supabase.auth.getSession();
@@ -308,6 +320,39 @@ const BookAppointment = () => {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* Home Collection Option */}
+        {type === "lab" && anyHomeCollectionAvailable && (
+          <div className="bg-card rounded-2xl border border-border p-4 mb-4 shadow-sm space-y-2">
+            <button
+              type="button"
+              onClick={() => setWantHomeCollection(!wantHomeCollection)}
+              className={`w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                wantHomeCollection ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${wantHomeCollection ? "bg-primary/15" : "bg-muted"}`}>
+                  <Home className={`w-4 h-4 ${wantHomeCollection ? "text-primary" : "text-muted-foreground"}`} />
+                </div>
+                <div className="text-left">
+                  <p className={`text-sm font-medium ${wantHomeCollection ? "text-primary" : "text-foreground"}`}>Home Sample Collection</p>
+                  <p className="text-[10px] text-muted-foreground">A phlebotomist will visit your home</p>
+                </div>
+              </div>
+              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center ${
+                wantHomeCollection ? "bg-primary border-primary" : "border-muted-foreground/40"
+              }`}>
+                {wantHomeCollection && <Check className="w-3 h-3 text-primary-foreground" />}
+              </div>
+            </button>
+            {wantHomeCollection && homeCollectionFee > 0 && (
+              <p className="text-xs text-muted-foreground px-1">
+                Extra charge: <span className="font-semibold text-primary">+₹{homeCollectionFee}</span> for home collection
+              </p>
+            )}
           </div>
         )}
 
