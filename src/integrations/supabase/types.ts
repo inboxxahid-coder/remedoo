@@ -348,6 +348,74 @@ export type Database = {
           },
         ]
       }
+      cancellation_otp_settings: {
+        Row: {
+          email_enabled: boolean
+          id: string
+          otp_required_for_confirmed: boolean
+          sms_enabled: boolean
+          updated_at: string
+          whatsapp_enabled: boolean
+        }
+        Insert: {
+          email_enabled?: boolean
+          id?: string
+          otp_required_for_confirmed?: boolean
+          sms_enabled?: boolean
+          updated_at?: string
+          whatsapp_enabled?: boolean
+        }
+        Update: {
+          email_enabled?: boolean
+          id?: string
+          otp_required_for_confirmed?: boolean
+          sms_enabled?: boolean
+          updated_at?: string
+          whatsapp_enabled?: boolean
+        }
+        Relationships: []
+      }
+      cancellation_otps: {
+        Row: {
+          appointment_id: string
+          channels_used: string[]
+          created_at: string
+          expires_at: string
+          id: string
+          otp_code: string
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          appointment_id: string
+          channels_used?: string[]
+          created_at?: string
+          expires_at: string
+          id?: string
+          otp_code: string
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          appointment_id?: string
+          channels_used?: string[]
+          created_at?: string
+          expires_at?: string
+          id?: string
+          otp_code?: string
+          user_id?: string
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cancellation_otps_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultation_edit_requests: {
         Row: {
           admin_notes: string | null

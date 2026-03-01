@@ -50,6 +50,7 @@ import AdminAds from "./pages/admin/AdminAds";
 import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminEmergencies from "./pages/admin/AdminEmergencies";
 import AdminEditRequests from "./pages/admin/AdminEditRequests";
+import AdminOtpSettings from "./pages/admin/AdminOtpSettings";
 // Doctor Panel
 import DoctorLayout from "./pages/doctor/DoctorLayout";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
@@ -174,6 +175,7 @@ const App = () => {
             <Route path="slider" element={<AdminSlider />} />
             <Route path="ads" element={<AdminAds />} />
             <Route path="edit-requests" element={<AdminEditRequests />} />
+            <Route path="otp-settings" element={<AdminOtpSettings />} />
           </Route>
 
           {/* Doctor routes */}
