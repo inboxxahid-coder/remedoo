@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, AlertCircle, CalendarClock } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, AlertCircle, CalendarClock, Hash } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import PatientQueueView from "@/components/patient/PatientQueueView";
 
 type AppointmentWithProvider = {
   id: string;
@@ -18,6 +19,8 @@ type AppointmentWithProvider = {
   status: string;
   notes: string | null;
   provider_name: string;
+  token_number: number | null;
+  doctor_id: string | null;
 };
 
 const statusConfig: Record<string, { icon: any; color: string; bg: string }> = {
@@ -150,6 +153,18 @@ const Appointments = () => {
                   <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{apt.appointment_time}</span>
                 </div>
                 {apt.notes && <p className="text-xs text-muted-foreground mt-2 bg-muted rounded-lg p-2">{apt.notes}</p>}
+                {apt.token_number && (
+                  <div className="flex items-center gap-1 mt-2 text-xs text-primary font-medium">
+                    <Hash className="w-3 h-3" /> Token #{apt.token_number}
+                  </div>
+                )}
+                {apt.token_number && apt.doctor_id && apt.status === "confirmed" && (
+                  <PatientQueueView
+                    appointmentId={apt.id}
+                    doctorId={apt.doctor_id}
+                    appointmentDate={apt.appointment_date}
+                  />
+                )}
                 {(apt.status === "pending" || apt.status === "confirmed") && tab === "upcoming" && (
                   <div className="flex gap-2 mt-3">
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => openReschedule(apt)}>
