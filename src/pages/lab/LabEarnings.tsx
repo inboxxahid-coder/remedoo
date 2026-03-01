@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import ProviderEarningsView from "@/components/provider/ProviderEarningsView";
 import { supabase } from "@/integrations/supabase/client";
 
-export default function DoctorEarnings() {
-  const [doctorId, setDoctorId] = useState<string | null>(null);
+export default function LabEarnings() {
+  const [labId, setLabId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -11,11 +11,11 @@ export default function DoctorEarnings() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       setUserId(session.user.id);
-      const { data: doctor } = await supabase.from("doctors").select("id").eq("user_id", session.user.id).maybeSingle();
-      if (doctor) setDoctorId(doctor.id);
+      const { data: lab } = await supabase.from("labs").select("id").eq("user_id", session.user.id).maybeSingle();
+      if (lab) setLabId(lab.id);
     };
     load();
   }, []);
 
-  return <ProviderEarningsView providerType="doctor" providerId={doctorId} userId={userId} />;
+  return <ProviderEarningsView providerType="lab" providerId={labId} userId={userId} />;
 }

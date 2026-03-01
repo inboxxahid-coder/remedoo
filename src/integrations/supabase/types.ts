@@ -996,6 +996,131 @@ export type Database = {
         }
         Relationships: []
       }
+      lab_sample_collections: {
+        Row: {
+          appointment_id: string
+          collected_at: string | null
+          collection_address: string | null
+          collection_type: string
+          collector_name: string | null
+          collector_phone: string | null
+          created_at: string
+          id: string
+          lab_id: string
+          notes: string | null
+          patient_id: string
+          report_url: string | null
+          report_version: number
+          sample_type: string
+          scheduled_date: string
+          scheduled_time: string | null
+          status: string
+          test_name: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          collected_at?: string | null
+          collection_address?: string | null
+          collection_type?: string
+          collector_name?: string | null
+          collector_phone?: string | null
+          created_at?: string
+          id?: string
+          lab_id: string
+          notes?: string | null
+          patient_id: string
+          report_url?: string | null
+          report_version?: number
+          sample_type?: string
+          scheduled_date: string
+          scheduled_time?: string | null
+          status?: string
+          test_name: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          collected_at?: string | null
+          collection_address?: string | null
+          collection_type?: string
+          collector_name?: string | null
+          collector_phone?: string | null
+          created_at?: string
+          id?: string
+          lab_id?: string
+          notes?: string | null
+          patient_id?: string
+          report_url?: string | null
+          report_version?: number
+          sample_type?: string
+          scheduled_date?: string
+          scheduled_time?: string | null
+          status?: string
+          test_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_sample_collections_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_sample_collections_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_test_packages: {
+        Row: {
+          created_at: string
+          description: string | null
+          discount_percent: number | null
+          id: string
+          is_active: boolean
+          lab_id: string
+          name: string
+          package_price: number
+          tests: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          id?: string
+          is_active?: boolean
+          lab_id: string
+          name: string
+          package_price?: number
+          tests?: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          id?: string
+          is_active?: boolean
+          lab_id?: string
+          name?: string
+          package_price?: number
+          tests?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_test_packages_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lab_tests: {
         Row: {
           category: string
@@ -1117,14 +1242,18 @@ export type Database = {
       }
       medicines: {
         Row: {
+          batch_number: string | null
           category: string
           created_at: string
           description: string | null
           discount_percent: number | null
+          expiry_date: string | null
           generic_name: string | null
           id: string
           image_url: string | null
           in_stock: boolean | null
+          low_stock_threshold: number | null
+          manufacturer: string | null
           name: string
           pharmacy_id: string
           price: number
@@ -1133,14 +1262,18 @@ export type Database = {
           unit: string | null
         }
         Insert: {
+          batch_number?: string | null
           category?: string
           created_at?: string
           description?: string | null
           discount_percent?: number | null
+          expiry_date?: string | null
           generic_name?: string | null
           id?: string
           image_url?: string | null
           in_stock?: boolean | null
+          low_stock_threshold?: number | null
+          manufacturer?: string | null
           name: string
           pharmacy_id: string
           price?: number
@@ -1149,14 +1282,18 @@ export type Database = {
           unit?: string | null
         }
         Update: {
+          batch_number?: string | null
           category?: string
           created_at?: string
           description?: string | null
           discount_percent?: number | null
+          expiry_date?: string | null
           generic_name?: string | null
           id?: string
           image_url?: string | null
           in_stock?: boolean | null
+          low_stock_threshold?: number | null
+          manufacturer?: string | null
           name?: string
           pharmacy_id?: string
           price?: number
@@ -1419,6 +1556,54 @@ export type Database = {
         }
         Relationships: []
       }
+      payout_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          bank_details: Json | null
+          id: string
+          paid_at: string | null
+          provider_id: string
+          provider_type: string
+          requested_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          transaction_reference: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          bank_details?: Json | null
+          id?: string
+          paid_at?: string | null
+          provider_id: string
+          provider_type: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          transaction_reference?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          bank_details?: Json | null
+          id?: string
+          paid_at?: string | null
+          provider_id?: string
+          provider_type?: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          transaction_reference?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pharmacies: {
         Row: {
           additional_docs_urls: string[] | null
@@ -1476,6 +1661,42 @@ export type Database = {
           rating?: number | null
           user_id?: string | null
           working_hours?: Json | null
+        }
+        Relationships: []
+      }
+      platform_commission_config: {
+        Row: {
+          commission_percent: number
+          created_at: string
+          description: string | null
+          flat_fee: number
+          id: string
+          is_active: boolean
+          provider_type: string
+          service_type: string
+          updated_at: string
+        }
+        Insert: {
+          commission_percent?: number
+          created_at?: string
+          description?: string | null
+          flat_fee?: number
+          id?: string
+          is_active?: boolean
+          provider_type: string
+          service_type?: string
+          updated_at?: string
+        }
+        Update: {
+          commission_percent?: number
+          created_at?: string
+          description?: string | null
+          flat_fee?: number
+          id?: string
+          is_active?: boolean
+          provider_type?: string
+          service_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1617,6 +1838,84 @@ export type Database = {
           notification_preferences?: Json | null
           phone?: string | null
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      provider_earnings: {
+        Row: {
+          commission_amount: number
+          commission_percent: number
+          created_at: string
+          description: string | null
+          gross_amount: number
+          id: string
+          net_amount: number
+          provider_id: string
+          provider_type: string
+          reference_id: string
+          reference_type: string
+        }
+        Insert: {
+          commission_amount?: number
+          commission_percent?: number
+          created_at?: string
+          description?: string | null
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          provider_id: string
+          provider_type: string
+          reference_id: string
+          reference_type: string
+        }
+        Update: {
+          commission_amount?: number
+          commission_percent?: number
+          created_at?: string
+          description?: string | null
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          provider_id?: string
+          provider_type?: string
+          reference_id?: string
+          reference_type?: string
+        }
+        Relationships: []
+      }
+      provider_wallets: {
+        Row: {
+          available_balance: number
+          id: string
+          pending_withdrawal: number
+          provider_id: string
+          provider_type: string
+          total_earned: number
+          total_withdrawn: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_balance?: number
+          id?: string
+          pending_withdrawal?: number
+          provider_id: string
+          provider_type: string
+          total_earned?: number
+          total_withdrawn?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_balance?: number
+          id?: string
+          pending_withdrawal?: number
+          provider_id?: string
+          provider_type?: string
+          total_earned?: number
+          total_withdrawn?: number
           updated_at?: string
           user_id?: string
         }
@@ -1783,6 +2082,93 @@ export type Database = {
           title?: string | null
           type?: string
           url?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          admin_response: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          description: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      suspicious_activity_logs: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          user_id?: string | null
         }
         Relationships: []
       }
