@@ -24,15 +24,21 @@ export default function AdminLogin() {
         return;
       }
 
-      const { data: roleData } = await supabase
+      // Check admin role with timeout
+      const roleCheck = supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", authData.user.id)
         .eq("role", "admin")
         .maybeSingle();
 
-      if (!roleData) {
-        await supabase.auth.signOut();
+      const result = await Promise.race([
+        roleCheck,
+        new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 4000)),
+      ]);
+
+      if (!result.data) {
+        await supabase.auth.signOut().catch(() => {});
         toast.error("You are not authorized as an admin");
         setLoading(false);
         return;
@@ -42,10 +48,9 @@ export default function AdminLogin() {
       navigate("/admin");
     } catch (err: any) {
       console.error("Admin login error:", err);
-      toast.error("Network error. Please check your connection and try again.");
-    } finally {
-      setLoading(false);
+      toast.error("Network error. Please try again.");
     }
+    setLoading(false);
   };
 
   return (
