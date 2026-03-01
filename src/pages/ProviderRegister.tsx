@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Heart, Mail, Lock, User, Eye, EyeOff, Stethoscope, Building2, FlaskConical, Store, Phone, MapPin, FileText, Upload } from "lucide-react";
+import { Heart, Mail, Lock, User, Eye, EyeOff, Stethoscope, Building2, FlaskConical, Store, Phone, MapPin, FileText, Upload, Camera, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,49 @@ const providerOptions: { type: ProviderType; label: string; icon: React.ElementT
   { type: "lab", label: "Lab", icon: FlaskConical, roleKey: "lab_admin", table: "labs" },
   { type: "pharmacy", label: "Pharmacy", icon: Store, roleKey: "pharmacy_admin", table: "pharmacies" },
 ];
+
+interface FileUploadBoxProps {
+  id: string;
+  label: string;
+  file: File | null;
+  onFileChange: (file: File | null) => void;
+  accept?: string;
+  hint?: string;
+  required?: boolean;
+}
+
+const FileUploadBox = ({ id, label, file, onFileChange, accept = ".pdf,.jpg,.jpeg,.png,.webp", hint, required }: FileUploadBoxProps) => (
+  <div className="space-y-1.5">
+    <Label htmlFor={id}>{label} {required && <span className="text-destructive">*</span>}</Label>
+    <div className="relative">
+      <label
+        htmlFor={id}
+        className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30"
+      >
+        <Upload className="w-5 h-5 text-muted-foreground shrink-0" />
+        <span className="text-sm text-muted-foreground truncate flex-1">
+          {file ? file.name : hint || "Choose file (PDF/Image)"}
+        </span>
+        {file && (
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFileChange(null); }}
+            className="p-1 rounded-full hover:bg-destructive/10"
+          >
+            <X className="w-4 h-4 text-destructive" />
+          </button>
+        )}
+      </label>
+      <input
+        id={id}
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={(e) => onFileChange(e.target.files?.[0] || null)}
+      />
+    </div>
+  </div>
+);
 
 const ProviderRegister = () => {
   const navigate = useNavigate();
@@ -35,13 +78,44 @@ const ProviderRegister = () => {
   const [location, setLocation] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [bio, setBio] = useState("");
+
+  // Document fields (all providers)
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
+  const [gstFile, setGstFile] = useState<File | null>(null);
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [additionalDocs, setAdditionalDocs] = useState<File[]>([]);
+
+  const uploadFile = async (userId: string, file: File, folder: string): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${userId}/${folder}_${Date.now()}.${fileExt}`;
+    const { error } = await supabase.storage.from("certificates").upload(filePath, file);
+    if (error) {
+      console.error(`Upload error (${folder}):`, error);
+      return null;
+    }
+    return filePath;
+  };
+
+  const handleAddDoc = (file: File | null) => {
+    if (file && additionalDocs.length < 3) {
+      setAdditionalDocs([...additionalDocs, file]);
+    }
+  };
+
+  const removeAdditionalDoc = (index: number) => {
+    setAdditionalDocs(additionalDocs.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedType) return;
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (!licenseFile) {
+      toast.error("License / registration document is required");
       return;
     }
 
@@ -81,23 +155,45 @@ const ProviderRegister = () => {
       return;
     }
 
-    // 3. Upload certificate if provided (doctor only)
-    let certificateUrl: string | null = null;
-    if (selectedType === "doctor" && certificateFile) {
-      const fileExt = certificateFile.name.split('.').pop();
-      const filePath = `${userId}/${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from("certificates")
-        .upload(filePath, certificateFile);
-      if (uploadError) {
-        console.error("Certificate upload error:", uploadError);
-        toast.error("Failed to upload certificate: " + uploadError.message);
-      } else {
-        certificateUrl = filePath;
-      }
+    // 3. Upload all documents in parallel
+    toast.info("Uploading documents...");
+
+    const uploadPromises: Promise<{ key: string; url: string | null }>[] = [];
+
+    uploadPromises.push(uploadFile(userId, licenseFile, "license").then(url => ({ key: "license_url", url })));
+
+    if (gstFile) {
+      uploadPromises.push(uploadFile(userId, gstFile, "gst").then(url => ({ key: "gst_url", url })));
     }
 
-    // 4. Insert provider record
+    if (certificateFile) {
+      uploadPromises.push(uploadFile(userId, certificateFile, "certificate").then(url => ({ key: "certificate_url", url })));
+    }
+
+    if (photoFile) {
+      uploadPromises.push(uploadFile(userId, photoFile, "photo").then(url => ({ key: "image_url", url })));
+    }
+
+    const additionalDocUrls: string[] = [];
+    for (const doc of additionalDocs) {
+      uploadPromises.push(
+        uploadFile(userId, doc, `doc_${additionalDocs.indexOf(doc)}`).then(url => {
+          if (url) additionalDocUrls.push(url);
+          return { key: "_additional", url };
+        })
+      );
+    }
+
+    const uploadResults = await Promise.all(uploadPromises);
+
+    const failedUploads = uploadResults.filter(r => r.key !== "_additional" && r.url === null && r.key === "license_url");
+    if (failedUploads.length > 0) {
+      toast.error("Failed to upload license document. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    // 4. Build provider record
     let providerData: Record<string, any> = {
       name: providerName,
       phone,
@@ -105,14 +201,24 @@ const ProviderRegister = () => {
       approval_status: "pending",
     };
 
+    // Add uploaded file URLs
+    for (const result of uploadResults) {
+      if (result.key !== "_additional" && result.url) {
+        providerData[result.key] = result.url;
+      }
+    }
+    if (additionalDocUrls.length > 0) {
+      providerData.additional_docs_urls = additionalDocUrls;
+    }
+
     if (selectedType === "doctor") {
       providerData.specialization = specialization;
       providerData.bio = bio;
-      if (certificateUrl) providerData.certificate_url = certificateUrl;
     } else {
       providerData.location = location;
     }
 
+    // 5. Insert provider record
     let providerError: any = null;
     if (selectedType === "doctor") {
       const { error } = await supabase.from("doctors").insert(providerData as any);
@@ -135,7 +241,7 @@ const ProviderRegister = () => {
       return;
     }
 
-    // 4. Assign role
+    // 6. Assign role
     const { error: roleError } = await supabase
       .from("user_roles")
       .insert({ user_id: userId, role: config.roleKey as any });
@@ -146,6 +252,16 @@ const ProviderRegister = () => {
 
     setLoading(false);
     navigate("/pending-approval", { replace: true });
+  };
+
+  const getPhotoLabel = () => {
+    switch (selectedType) {
+      case "doctor": return "Clinic / Profile Photo";
+      case "hospital": return "Hospital Photo";
+      case "lab": return "Lab Photo";
+      case "pharmacy": return "Pharmacy Photo";
+      default: return "Photo";
+    }
   };
 
   return (
@@ -259,28 +375,6 @@ const ProviderRegister = () => {
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea id="bio" placeholder="Brief description of your practice..." value={bio} onChange={(e) => setBio(e.target.value)} rows={3} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="certificate">Upload Certificate / Documents</Label>
-                    <div className="relative">
-                      <label
-                        htmlFor="certificate"
-                        className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30"
-                      >
-                        <Upload className="w-5 h-5 text-muted-foreground shrink-0" />
-                        <span className="text-sm text-muted-foreground truncate">
-                          {certificateFile ? certificateFile.name : "Upload degree, license, or ID proof (PDF/Image)"}
-                        </span>
-                      </label>
-                      <input
-                        id="certificate"
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png,.webp"
-                        className="hidden"
-                        onChange={(e) => setCertificateFile(e.target.files?.[0] || null)}
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground">Max 5MB. Accepted: PDF, JPG, PNG</p>
-                  </div>
                 </>
               ) : (
                 <div className="space-y-2">
@@ -292,13 +386,82 @@ const ProviderRegister = () => {
                 </div>
               )}
 
+              {/* Document Uploads Section */}
+              <div className="border-t border-border pt-4 mt-4" />
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <FileText className="w-4 h-4" /> Documents & Photos
+              </h3>
+              <p className="text-xs text-muted-foreground -mt-2">Max 5MB per file. Accepted: PDF, JPG, PNG</p>
+
+              <FileUploadBox
+                id="license"
+                label="License / Registration Certificate"
+                file={licenseFile}
+                onFileChange={setLicenseFile}
+                hint="Upload trade license or registration certificate"
+                required
+              />
+
+              <FileUploadBox
+                id="gst"
+                label="GST Certificate (if applicable)"
+                file={gstFile}
+                onFileChange={setGstFile}
+                hint="Upload GST registration certificate"
+              />
+
+              {selectedType === "doctor" && (
+                <FileUploadBox
+                  id="certificate"
+                  label="Medical Degree / ID Proof"
+                  file={certificateFile}
+                  onFileChange={setCertificateFile}
+                  hint="Upload MBBS degree, medical license, or ID proof"
+                />
+              )}
+
+              <FileUploadBox
+                id="photo"
+                label={getPhotoLabel()}
+                file={photoFile}
+                onFileChange={setPhotoFile}
+                accept=".jpg,.jpeg,.png,.webp"
+                hint={`Upload ${getPhotoLabel().toLowerCase()}`}
+              />
+
+              {/* Additional Documents */}
+              <div className="space-y-2">
+                <Label>Other Documents (optional, max 3)</Label>
+                {additionalDocs.map((doc, i) => (
+                  <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border">
+                    <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span className="text-sm text-foreground truncate flex-1">{doc.name}</span>
+                    <button type="button" onClick={() => removeAdditionalDoc(i)} className="p-1 rounded-full hover:bg-destructive/10">
+                      <X className="w-4 h-4 text-destructive" />
+                    </button>
+                  </div>
+                ))}
+                {additionalDocs.length < 3 && (
+                  <label className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30">
+                    <Upload className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <span className="text-sm text-muted-foreground">Add another document</span>
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png,.webp"
+                      className="hidden"
+                      onChange={(e) => { handleAddDoc(e.target.files?.[0] || null); e.target.value = ""; }}
+                    />
+                  </label>
+                )}
+              </div>
+
               <div className="bg-amber-500/10 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
                 <FileText className="w-4 h-4 inline mr-1" />
                 Your registration will be reviewed by admin. You'll get access once approved.
               </div>
 
               <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-semibold text-base">
-                {loading ? "Registering..." : "Submit Registration"}
+                {loading ? "Uploading & Registering..." : "Submit Registration"}
               </Button>
             </form>
           )}
