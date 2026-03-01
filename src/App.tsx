@@ -184,6 +184,7 @@ const App = () => {
             <Route path="/medical-history" element={<MedicalHistory />} />
             <Route path="/payment-failure" element={<PaymentFailure />} />
             <Route path="/refunds" element={<RefundTracking />} />
+            <Route path="/support-tickets" element={<SupportTickets />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -203,6 +204,11 @@ const App = () => {
               <Route path="ads" element={<AdminAds />} />
               <Route path="edit-requests" element={<AdminEditRequests />} />
               <Route path="otp-settings" element={<AdminOtpSettings />} />
+              <Route path="commission" element={<AdminCommissionConfig />} />
+              <Route path="revenue" element={<AdminRevenueDashboard />} />
+              <Route path="payouts" element={<AdminPayouts />} />
+              <Route path="support-tickets" element={<AdminSupportTickets />} />
+              <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
             </Route>
 
             {/* Doctor routes */}
@@ -216,6 +222,7 @@ const App = () => {
               <Route path="notifications" element={<DoctorNotifications />} />
               <Route path="profile" element={<DoctorProfile />} />
               <Route path="audit-logs" element={<DoctorAuditLogs />} />
+              <Route path="reviews" element={<DoctorReviews />} />
               <Route path="settings" element={<DoctorSettings />} />
             </Route>
 
@@ -244,6 +251,7 @@ const App = () => {
               <Route index element={<PharmacyDashboard />} />
               <Route path="orders" element={<PharmacyOrders />} />
               <Route path="medicines" element={<PharmacyMedicines />} />
+              <Route path="earnings" element={<PharmacyEarnings />} />
               <Route path="profile" element={<PharmacyProfile />} />
               <Route path="settings" element={<PharmacySettings />} />
             </Route>
@@ -253,6 +261,8 @@ const App = () => {
               <Route index element={<LabDashboard />} />
               <Route path="appointments" element={<LabAppointments />} />
               <Route path="tests" element={<LabTests />} />
+              <Route path="samples" element={<LabSampleCollections />} />
+              <Route path="earnings" element={<LabEarnings />} />
               <Route path="profile" element={<LabProfile />} />
               <Route path="settings" element={<LabSettings />} />
             </Route>

@@ -1,11 +1,12 @@
 import { useProviderAuth } from "@/hooks/useProviderAuth";
 import ProviderLayout from "@/components/provider/ProviderLayout";
-import { Store, LayoutDashboard, ShoppingBag, Pill, User, Settings } from "lucide-react";
+import { Store, LayoutDashboard, ShoppingBag, Pill, User, Settings, IndianRupee } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/pharmacy-panel", icon: LayoutDashboard },
   { label: "Orders", path: "/pharmacy-panel/orders", icon: ShoppingBag },
   { label: "Medicines", path: "/pharmacy-panel/medicines", icon: Pill },
+  { label: "Earnings", path: "/pharmacy-panel/earnings", icon: IndianRupee },
   { label: "Profile", path: "/pharmacy-panel/profile", icon: User },
   { label: "Settings", path: "/pharmacy-panel/settings", icon: Settings },
 ];

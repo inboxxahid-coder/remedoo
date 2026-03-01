@@ -2,7 +2,7 @@ import { useProviderAuth } from "@/hooks/useProviderAuth";
 import ProviderLayout from "@/components/provider/ProviderLayout";
 import {
   Stethoscope, LayoutDashboard, CalendarCheck, User, Calendar,
-  IndianRupee, Siren, Bell, Shield, Settings
+  IndianRupee, Siren, Bell, Shield, Settings, Star
 } from "lucide-react";
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { label: "Appointments", path: "/doctor/appointments", icon: CalendarCheck },
   { label: "Schedule", path: "/doctor/schedule", icon: Calendar },
   { label: "Earnings", path: "/doctor/earnings", icon: IndianRupee },
+  { label: "Reviews", path: "/doctor/reviews", icon: Star },
   { label: "Emergencies", path: "/doctor/emergencies", icon: Siren },
   { label: "Notifications", path: "/doctor/notifications", icon: Bell },
   { label: "Profile", path: "/doctor/profile", icon: User },
