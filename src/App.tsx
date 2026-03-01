@@ -54,7 +54,12 @@ import AdminEmergencies from "./pages/admin/AdminEmergencies";
 import DoctorLayout from "./pages/doctor/DoctorLayout";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import DoctorAppointments from "./pages/doctor/DoctorAppointments";
+import DoctorSchedule from "./pages/doctor/DoctorSchedule";
+import DoctorEarnings from "./pages/doctor/DoctorEarnings";
+import DoctorEmergencies from "./pages/doctor/DoctorEmergencies";
+import DoctorNotifications from "./pages/doctor/DoctorNotifications";
 import DoctorProfile from "./pages/doctor/DoctorProfile";
+import DoctorAuditLogs from "./pages/doctor/DoctorAuditLogs";
 import DoctorSettings from "./pages/doctor/DoctorSettings";
 
 // Hospital Panel
@@ -162,7 +167,12 @@ const App = () => {
           <Route path="/doctor" element={<DoctorLayout />}>
             <Route index element={<DoctorDashboard />} />
             <Route path="appointments" element={<DoctorAppointments />} />
+            <Route path="schedule" element={<DoctorSchedule />} />
+            <Route path="earnings" element={<DoctorEarnings />} />
+            <Route path="emergencies" element={<DoctorEmergencies />} />
+            <Route path="notifications" element={<DoctorNotifications />} />
             <Route path="profile" element={<DoctorProfile />} />
+            <Route path="audit-logs" element={<DoctorAuditLogs />} />
             <Route path="settings" element={<DoctorSettings />} />
           </Route>
 

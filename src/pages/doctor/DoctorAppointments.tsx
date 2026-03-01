@@ -1,21 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Filter, CalendarCheck } from "lucide-react";
+import { logAuditAction } from "@/lib/auditLog";
+import {
+  Search, Filter, CalendarCheck, FileText, CalendarPlus, MessageSquare,
+  Upload, ChevronLeft, ChevronRight, CheckCircle
+} from "lucide-react";
+
+const PAGE_SIZE = 10;
 
 export default function DoctorAppointments() {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [doctorId, setDoctorId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [page, setPage] = useState(0);
 
-  const load = async () => {
+  // Dialog states
+  const [selectedApt, setSelectedApt] = useState<any>(null);
+  const [showNotesDialog, setShowNotesDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
+  const [consultationNotes, setConsultationNotes] = useState("");
+  const [followUpDate, setFollowUpDate] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [newDate, setNewDate] = useState("");
+  const [newTime, setNewTime] = useState("");
+  const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const load = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
@@ -26,6 +52,7 @@ export default function DoctorAppointments() {
       .maybeSingle();
 
     if (!doctor) { setLoading(false); return; }
+    setDoctorId(doctor.id);
 
     const { data } = await supabase
       .from("appointments")
@@ -35,15 +62,9 @@ export default function DoctorAppointments() {
 
     setAppointments(data || []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
-
-  const updateStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("appointments").update({ status }).eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success(`Appointment ${status}`); load(); }
-  };
+  useEffect(() => { load(); }, [load]);
 
   const filtered = appointments.filter(apt => {
     const matchesStatus = statusFilter === "all" || apt.status === statusFilter;
@@ -51,10 +72,114 @@ export default function DoctorAppointments() {
       apt.service_type?.toLowerCase().includes(search.toLowerCase()) ||
       apt.notes?.toLowerCase().includes(search.toLowerCase()) ||
       apt.appointment_date?.includes(search);
-    return matchesStatus && matchesSearch;
+    const matchesDateFrom = !dateFrom || apt.appointment_date >= dateFrom;
+    const matchesDateTo = !dateTo || apt.appointment_date <= dateTo;
+    return matchesStatus && matchesSearch && matchesDateFrom && matchesDateTo;
   });
 
-  const statusColor = (s: string) => {
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  const updateStatus = async (id: string, status: string, extra?: Record<string, any>) => {
+    const today = new Date().toISOString().split("T")[0];
+    const apt = appointments.find(a => a.id === id);
+
+    // Prevent modifying past completed records
+    if (apt?.status === "completed" && apt.appointment_date < today) {
+      toast.error("Cannot modify past completed appointments");
+      return;
+    }
+
+    const updateData: any = { status, ...extra };
+    const { error } = await supabase.from("appointments").update(updateData).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+
+    toast.success(`Appointment ${status}`);
+    logAuditAction({
+      action: `appointment_${status}`,
+      entityType: "appointment",
+      entityId: id,
+      details: { status, ...extra },
+    });
+    load();
+  };
+
+  const handleAccept = (id: string) => updateStatus(id, "confirmed");
+
+  const handleReject = () => {
+    if (!selectedApt || !rejectionReason.trim()) {
+      toast.error("Please provide a rejection reason");
+      return;
+    }
+    updateStatus(selectedApt.id, "cancelled", { rejection_reason: rejectionReason } as any);
+    setShowRejectDialog(false);
+    setRejectionReason("");
+  };
+
+  const handleComplete = () => {
+    if (!selectedApt) return;
+    const extra: any = {};
+    if (consultationNotes.trim()) extra.consultation_notes = consultationNotes;
+    if (followUpDate) extra.follow_up_date = followUpDate;
+    updateStatus(selectedApt.id, "completed", extra);
+    setShowNotesDialog(false);
+    setConsultationNotes("");
+    setFollowUpDate("");
+  };
+
+  const handleReschedule = () => {
+    if (!selectedApt || !newDate || !newTime) {
+      toast.error("Please provide new date and time");
+      return;
+    }
+    updateStatus(selectedApt.id, "pending", {
+      appointment_date: newDate,
+      appointment_time: newTime,
+    });
+    setShowRescheduleDialog(false);
+    setNewDate("");
+    setNewTime("");
+  };
+
+  const handleUploadPrescription = async (aptId: string) => {
+    if (!prescriptionFile) return;
+
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(prescriptionFile.type)) {
+      toast.error("Only PDF, JPEG, PNG, WEBP files allowed");
+      return;
+    }
+    if (prescriptionFile.size > 5 * 1024 * 1024) {
+      toast.error("File must be under 5MB");
+      return;
+    }
+
+    setUploading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setUploading(false); return; }
+
+    const filePath = `${session.user.id}/${aptId}_${Date.now()}.${prescriptionFile.name.split(".").pop()}`;
+    const { error: uploadError } = await supabase.storage
+      .from("prescriptions")
+      .upload(filePath, prescriptionFile);
+
+    if (uploadError) {
+      toast.error("Upload failed: " + uploadError.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from("prescriptions").getPublicUrl(filePath);
+
+    await supabase.from("appointments").update({ prescription_url: publicUrl } as any).eq("id", aptId);
+    toast.success("Prescription uploaded");
+    logAuditAction({ action: "upload_prescription", entityType: "appointment", entityId: aptId });
+    setPrescriptionFile(null);
+    setUploading(false);
+    load();
+  };
+
+  const statusColor = (s: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (s) {
       case "confirmed": return "default";
       case "completed": return "secondary";
@@ -71,34 +196,34 @@ export default function DoctorAppointments() {
           <Skeleton className="flex-1 h-10 rounded-xl" />
           <Skeleton className="w-32 h-10 rounded-xl" />
         </div>
-        {[1, 2, 3].map(i => <Skeleton key={i} className="h-24 rounded-2xl" />)}
+        {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">My Appointments</h1>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
         <Badge variant="outline" className="text-sm">
           <CalendarCheck className="w-3.5 h-3.5 mr-1" />
-          {filtered.length} total
+          {filtered.length} results
         </Badge>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 flex-col sm:flex-row">
-        <div className="relative flex-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="relative sm:col-span-2 lg:col-span-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search by service, notes, or date..."
+            placeholder="Search..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => { setSearch(e.target.value); setPage(0); }}
             className="pl-10"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-40">
+        <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(0); }}>
+          <SelectTrigger>
             <Filter className="w-4 h-4 mr-1" />
             <SelectValue />
           </SelectTrigger>
@@ -110,39 +235,82 @@ export default function DoctorAppointments() {
             <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
+        <Input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0); }} placeholder="From" />
+        <Input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0); }} placeholder="To" />
       </div>
 
       {/* List */}
-      {filtered.length === 0 ? (
+      {paginated.length === 0 ? (
         <Card className="p-12 text-center">
           <p className="text-muted-foreground">No appointments found</p>
         </Card>
       ) : (
         <div className="space-y-3">
-          {filtered.map(apt => (
+          {paginated.map(apt => (
             <Card key={apt.id} className="p-4 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between flex-wrap gap-3">
-                <div className="space-y-1">
-                  <p className="font-semibold text-foreground">{apt.service_type}</p>
+                <div className="space-y-1 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-foreground">{apt.service_type}</p>
+                    <Badge variant={statusColor(apt.status)}>{apt.status}</Badge>
+                  </div>
                   <p className="text-sm text-muted-foreground">
-                    📅 {apt.appointment_date} &nbsp;·&nbsp; 🕐 {apt.appointment_time}
+                    📅 {apt.appointment_date} · 🕐 {apt.appointment_time}
                   </p>
-                  {apt.notes && (
-                    <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-2 py-1 inline-block">
-                      📝 {apt.notes}
-                    </p>
+                  {apt.notes && <p className="text-xs text-muted-foreground">📝 {apt.notes}</p>}
+                  {(apt as any).consultation_notes && (
+                    <p className="text-xs text-primary">💊 Notes: {(apt as any).consultation_notes}</p>
+                  )}
+                  {(apt as any).follow_up_date && (
+                    <p className="text-xs text-blue-500">📋 Follow-up: {(apt as any).follow_up_date}</p>
+                  )}
+                  {(apt as any).rejection_reason && (
+                    <p className="text-xs text-destructive">❌ Reason: {(apt as any).rejection_reason}</p>
+                  )}
+                  {(apt as any).prescription_url && (
+                    <a href={(apt as any).prescription_url} target="_blank" rel="noopener" className="text-xs text-primary underline">
+                      📄 View Prescription
+                    </a>
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant={statusColor(apt.status) as any}>{apt.status}</Badge>
                   {apt.status === "pending" && (
                     <>
-                      <Button size="sm" onClick={() => updateStatus(apt.id, "confirmed")}>Confirm</Button>
-                      <Button size="sm" variant="destructive" onClick={() => updateStatus(apt.id, "cancelled")}>Cancel</Button>
+                      <Button size="sm" onClick={() => handleAccept(apt.id)}>Accept</Button>
+                      <Button size="sm" variant="destructive" onClick={() => { setSelectedApt(apt); setShowRejectDialog(true); }}>
+                        Reject
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => { setSelectedApt(apt); setShowRescheduleDialog(true); }}>
+                        Reschedule
+                      </Button>
                     </>
                   )}
                   {apt.status === "confirmed" && (
-                    <Button size="sm" variant="outline" onClick={() => updateStatus(apt.id, "completed")}>Complete</Button>
+                    <>
+                      <Button size="sm" onClick={() => { setSelectedApt(apt); setConsultationNotes((apt as any).consultation_notes || ""); setFollowUpDate((apt as any).follow_up_date || ""); setShowNotesDialog(true); }}>
+                        <CheckCircle className="w-3.5 h-3.5 mr-1" /> Complete
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => { setSelectedApt(apt); setShowRescheduleDialog(true); }}>
+                        Reschedule
+                      </Button>
+                    </>
+                  )}
+                  {(apt.status === "confirmed" || apt.status === "completed") && (
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.webp"
+                        className="hidden"
+                        id={`rx-${apt.id}`}
+                        onChange={e => {
+                          const f = e.target.files?.[0];
+                          if (f) { setPrescriptionFile(f); handleUploadPrescription(apt.id); }
+                        }}
+                      />
+                      <Button size="sm" variant="ghost" onClick={() => document.getElementById(`rx-${apt.id}`)?.click()} disabled={uploading}>
+                        <Upload className="w-3.5 h-3.5 mr-1" /> Rx
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -150,6 +318,84 @@ export default function DoctorAppointments() {
           ))}
         </div>
       )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Page {page + 1} of {totalPages}
+          </span>
+          <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Reject Dialog */}
+      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>Reason for rejection *</Label>
+            <Textarea value={rejectionReason} onChange={e => setRejectionReason(e.target.value)} placeholder="Provide reason..." />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRejectDialog(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleReject}>Reject</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Complete with Notes Dialog */}
+      <Dialog open={showNotesDialog} onOpenChange={setShowNotesDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Complete Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Consultation Notes</Label>
+              <Textarea value={consultationNotes} onChange={e => setConsultationNotes(e.target.value)} placeholder="Add consultation notes..." />
+            </div>
+            <div>
+              <Label>Follow-up Date</Label>
+              <Input type="date" value={followUpDate} onChange={e => setFollowUpDate(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNotesDialog(false)}>Cancel</Button>
+            <Button onClick={handleComplete}>Mark Completed</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reschedule Dialog */}
+      <Dialog open={showRescheduleDialog} onOpenChange={setShowRescheduleDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reschedule Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>New Date</Label>
+              <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} />
+            </div>
+            <div>
+              <Label>New Time</Label>
+              <Input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRescheduleDialog(false)}>Cancel</Button>
+            <Button onClick={handleReschedule}>Reschedule</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

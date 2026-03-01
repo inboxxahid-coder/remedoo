@@ -90,14 +90,18 @@ export type Database = {
         Row: {
           appointment_date: string
           appointment_time: string
+          consultation_notes: string | null
           created_at: string
           doctor_id: string | null
+          follow_up_date: string | null
           hospital_id: string | null
           id: string
           lab_id: string | null
           notes: string | null
           patient_id: string
           pharmacy_id: string | null
+          prescription_url: string | null
+          rejection_reason: string | null
           service_type: string
           status: string
           updated_at: string
@@ -105,14 +109,18 @@ export type Database = {
         Insert: {
           appointment_date: string
           appointment_time: string
+          consultation_notes?: string | null
           created_at?: string
           doctor_id?: string | null
+          follow_up_date?: string | null
           hospital_id?: string | null
           id?: string
           lab_id?: string | null
           notes?: string | null
           patient_id: string
           pharmacy_id?: string | null
+          prescription_url?: string | null
+          rejection_reason?: string | null
           service_type: string
           status?: string
           updated_at?: string
@@ -120,14 +128,18 @@ export type Database = {
         Update: {
           appointment_date?: string
           appointment_time?: string
+          consultation_notes?: string | null
           created_at?: string
           doctor_id?: string | null
+          follow_up_date?: string | null
           hospital_id?: string | null
           id?: string
           lab_id?: string | null
           notes?: string | null
           patient_id?: string
           pharmacy_id?: string | null
+          prescription_url?: string | null
+          rejection_reason?: string | null
           service_type?: string
           status?: string
           updated_at?: string
@@ -163,15 +175,106 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          doctor_id: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          doctor_id?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          doctor_id?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doctor_blocked_slots: {
+        Row: {
+          blocked_date: string
+          created_at: string
+          doctor_id: string
+          end_time: string | null
+          id: string
+          is_full_day: boolean | null
+          reason: string | null
+          start_time: string | null
+        }
+        Insert: {
+          blocked_date: string
+          created_at?: string
+          doctor_id: string
+          end_time?: string | null
+          id?: string
+          is_full_day?: boolean | null
+          reason?: string | null
+          start_time?: string | null
+        }
+        Update: {
+          blocked_date?: string
+          created_at?: string
+          doctor_id?: string
+          end_time?: string | null
+          id?: string
+          is_full_day?: boolean | null
+          reason?: string | null
+          start_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctor_blocked_slots_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       doctors: {
         Row: {
+          account_status: string
           approval_status: string
           bio: string | null
+          certificate_url: string | null
+          consultation_duration: number | null
           consultation_fee: number | null
           created_at: string
+          emergency_available: boolean | null
+          experience_years: number | null
           hospital_id: string | null
           id: string
           image_url: string | null
+          max_appointments_per_day: number | null
           name: string
           phone: string | null
           rating: number | null
@@ -181,13 +284,19 @@ export type Database = {
           working_hours: Json | null
         }
         Insert: {
+          account_status?: string
           approval_status?: string
           bio?: string | null
+          certificate_url?: string | null
+          consultation_duration?: number | null
           consultation_fee?: number | null
           created_at?: string
+          emergency_available?: boolean | null
+          experience_years?: number | null
           hospital_id?: string | null
           id?: string
           image_url?: string | null
+          max_appointments_per_day?: number | null
           name: string
           phone?: string | null
           rating?: number | null
@@ -197,13 +306,19 @@ export type Database = {
           working_hours?: Json | null
         }
         Update: {
+          account_status?: string
           approval_status?: string
           bio?: string | null
+          certificate_url?: string | null
+          consultation_duration?: number | null
           consultation_fee?: number | null
           created_at?: string
+          emergency_available?: boolean | null
+          experience_years?: number | null
           hospital_id?: string | null
           id?: string
           image_url?: string | null
+          max_appointments_per_day?: number | null
           name?: string
           phone?: string | null
           rating?: number | null
