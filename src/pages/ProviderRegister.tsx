@@ -25,11 +25,23 @@ interface FileUploadBoxProps {
   accept?: string;
   hint?: string;
   required?: boolean;
+  maxSizeKB?: number;
 }
 
-const FileUploadBox = ({ id, label, file, onFileChange, accept = ".pdf,.jpg,.jpeg,.png,.webp", hint, required }: FileUploadBoxProps) => (
+const FileUploadBox = ({ id, label, file, onFileChange, accept = ".pdf,.jpg,.jpeg,.png,.webp", hint, required, maxSizeKB }: FileUploadBoxProps) => {
+  const handleFileSelect = (selectedFile: File | null) => {
+    if (selectedFile && maxSizeKB && selectedFile.size > maxSizeKB * 1024) {
+      toast.error(`${label} must be under ${maxSizeKB}KB`);
+      return;
+    }
+    onFileChange(selectedFile);
+  };
+
+  return (
   <div className="space-y-1.5">
-    <Label htmlFor={id}>{label} {required && <span className="text-destructive">*</span>}</Label>
+    <Label htmlFor={id}>{label} {required && <span className="text-destructive">*</span>}
+      {maxSizeKB && <span className="text-xs text-muted-foreground ml-1">(max {maxSizeKB}KB)</span>}
+    </Label>
     <div className="relative">
       <label
         htmlFor={id}
@@ -54,12 +66,12 @@ const FileUploadBox = ({ id, label, file, onFileChange, accept = ".pdf,.jpg,.jpe
         type="file"
         accept={accept}
         className="hidden"
-        onChange={(e) => onFileChange(e.target.files?.[0] || null)}
+        onChange={(e) => { handleFileSelect(e.target.files?.[0] || null); e.target.value = ""; }}
       />
     </div>
   </div>
-);
-
+  );
+};
 const ProviderRegister = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2>(1);
@@ -84,7 +96,9 @@ const ProviderRegister = () => {
   const [gstFile, setGstFile] = useState<File | null>(null);
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [additionalDocs, setAdditionalDocs] = useState<File[]>([]);
+  const [additionalDoc1, setAdditionalDoc1] = useState<File | null>(null);
+  const [additionalDoc2, setAdditionalDoc2] = useState<File | null>(null);
+  const [additionalDoc3, setAdditionalDoc3] = useState<File | null>(null);
 
   const uploadFile = async (userId: string, file: File, folder: string): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
@@ -95,16 +109,6 @@ const ProviderRegister = () => {
       return null;
     }
     return filePath;
-  };
-
-  const handleAddDoc = (file: File | null) => {
-    if (file && additionalDocs.length < 3) {
-      setAdditionalDocs([...additionalDocs, file]);
-    }
-  };
-
-  const removeAdditionalDoc = (index: number) => {
-    setAdditionalDocs(additionalDocs.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,9 +179,10 @@ const ProviderRegister = () => {
     }
 
     const additionalDocUrls: string[] = [];
-    for (const doc of additionalDocs) {
+    const additionalDocFiles = [additionalDoc1, additionalDoc2, additionalDoc3].filter(Boolean) as File[];
+    for (let i = 0; i < additionalDocFiles.length; i++) {
       uploadPromises.push(
-        uploadFile(userId, doc, `doc_${additionalDocs.indexOf(doc)}`).then(url => {
+        uploadFile(userId, additionalDocFiles[i], `doc_${i}`).then(url => {
           if (url) additionalDocUrls.push(url);
           return { key: "_additional", url };
         })
@@ -427,33 +432,33 @@ const ProviderRegister = () => {
                 onFileChange={setPhotoFile}
                 accept=".jpg,.jpeg,.png,.webp"
                 hint={`Upload ${getPhotoLabel().toLowerCase()}`}
+                maxSizeKB={500}
               />
 
-              {/* Additional Documents */}
-              <div className="space-y-2">
-                <Label>Other Documents (optional, max 3)</Label>
-                {additionalDocs.map((doc, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border">
-                    <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <span className="text-sm text-foreground truncate flex-1">{doc.name}</span>
-                    <button type="button" onClick={() => removeAdditionalDoc(i)} className="p-1 rounded-full hover:bg-destructive/10">
-                      <X className="w-4 h-4 text-destructive" />
-                    </button>
-                  </div>
-                ))}
-                {additionalDocs.length < 3 && (
-                  <label className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30">
-                    <Upload className="w-5 h-5 text-muted-foreground shrink-0" />
-                    <span className="text-sm text-muted-foreground">Add another document</span>
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png,.webp"
-                      className="hidden"
-                      onChange={(e) => { handleAddDoc(e.target.files?.[0] || null); e.target.value = ""; }}
-                    />
-                  </label>
-                )}
-              </div>
+              {/* Additional Documents - separate fields */}
+              <FileUploadBox
+                id="additional_doc_1"
+                label="Additional Document 1 (optional)"
+                file={additionalDoc1}
+                onFileChange={setAdditionalDoc1}
+                hint="Upload any supporting document"
+              />
+
+              <FileUploadBox
+                id="additional_doc_2"
+                label="Additional Document 2 (optional)"
+                file={additionalDoc2}
+                onFileChange={setAdditionalDoc2}
+                hint="Upload any supporting document"
+              />
+
+              <FileUploadBox
+                id="additional_doc_3"
+                label="Additional Document 3 (optional)"
+                file={additionalDoc3}
+                onFileChange={setAdditionalDoc3}
+                hint="Upload any supporting document"
+              />
 
               <div className="bg-amber-500/10 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
                 <FileText className="w-4 h-4 inline mr-1" />
