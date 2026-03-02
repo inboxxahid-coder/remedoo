@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
+import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
+import RecentActivityFeed from "@/components/dashboard/RecentActivityFeed";
+import HealthTipsCards from "@/components/dashboard/HealthTipsCards";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -441,6 +444,12 @@ const Dashboard = () => {
                 </div>
               </motion.div>
 
+              {/* Nearby Hospitals Map */}
+              <NearbyHospitalsMap />
+
+              {/* Recent Activity Feed */}
+              <RecentActivityFeed />
+
               {/* Top Doctors */}
               {topDoctors.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.6 }}>
@@ -551,6 +560,9 @@ const Dashboard = () => {
                   </div>
                 </motion.div>
               )}
+
+              {/* Health Tips */}
+              <HealthTipsCards />
 
               {/* Browse Services */}
               <motion.div
