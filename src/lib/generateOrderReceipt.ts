@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { loadAllImages, addHeader, addSectionTitle, addInfoRow, addTableHeader, addFooter, BRAND } from "./pdfBranding";
 
 interface ReceiptData {
   orderId: string;
@@ -14,111 +15,99 @@ interface ReceiptData {
   items: { medicine_name: string; quantity: number; unit_price: number; total_price: number }[];
 }
 
-export const generateOrderReceipt = (data: ReceiptData) => {
+export const generateOrderReceipt = async (data: ReceiptData) => {
+  const { logo, stamp, signature } = await loadAllImages();
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pw = doc.internal.pageSize.getWidth();
-  let y = 20;
 
-  // Header
-  doc.setFontSize(20);
+  // Header with branding + pharmacy info
+  let y = addHeader(doc, logo, "Pharmacy", data.pharmacyName);
+
+  // Document title
+  doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
-  doc.text("Order Receipt", pw / 2, y, { align: "center" });
-  y += 10;
-
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(120);
-  doc.text(`Order #${data.orderId.slice(0, 8).toUpperCase()}`, pw / 2, y, { align: "center" });
-  y += 6;
-  doc.text(`Date: ${new Date(data.placedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}`, pw / 2, y, { align: "center" });
-  y += 10;
-
-  // Divider
-  doc.setDrawColor(200);
-  doc.line(20, y, pw - 20, y);
-  y += 8;
-
-  // Pharmacy & delivery info
-  doc.setTextColor(40);
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text("Pharmacy", 20, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(data.pharmacyName, 65, y);
-  y += 6;
-
-  if (data.deliveryAddress) {
-    doc.setFont("helvetica", "bold");
-    doc.text("Delivery To", 20, y);
-    doc.setFont("helvetica", "normal");
-    const lines = doc.splitTextToSize(data.deliveryAddress, pw - 85);
-    doc.text(lines, 65, y);
-    y += lines.length * 5 + 4;
-  }
-
-  doc.setFont("helvetica", "bold");
-  doc.text("Payment", 20, y);
-  doc.setFont("helvetica", "normal");
-  doc.text(`${data.paymentMethod === "cod" ? "Cash on Delivery" : "Online"} (${data.paymentStatus})`, 65, y);
-  y += 6;
-
-  if (data.deliveredAt) {
-    doc.setFont("helvetica", "bold");
-    doc.text("Delivered", 20, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(new Date(data.deliveredAt).toLocaleString("en-IN"), 65, y);
-    y += 6;
-  }
-
+  doc.setTextColor(...BRAND.primary);
+  doc.text("ORDER RECEIPT", pw / 2, y, { align: "center" });
   y += 4;
-  doc.line(20, y, pw - 20, y);
-  y += 8;
-
-  // Items table header
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text("Item", 20, y);
-  doc.text("Qty", 120, y, { align: "center" });
-  doc.text("Price", 145, y, { align: "center" });
-  doc.text("Total", pw - 20, y, { align: "right" });
-  y += 2;
-  doc.line(20, y + 2, pw - 20, y + 2);
-  y += 7;
-
-  // Items
+  doc.setFontSize(8);
+  doc.setTextColor(...BRAND.gray);
   doc.setFont("helvetica", "normal");
-  data.items.forEach((item) => {
-    const nameLines = doc.splitTextToSize(item.medicine_name, 90);
-    doc.text(nameLines, 20, y);
+  doc.text(`Receipt #${data.orderId.slice(0, 8).toUpperCase()}`, pw / 2, y + 3, { align: "center" });
+  y += 10;
+
+  // Order details section
+  y = addSectionTitle(doc, "Order Details", y);
+  y = addInfoRow(doc, "Order ID", `#${data.orderId.slice(0, 8).toUpperCase()}`, y, pw);
+  y = addInfoRow(doc, "Placed On", new Date(data.placedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }), y, pw);
+  if (data.deliveredAt) {
+    y = addInfoRow(doc, "Delivered On", new Date(data.deliveredAt).toLocaleString("en-IN"), y, pw);
+  }
+  if (data.deliveryAddress) {
+    y = addInfoRow(doc, "Delivery To", data.deliveryAddress, y, pw);
+  }
+  y = addInfoRow(doc, "Payment", `${data.paymentMethod === "cod" ? "Cash on Delivery" : "Online"} (${data.paymentStatus})`, y, pw);
+  y += 4;
+
+  // Items table
+  y = addSectionTitle(doc, "Items Ordered", y);
+  y = addTableHeader(doc, [
+    { label: "#", x: 22 },
+    { label: "Medicine", x: 30 },
+    { label: "Qty", x: 120, align: "center" },
+    { label: "Price", x: 145, align: "center" },
+    { label: "Total", x: pw - 20, align: "right" },
+  ], y, pw);
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  data.items.forEach((item, i) => {
+    const isEven = i % 2 === 0;
+    if (isEven) {
+      doc.setFillColor(248, 250, 255);
+      doc.rect(18, y - 4, pw - 36, 7, "F");
+    }
+    doc.setTextColor(...BRAND.dark);
+    doc.text(String(i + 1), 22, y);
+    const nameLines = doc.splitTextToSize(item.medicine_name, 80);
+    doc.text(nameLines, 30, y);
     doc.text(String(item.quantity), 120, y, { align: "center" });
     doc.text(`₹${item.unit_price}`, 145, y, { align: "center" });
+    doc.setFont("helvetica", "bold");
     doc.text(`₹${item.total_price}`, pw - 20, y, { align: "right" });
+    doc.setFont("helvetica", "normal");
     y += nameLines.length * 5 + 3;
   });
 
-  y += 2;
-  doc.line(20, y, pw - 20, y);
-  y += 7;
+  y += 4;
+  doc.setDrawColor(...BRAND.lightGray);
+  doc.line(100, y, pw - 18, y);
+  y += 6;
 
   // Totals
-  doc.setFontSize(10);
-  doc.text("Subtotal", 120, y);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(...BRAND.gray);
+  doc.text("Subtotal", 110, y);
+  doc.setTextColor(...BRAND.dark);
   doc.text(`₹${data.subtotal}`, pw - 20, y, { align: "right" });
   y += 6;
-  doc.text("Delivery Fee", 120, y);
+  doc.setTextColor(...BRAND.gray);
+  doc.text("Delivery Fee", 110, y);
+  doc.setTextColor(...BRAND.dark);
   doc.text(data.deliveryFee === 0 ? "FREE" : `₹${data.deliveryFee}`, pw - 20, y, { align: "right" });
-  y += 6;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("Total", 120, y);
-  doc.text(`₹${data.total}`, pw - 20, y, { align: "right" });
+  y += 8;
 
-  // Footer
-  y += 16;
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(150);
-  doc.text("This is a computer-generated receipt and does not require a signature.", pw / 2, y, { align: "center" });
+  // Grand total highlight
+  doc.setFillColor(...BRAND.primary);
+  doc.roundedRect(100, y - 5, pw - 118, 10, 2, 2, "F");
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  doc.text("TOTAL", 106, y + 1);
+  doc.text(`₹${data.total}`, pw - 22, y + 1, { align: "right" });
+
+  // Footer with stamp & signature
+  addFooter(doc, stamp, signature);
 
   doc.save(`receipt-${data.orderId.slice(0, 8).toUpperCase()}.pdf`);
 };

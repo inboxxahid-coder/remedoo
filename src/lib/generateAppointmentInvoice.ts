@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { loadAllImages, addHeader, addSectionTitle, addInfoRow, addFooter, BRAND } from "./pdfBranding";
 
 interface InvoiceData {
   appointmentId: string;
@@ -14,85 +15,87 @@ interface InvoiceData {
   serviceSummary?: string;
 }
 
-export const generateAppointmentInvoice = (data: InvoiceData) => {
+export const generateAppointmentInvoice = async (data: InvoiceData) => {
+  const { logo, stamp, signature } = await loadAllImages();
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pw = doc.internal.pageSize.getWidth();
-  let y = 20;
 
-  // Header
-  doc.setFontSize(22);
+  // Header with branding + provider info
+  const providerLabel = data.providerType.charAt(0).toUpperCase() + data.providerType.slice(1);
+  let y = addHeader(doc, logo, providerLabel, data.providerName);
+
+  // Document title
+  doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(37, 99, 235);
-  doc.text("INVOICE", pw / 2, y, { align: "center" });
-  y += 8;
-  doc.setFontSize(9);
+  doc.setTextColor(...BRAND.primary);
+  doc.text("CONSULTATION INVOICE", pw / 2, y, { align: "center" });
+  y += 4;
+  doc.setFontSize(8);
+  doc.setTextColor(...BRAND.gray);
   doc.setFont("helvetica", "normal");
-  doc.setTextColor(120);
-  doc.text("Remedoo Health Services", pw / 2, y, { align: "center" });
+  doc.text(`Invoice #${data.appointmentId.slice(0, 8).toUpperCase()}`, pw / 2, y + 3, { align: "center" });
   y += 12;
 
-  // Invoice details
-  doc.setDrawColor(200);
-  doc.line(20, y, pw - 20, y);
-  y += 8;
-
-  doc.setTextColor(40);
-  doc.setFontSize(10);
-
-  const addRow = (label: string, value: string) => {
-    doc.setFont("helvetica", "bold");
-    doc.text(label, 20, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(value, 70, y);
-    y += 6;
-  };
-
-  addRow("Invoice #", data.appointmentId.slice(0, 8).toUpperCase());
-  addRow("Date", new Date(data.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }));
-  addRow("Time", data.appointmentTime);
+  // Appointment details
+  y = addSectionTitle(doc, "Appointment Details", y);
+  y = addInfoRow(doc, "Invoice #", data.appointmentId.slice(0, 8).toUpperCase(), y, pw);
+  y = addInfoRow(doc, "Date", new Date(data.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }), y, pw);
+  y = addInfoRow(doc, "Time", data.appointmentTime, y, pw);
+  if (data.tokenNumber) {
+    y = addInfoRow(doc, "Token #", String(data.tokenNumber), y, pw);
+  }
   y += 4;
-  addRow("Patient", data.patientName);
-  addRow("Provider", data.providerName);
-  addRow("Service Type", data.providerType.charAt(0).toUpperCase() + data.providerType.slice(1));
-  if (data.tokenNumber) addRow("Token #", String(data.tokenNumber));
 
+  // Patient details
+  y = addSectionTitle(doc, "Patient Information", y);
+  y = addInfoRow(doc, "Patient", data.patientName, y, pw);
+  y = addInfoRow(doc, "Service Type", providerLabel + " Consultation", y, pw);
+  if (data.serviceSummary) {
+    y = addInfoRow(doc, "Summary", data.serviceSummary, y, pw);
+  }
   y += 4;
-  doc.line(20, y, pw - 20, y);
-  y += 8;
 
-  // Charges
+  // Charges section
+  y = addSectionTitle(doc, "Charges Breakdown", y);
+
+  // Charges table
+  doc.setFillColor(240, 245, 255);
+  doc.rect(18, y - 2, pw - 36, 8, "F");
+  doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text("Charges", 20, y);
-  y += 8;
-
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text("Consultation Fee", 20, y);
-  doc.text(`₹${data.consultationFee}`, pw - 20, y, { align: "right" });
-  y += 8;
-
-  doc.line(20, y, pw - 20, y);
-  y += 6;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("Total", 20, y);
-  doc.text(`₹${data.consultationFee}`, pw - 20, y, { align: "right" });
+  doc.setTextColor(...BRAND.primary);
+  doc.text("Description", 24, y + 3);
+  doc.text("Amount", pw - 22, y + 3, { align: "right" });
   y += 10;
 
-  // Payment info
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.setTextColor(80);
-  addRow("Payment Method", data.paymentMethod === "online" ? "Online (Razorpay)" : "At Clinic");
-  addRow("Payment Status", data.paymentStatus.charAt(0).toUpperCase() + data.paymentStatus.slice(1));
+  doc.setTextColor(...BRAND.dark);
+  doc.text("Consultation Fee", 24, y);
+  doc.text(`₹${data.consultationFee}`, pw - 22, y, { align: "right" });
+  y += 8;
 
-  // Footer
-  const footerY = doc.internal.pageSize.getHeight() - 15;
-  doc.setFontSize(7);
-  doc.setTextColor(150);
-  doc.text("This is a computer-generated invoice and does not require a signature.", pw / 2, footerY, { align: "center" });
-  doc.text("Remedoo Health Services — www.remedoo.com", pw / 2, footerY + 4, { align: "center" });
+  doc.setDrawColor(...BRAND.lightGray);
+  doc.line(100, y, pw - 18, y);
+  y += 8;
+
+  // Grand total highlight
+  doc.setFillColor(...BRAND.primary);
+  doc.roundedRect(100, y - 5, pw - 118, 10, 2, 2, "F");
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  doc.text("TOTAL", 106, y + 1);
+  doc.text(`₹${data.consultationFee}`, pw - 22, y + 1, { align: "right" });
+  y += 14;
+
+  // Payment info
+  y = addSectionTitle(doc, "Payment Information", y);
+  y = addInfoRow(doc, "Method", data.paymentMethod === "online" ? "Online (Razorpay)" : "At Clinic", y, pw);
+  y = addInfoRow(doc, "Status", data.paymentStatus.charAt(0).toUpperCase() + data.paymentStatus.slice(1), y, pw);
+
+  // Footer with stamp & signature
+  addFooter(doc, stamp, signature);
 
   doc.save(`invoice-${data.appointmentId.slice(0, 8).toUpperCase()}.pdf`);
 };
