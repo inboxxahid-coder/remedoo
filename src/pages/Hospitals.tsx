@@ -93,12 +93,14 @@ const Hospitals = () => {
               </span>
             )}
           </div>
-          <button
-            onClick={() => navigate(`/book/hospital/${h.id}`)}
-            className="mt-2 w-full py-1.5 rounded-lg text-xs font-semibold gradient-primary text-primary-foreground flex items-center justify-center gap-1"
-          >
-            <CalendarPlus className="w-3.5 h-3.5" />Book Now
-          </button>
+          {!h.is_government && (
+            <button
+              onClick={() => navigate(`/book/hospital/${h.id}`)}
+              className="mt-2 w-full py-1.5 rounded-lg text-xs font-semibold gradient-primary text-primary-foreground flex items-center justify-center gap-1"
+            >
+              <CalendarPlus className="w-3.5 h-3.5" />Book Now
+            </button>
+          )}
         </div>
       </div>
     </div>
