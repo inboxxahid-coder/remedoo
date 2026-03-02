@@ -267,8 +267,8 @@ const Appointments = () => {
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => setReviewTarget(apt)}>
                       <Star className="w-3.5 h-3.5 mr-1" />Rate
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => {
-                      generateAppointmentInvoice({
+                    <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={async () => {
+                      await generateAppointmentInvoice({
                         appointmentId: apt.id,
                         providerName: apt.provider_name,
                         providerType: apt.service_type,

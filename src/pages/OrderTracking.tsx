@@ -207,8 +207,8 @@ const OrderTracking = () => {
         {/* Download Receipt */}
         {order.status === "delivered" && (
           <Button
-            onClick={() =>
-              generateOrderReceipt({
+            onClick={async () =>
+              await generateOrderReceipt({
                 orderId: order.id,
                 pharmacyName,
                 placedAt: order.placed_at,
