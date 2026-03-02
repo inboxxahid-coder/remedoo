@@ -76,7 +76,7 @@ const Dashboard = () => {
     try {
       const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes] = await Promise.all([
         supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
-        supabase.from("doctors").select("*").eq("is_featured", true).order("featured_sort_order").limit(10),
+        supabase.from("doctors").select("*, hospitals!left(is_government)").eq("is_featured", true).order("featured_sort_order").limit(10),
         supabase.from("ads").select("*").eq("active", true),
         supabase.from("medicines").select("*, pharmacies(name)").eq("is_featured", true).eq("in_stock", true).order("featured_sort_order").limit(10),
         supabase.from("dashboard_quick_actions").select("*").eq("active", true).order("sort_order"),
@@ -84,12 +84,13 @@ const Dashboard = () => {
       ]);
       if (slidesRes.data) setSlides(slidesRes.data);
       if (doctorsRes.data) {
-        // If no featured doctors, fall back to top-rated
-        if (doctorsRes.data.length > 0) {
-          setTopDoctors(doctorsRes.data);
+        // Filter out government hospital doctors
+        const nonGovtDoctors = doctorsRes.data.filter((d: any) => !d.hospitals?.is_government);
+        if (nonGovtDoctors.length > 0) {
+          setTopDoctors(nonGovtDoctors);
         } else {
-          const fallback = await supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5);
-          setTopDoctors(fallback.data || []);
+          const fallback = await supabase.from("doctors").select("*, hospitals!left(is_government)").order("rating", { ascending: false }).limit(10);
+          setTopDoctors((fallback.data || []).filter((d: any) => !d.hospitals?.is_government).slice(0, 5));
         }
       }
       if (adsRes.data) setAds(adsRes.data);
