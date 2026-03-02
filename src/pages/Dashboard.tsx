@@ -373,23 +373,23 @@ const Dashboard = () => {
                 variants={container}
                 initial="hidden"
                 animate="show"
-                className="glass rounded-3xl p-5 shadow-2xl shadow-primary/5"
+                className="glass rounded-2xl p-3 shadow-2xl shadow-primary/5"
               >
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-2">
                   {quickActions.map((action) => (
                     <motion.button
                       key={action.label}
                       variants={item}
-                      whileHover={{ scale: 1.1, y: -4 }}
-                      whileTap={{ scale: 0.92 }}
+                      whileHover={{ scale: 1.08, y: -2 }}
+                      whileTap={{ scale: 0.94 }}
                       onClick={() => navigate(action.path)}
-                      className="flex flex-col items-center gap-2.5 group"
+                      className="flex flex-col items-center gap-1.5 group"
                     >
-                      <div className={`relative w-[3.75rem] h-[3.75rem] rounded-2xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
-                        <action.icon className="w-6 h-6 text-primary-foreground" />
-                        <div className="absolute inset-0 rounded-2xl bg-primary-foreground/0 group-hover:bg-primary-foreground/10 transition-colors duration-300" />
+                      <div className={`relative w-11 h-11 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
+                        <action.icon className="w-5 h-5 text-primary-foreground" />
+                        <div className="absolute inset-0 rounded-xl bg-primary-foreground/0 group-hover:bg-primary-foreground/10 transition-colors duration-300" />
                       </div>
-                      <span className="text-[11px] text-center leading-tight text-foreground font-semibold whitespace-pre-line">{action.label}</span>
+                      <span className="text-[10px] text-center leading-tight text-foreground font-semibold whitespace-pre-line">{action.label}</span>
                     </motion.button>
                   ))}
                 </div>
