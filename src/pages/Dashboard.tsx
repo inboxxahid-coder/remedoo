@@ -325,44 +325,44 @@ const Dashboard = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
-                  className="glass rounded-3xl p-4 shadow-2xl shadow-primary/5"
+                  className="glass rounded-2xl p-2.5 shadow-2xl shadow-primary/5"
                 >
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => navigate("/appointments")}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-primary/5 hover:bg-primary/10 transition-colors"
+                      className="flex flex-col items-center gap-1 p-2 rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-primary" />
+                      <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-primary" />
                       </div>
-                      <span className="text-2xl font-extrabold text-foreground">{upcomingAppts}</span>
-                      <span className="text-[10px] text-muted-foreground font-medium leading-tight text-center">Upcoming Appts</span>
+                      <span className="text-lg font-extrabold text-foreground">{upcomingAppts}</span>
+                      <span className="text-[9px] text-muted-foreground font-medium leading-tight text-center">Upcoming Appts</span>
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => navigate("/my-orders")}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-success/5 hover:bg-success/10 transition-colors"
+                      className="flex flex-col items-center gap-1 p-2 rounded-xl bg-success/5 hover:bg-success/10 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-success/15 flex items-center justify-center">
-                        <ShoppingBag className="w-5 h-5 text-success" />
+                      <div className="w-8 h-8 rounded-lg bg-success/15 flex items-center justify-center">
+                        <ShoppingBag className="w-4 h-4 text-success" />
                       </div>
-                      <span className="text-2xl font-extrabold text-foreground">{recentOrders}</span>
-                      <span className="text-[10px] text-muted-foreground font-medium leading-tight text-center">Orders (30d)</span>
+                      <span className="text-lg font-extrabold text-foreground">{recentOrders}</span>
+                      <span className="text-[9px] text-muted-foreground font-medium leading-tight text-center">Orders (30d)</span>
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => navigate("/my-orders")}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-warning/5 hover:bg-warning/10 transition-colors"
+                      className="flex flex-col items-center gap-1 p-2 rounded-xl bg-warning/5 hover:bg-warning/10 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-warning/15 flex items-center justify-center">
-                        <ClipboardList className="w-5 h-5 text-warning" />
+                      <div className="w-8 h-8 rounded-lg bg-warning/15 flex items-center justify-center">
+                        <ClipboardList className="w-4 h-4 text-warning" />
                       </div>
-                      <span className="text-2xl font-extrabold text-foreground">{activeOrders}</span>
-                      <span className="text-[10px] text-muted-foreground font-medium leading-tight text-center">Active Orders</span>
+                      <span className="text-lg font-extrabold text-foreground">{activeOrders}</span>
+                      <span className="text-[9px] text-muted-foreground font-medium leading-tight text-center">Active Orders</span>
                     </motion.button>
                   </div>
                 </motion.div>
