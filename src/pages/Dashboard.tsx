@@ -223,7 +223,7 @@ const Dashboard = () => {
           <div className="bg-background pb-24">
             {/* Header */}
             <div className="relative">
-              <div className="gradient-primary px-5 pt-10 pb-14 rounded-b-[2.5rem]">
+              <div className="gradient-primary px-5 pt-6 pb-12 rounded-b-[2.5rem]">
                 {/* Animated decorative shapes */}
                 <motion.div
                   animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.1, 0.05] }}
