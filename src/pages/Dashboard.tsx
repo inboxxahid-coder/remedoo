@@ -530,6 +530,40 @@ const Dashboard = () => {
                 </motion.div>
               )}
 
+              {/* Browse Services */}
+              <motion.div
+                variants={container}
+                initial="hidden"
+                animate="show"
+                transition={{ delayChildren: 0.55 }}
+              >
+                <h2 className="text-lg font-bold mb-4 text-foreground">Browse Services</h2>
+                <div className="grid grid-cols-2 gap-3.5">
+                  {services.map((svc) => (
+                    <motion.button
+                      key={svc.title}
+                      variants={item}
+                      whileHover={{ scale: 1.04, y: -3 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => navigate(svc.path)}
+                      className={`bg-card rounded-2xl p-5 border border-border text-left shadow-sm hover:shadow-lg transition-all duration-300 group ${svc.borderHover}`}
+                    >
+                      <div className={`w-12 h-12 rounded-2xl ${svc.bgColor} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                        <svc.icon className={`w-5.5 h-5.5 ${svc.color}`} />
+                      </div>
+                      <h3 className="font-bold text-foreground text-[15px]">{svc.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">{svc.desc}</p>
+                      <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-primary transition-colors duration-300">
+                        <TrendingUp className="w-3 h-3" /> Explore
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Health Tips */}
+              <HealthTipsCards />
+
               {/* Nearby Hospitals Map */}
               <NearbyHospitalsMap />
 
@@ -562,40 +596,6 @@ const Dashboard = () => {
                   </div>
                 </motion.div>
               )}
-
-              {/* Health Tips */}
-              <HealthTipsCards />
-
-              {/* Browse Services */}
-              <motion.div
-                variants={container}
-                initial="hidden"
-                animate="show"
-                transition={{ delayChildren: 0.55 }}
-              >
-                <h2 className="text-lg font-bold mb-4 text-foreground">Browse Services</h2>
-                <div className="grid grid-cols-2 gap-3.5">
-                  {services.map((svc) => (
-                    <motion.button
-                      key={svc.title}
-                      variants={item}
-                      whileHover={{ scale: 1.04, y: -3 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => navigate(svc.path)}
-                      className={`bg-card rounded-2xl p-5 border border-border text-left shadow-sm hover:shadow-lg transition-all duration-300 group ${svc.borderHover}`}
-                    >
-                      <div className={`w-12 h-12 rounded-2xl ${svc.bgColor} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                        <svc.icon className={`w-5.5 h-5.5 ${svc.color}`} />
-                      </div>
-                      <h3 className="font-bold text-foreground text-[15px]">{svc.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">{svc.desc}</p>
-                      <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-primary transition-colors duration-300">
-                        <TrendingUp className="w-3 h-3" /> Explore
-                      </div>
-                    </motion.button>
-                  ))}
-                </div>
-              </motion.div>
             </>
               )}
             </div>
