@@ -126,6 +126,12 @@ const PageLoader = () => (
 
 const App = () => {
   useEffect(() => {
+    const handler = (event: PromiseRejectionEvent) => {
+      console.error("Unhandled rejection:", event.reason);
+      event.preventDefault();
+    };
+    window.addEventListener("unhandledrejection", handler);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       if (session?.user) {
         supabase
@@ -142,7 +148,10 @@ const App = () => {
           });
       }
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("unhandledrejection", handler);
+    };
   }, []);
 
   return (
