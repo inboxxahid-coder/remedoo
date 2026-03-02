@@ -52,7 +52,7 @@ const Onboarding = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-8">
+      <div className="flex-1 flex flex-col items-center justify-center px-8 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -60,7 +60,14 @@ const Onboarding = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -60 }}
             transition={{ duration: 0.35 }}
-            className="flex flex-col items-center text-center max-w-sm"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.3}
+            onDragEnd={(_e, info) => {
+              if (info.offset.x < -50 && current < slides.length - 1) setCurrent(current + 1);
+              else if (info.offset.x > 50 && current > 0) setCurrent(current - 1);
+            }}
+            className="flex flex-col items-center text-center max-w-sm cursor-grab active:cursor-grabbing"
           >
             <div className={`w-28 h-28 rounded-3xl bg-gradient-to-br ${slides[current].color} flex items-center justify-center mb-8 shadow-lg`}>
               {(() => {
