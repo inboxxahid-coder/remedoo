@@ -4,7 +4,7 @@ import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
-import RecentActivityFeed from "@/components/dashboard/RecentActivityFeed";
+
 import HealthTipsCards from "@/components/dashboard/HealthTipsCards";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -452,8 +452,6 @@ const Dashboard = () => {
               {/* Nearby Hospitals Map */}
               <NearbyHospitalsMap />
 
-              {/* Recent Activity Feed */}
-              <RecentActivityFeed />
 
               {/* Top Doctors */}
               {topDoctors.length > 0 && (
