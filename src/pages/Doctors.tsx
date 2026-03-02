@@ -21,14 +21,16 @@ const Doctors = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const { data: doctorsRes } = await supabase.from("doctors").select("*, hospitals(name, latitude, longitude)");
+        const { data: doctorsRes } = await supabase.from("doctors").select("*, hospitals(name, latitude, longitude, is_government)");
         if (doctorsRes) {
-          setDoctors(doctorsRes.map((d: any) => ({
-            ...d,
-            hospital_name: d.hospitals?.name,
-            latitude: d.hospitals?.latitude ?? null,
-            longitude: d.hospitals?.longitude ?? null,
-          })));
+          setDoctors(doctorsRes
+            .filter((d: any) => !d.hospitals?.is_government)
+            .map((d: any) => ({
+              ...d,
+              hospital_name: d.hospitals?.name,
+              latitude: d.hospitals?.latitude ?? null,
+              longitude: d.hospitals?.longitude ?? null,
+            })));
         }
       } catch (e) { console.error("Failed to fetch doctors:", e); }
       setLoading(false);
