@@ -200,7 +200,7 @@ const Dashboard = () => {
           </AnimatePresence>
           <div className="bg-background pb-24">
             {/* Header */}
-            <div className="relative overflow-hidden">
+            <div className="relative">
               <div className="gradient-primary px-5 pt-10 pb-14 rounded-b-[2.5rem]">
                 {/* Animated decorative shapes */}
                 <motion.div
