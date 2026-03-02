@@ -423,47 +423,59 @@ const Dashboard = () => {
 
               {/* Featured Slider */}
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.6 }}>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <h2 className="text-lg font-bold text-foreground">Featured</h2>
                   <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
                     <Activity className="w-3 h-3" /> Swipe →
                   </span>
                 </div>
-                <div className="flex gap-4 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x snap-mandatory">
-                  {(slides.length > 0 ? slides.map((slide) => ({
+                <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x snap-mandatory">
+                  {(slides.length > 0 ? slides.map((slide, idx) => ({
                     id: slide.id,
                     title: slide.title || "",
                     desc: slide.description || "",
                     link: slide.target_link,
+                    accent: idx % 3,
                   })) : [
-                    { id: "1", title: "Stay Hydrated 💧", desc: "Drink at least 8 glasses of water daily", link: null },
-                    { id: "2", title: "Sleep Well 😴", desc: "Get 7-9 hours of quality sleep", link: null },
-                    { id: "3", title: "Stay Active 🏃", desc: "30 min of exercise boosts immunity", link: null },
-                  ]).map((tip, idx) => (
+                    { id: "1", title: "Stay Hydrated 💧", desc: "Drink at least 8 glasses of water daily", link: null, accent: 0 },
+                    { id: "2", title: "Sleep Well 😴", desc: "Get 7-9 hours of quality sleep", link: null, accent: 1 },
+                    { id: "3", title: "Stay Active 🏃", desc: "30 min of exercise boosts immunity", link: null, accent: 2 },
+                  ]).map((tip, idx) => {
+                    const gradients = [
+                      "from-primary via-primary/90 to-[hsl(190,70%,35%)]",
+                      "from-[hsl(260,60%,55%)] via-[hsl(280,55%,50%)] to-[hsl(300,50%,45%)]",
+                      "from-[hsl(340,65%,50%)] via-[hsl(355,60%,55%)] to-[hsl(15,70%,50%)]",
+                    ];
+                    return (
                     <motion.button
                       key={tip.id}
                       initial={{ opacity: 0, x: 40 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.35 + idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
                       onClick={() => tip.link && navigate(tip.link)}
-                      className="flex-shrink-0 w-72 h-44 rounded-3xl gradient-primary relative overflow-hidden shadow-xl text-left snap-start group cursor-pointer"
+                      className={`flex-shrink-0 w-[80vw] max-w-[320px] rounded-2xl bg-gradient-to-br ${gradients[tip.accent % 3]} relative overflow-hidden shadow-lg text-left snap-start group cursor-pointer`}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-white/10" />
-                      <motion.div
-                        animate={{ rotate: [0, 360] }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full border-2 border-primary-foreground/10"
-                      />
-                      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-primary-foreground/5" />
-                      <div className="relative z-10 p-6 flex flex-col justify-end h-full">
-                        <p className="font-extrabold text-xl text-primary-foreground leading-tight">{tip.title}</p>
-                        <p className="text-sm text-primary-foreground/70 mt-1.5 line-clamp-2">{tip.desc}</p>
-                        <div className="mt-3 flex items-center gap-1 text-primary-foreground/50 text-xs font-semibold group-hover:text-primary-foreground/80 transition-colors">
+                      <div className="absolute inset-0">
+                        <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/[0.07] -translate-y-1/2 translate-x-1/3" />
+                        <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/[0.05] translate-y-1/3 -translate-x-1/4" />
+                        <motion.div
+                          animate={{ scale: [1, 1.15, 1], opacity: [0.04, 0.08, 0.04] }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                          className="absolute top-1/2 right-6 w-20 h-20 rounded-full bg-white/5"
+                        />
+                      </div>
+                      <div className="relative z-10 p-5 flex flex-col h-36 justify-between">
+                        <div>
+                          <p className="font-extrabold text-lg text-white leading-snug drop-shadow-sm">{tip.title}</p>
+                          <p className="text-xs text-white/70 mt-1 line-clamp-2 leading-relaxed">{tip.desc}</p>
+                        </div>
+                        <div className="flex items-center gap-1 text-white/50 text-[11px] font-semibold group-hover:text-white/80 transition-colors self-start">
                           Learn more <ChevronRight className="w-3 h-3" />
                         </div>
                       </div>
                     </motion.button>
-                  ))}
+                    );
+                  })}
                 </div>
               </motion.div>
 
