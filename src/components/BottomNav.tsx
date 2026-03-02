@@ -6,7 +6,7 @@ const tabs = [
   { icon: Home, label: "Home", path: "/dashboard" },
   { icon: Calendar, label: "Appointments", path: "/appointments" },
   { icon: AlertTriangle, label: "SOS", path: "/emergency", accent: true },
-  { icon: Package, label: "Orders", path: "/my-orders" },
+  { icon: Package, label: "Order Medicine", path: "/pharmacies" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 

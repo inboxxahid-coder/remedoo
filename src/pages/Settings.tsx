@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Bell, Moon, Globe, Shield, LogOut, ChevronRight, User, Heart, Calendar,
-  FileText, IndianRupee, Trash2, AlertTriangle,
+  FileText, IndianRupee, Trash2, AlertTriangle, Package,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -86,6 +86,7 @@ const Settings = () => {
   const menuItems = [
     { icon: User, label: "Edit Profile", action: () => navigate("/profile") },
     { icon: Calendar, label: "My Appointments", action: () => navigate("/appointments") },
+    { icon: Package, label: "My Orders", action: () => navigate("/my-orders") },
     { icon: FileText, label: "Medical History", action: () => navigate("/medical-history") },
     { icon: Heart, label: "My Favorites", action: () => navigate("/favorites") },
     { icon: IndianRupee, label: "Refund Status", action: () => navigate("/refunds") },
