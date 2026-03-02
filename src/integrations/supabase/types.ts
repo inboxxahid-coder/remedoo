@@ -509,6 +509,117 @@ export type Database = {
           },
         ]
       }
+      dashboard_health_tips: {
+        Row: {
+          active: boolean | null
+          bg_color: string | null
+          color: string | null
+          created_at: string | null
+          description: string
+          icon_name: string
+          id: string
+          sort_order: number | null
+          title: string
+        }
+        Insert: {
+          active?: boolean | null
+          bg_color?: string | null
+          color?: string | null
+          created_at?: string | null
+          description: string
+          icon_name?: string
+          id?: string
+          sort_order?: number | null
+          title: string
+        }
+        Update: {
+          active?: boolean | null
+          bg_color?: string | null
+          color?: string | null
+          created_at?: string | null
+          description?: string
+          icon_name?: string
+          id?: string
+          sort_order?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
+      dashboard_quick_actions: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          emoji: string | null
+          gradient: string | null
+          icon_name: string
+          id: string
+          label: string
+          path: string
+          sort_order: number | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          emoji?: string | null
+          gradient?: string | null
+          icon_name?: string
+          id?: string
+          label: string
+          path?: string
+          sort_order?: number | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          emoji?: string | null
+          gradient?: string | null
+          icon_name?: string
+          id?: string
+          label?: string
+          path?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      dashboard_services: {
+        Row: {
+          active: boolean | null
+          bg_color: string | null
+          color: string | null
+          created_at: string | null
+          description: string | null
+          icon_name: string
+          id: string
+          path: string
+          sort_order: number | null
+          title: string
+        }
+        Insert: {
+          active?: boolean | null
+          bg_color?: string | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string
+          id?: string
+          path?: string
+          sort_order?: number | null
+          title: string
+        }
+        Update: {
+          active?: boolean | null
+          bg_color?: string | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string
+          id?: string
+          path?: string
+          sort_order?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
       departments: {
         Row: {
           created_at: string
@@ -609,10 +720,12 @@ export type Database = {
           department_id: string | null
           emergency_available: boolean | null
           experience_years: number | null
+          featured_sort_order: number | null
           gst_url: string | null
           hospital_id: string | null
           id: string
           image_url: string | null
+          is_featured: boolean | null
           license_url: string | null
           max_appointments_per_day: number | null
           name: string
@@ -636,10 +749,12 @@ export type Database = {
           department_id?: string | null
           emergency_available?: boolean | null
           experience_years?: number | null
+          featured_sort_order?: number | null
           gst_url?: string | null
           hospital_id?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           license_url?: string | null
           max_appointments_per_day?: number | null
           name: string
@@ -663,10 +778,12 @@ export type Database = {
           department_id?: string | null
           emergency_available?: boolean | null
           experience_years?: number | null
+          featured_sort_order?: number | null
           gst_url?: string | null
           hospital_id?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           license_url?: string | null
           max_appointments_per_day?: number | null
           name?: string
@@ -1248,10 +1365,12 @@ export type Database = {
           description: string | null
           discount_percent: number | null
           expiry_date: string | null
+          featured_sort_order: number | null
           generic_name: string | null
           id: string
           image_url: string | null
           in_stock: boolean | null
+          is_featured: boolean | null
           low_stock_threshold: number | null
           manufacturer: string | null
           name: string
@@ -1268,10 +1387,12 @@ export type Database = {
           description?: string | null
           discount_percent?: number | null
           expiry_date?: string | null
+          featured_sort_order?: number | null
           generic_name?: string | null
           id?: string
           image_url?: string | null
           in_stock?: boolean | null
+          is_featured?: boolean | null
           low_stock_threshold?: number | null
           manufacturer?: string | null
           name: string
@@ -1288,10 +1409,12 @@ export type Database = {
           description?: string | null
           discount_percent?: number | null
           expiry_date?: string | null
+          featured_sort_order?: number | null
           generic_name?: string | null
           id?: string
           image_url?: string | null
           in_stock?: boolean | null
+          is_featured?: boolean | null
           low_stock_threshold?: number | null
           manufacturer?: string | null
           name?: string

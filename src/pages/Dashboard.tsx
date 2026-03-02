@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
@@ -15,19 +15,14 @@ import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import BottomNav from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const quickActions = [
-  { icon: Calendar, label: "Book\nAppointment", gradient: "from-primary to-[hsl(190,70%,45%)]", path: "/doctors", emoji: "📅" },
-  { icon: AlertTriangle, label: "Emergency\nSOS", gradient: "from-emergency to-[hsl(15,80%,50%)]", path: "/emergency", emoji: "🚨" },
-  { icon: Pill, label: "Order\nMedicines", gradient: "from-success to-[hsl(160,55%,48%)]", path: "/pharmacies", emoji: "💊" },
-  { icon: Heart, label: "Favorites", gradient: "from-warning to-[hsl(25,90%,55%)]", path: "/favorites", emoji: "❤️" },
-];
+// Icon lookup map for dynamic icon resolution
+const iconMap: Record<string, LucideIcon> = {
+  Calendar, AlertTriangle, Pill, Heart, Bell, Star, Stethoscope, Building2,
+  FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList,
+  IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, RefreshCw,
+};
 
-const services = [
-  { title: "Doctors", desc: "Find specialists", icon: Stethoscope, path: "/doctors", color: "text-primary", bgColor: "bg-primary/10", borderHover: "hover:border-primary/40" },
-  { title: "Hospitals", desc: "Nearby facilities", icon: Building2, path: "/hospitals", color: "text-emergency", bgColor: "bg-emergency/10", borderHover: "hover:border-emergency/40" },
-  { title: "Labs", desc: "Book tests", icon: FlaskConical, path: "/labs", color: "text-success", bgColor: "bg-success/10", borderHover: "hover:border-success/40" },
-  { title: "Pharmacies", desc: "Order medicines", icon: Store, path: "/pharmacies", color: "text-warning", bgColor: "bg-warning/10", borderHover: "hover:border-warning/40" },
-];
+const getIcon = (name: string): LucideIcon => iconMap[name] || Heart;
 
 const container = {
   hidden: { opacity: 0 },
@@ -63,6 +58,8 @@ const Dashboard = () => {
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
   const [ads, setAds] = useState<Tables<"ads">[]>([]);
   const [popularMedicines, setPopularMedicines] = useState<(Tables<"medicines"> & { pharmacy_name?: string })[]>([]);
+  const [quickActions, setQuickActions] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [upcomingAppts, setUpcomingAppts] = useState(0);
   const [recentOrders, setRecentOrders] = useState(0);
@@ -77,18 +74,35 @@ const Dashboard = () => {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [slidesRes, doctorsRes, adsRes, medsRes] = await Promise.all([
+      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes] = await Promise.all([
         supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
-        supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5),
+        supabase.from("doctors").select("*").eq("is_featured", true).order("featured_sort_order").limit(10),
         supabase.from("ads").select("*").eq("active", true),
-        supabase.from("medicines").select("*, pharmacies(name)").eq("in_stock", true).order("created_at", { ascending: false }).limit(10),
+        supabase.from("medicines").select("*, pharmacies(name)").eq("is_featured", true).eq("in_stock", true).order("featured_sort_order").limit(10),
+        supabase.from("dashboard_quick_actions").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_services").select("*").eq("active", true).order("sort_order"),
       ]);
       if (slidesRes.data) setSlides(slidesRes.data);
-      if (doctorsRes.data) setTopDoctors(doctorsRes.data);
+      if (doctorsRes.data) {
+        // If no featured doctors, fall back to top-rated
+        if (doctorsRes.data.length > 0) {
+          setTopDoctors(doctorsRes.data);
+        } else {
+          const fallback = await supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5);
+          setTopDoctors(fallback.data || []);
+        }
+      }
       if (adsRes.data) setAds(adsRes.data);
       if (medsRes.data) {
-        setPopularMedicines(medsRes.data.map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name })));
+        if (medsRes.data.length > 0) {
+          setPopularMedicines(medsRes.data.map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name })));
+        } else {
+          const fallback = await supabase.from("medicines").select("*, pharmacies(name)").eq("in_stock", true).order("created_at", { ascending: false }).limit(10);
+          setPopularMedicines((fallback.data || []).map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name })));
+        }
       }
+      if (qaRes.data) setQuickActions(qaRes.data);
+      if (svcRes.data) setServices(svcRes.data);
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { setIsLoading(false); return; }
@@ -384,9 +398,11 @@ const Dashboard = () => {
                 className="glass rounded-2xl p-3 shadow-2xl shadow-primary/5"
               >
                 <div className="grid grid-cols-4 gap-2">
-                  {quickActions.map((action) => (
+                  {quickActions.map((action) => {
+                    const Icon = getIcon(action.icon_name);
+                    return (
                     <motion.button
-                      key={action.label}
+                      key={action.id}
                       variants={item}
                       whileHover={{ scale: 1.08, y: -2 }}
                       whileTap={{ scale: 0.94 }}
@@ -394,12 +410,13 @@ const Dashboard = () => {
                       className="flex flex-col items-center gap-1.5 group"
                     >
                       <div className={`relative w-11 h-11 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
-                        <action.icon className="w-5 h-5 text-primary-foreground" />
+                        <Icon className="w-5 h-5 text-primary-foreground" />
                         <div className="absolute inset-0 rounded-xl bg-primary-foreground/0 group-hover:bg-primary-foreground/10 transition-colors duration-300" />
                       </div>
                       <span className="text-[10px] text-center leading-tight text-foreground font-semibold whitespace-pre-line">{action.label}</span>
                     </motion.button>
-                  ))}
+                    );
+                  })}
                 </div>
               </motion.div>
 
@@ -539,25 +556,28 @@ const Dashboard = () => {
               >
                 <h2 className="text-lg font-bold mb-4 text-foreground">Browse Services</h2>
                 <div className="grid grid-cols-2 gap-3.5">
-                  {services.map((svc) => (
+                  {services.map((svc) => {
+                    const SvcIcon = getIcon(svc.icon_name);
+                    return (
                     <motion.button
-                      key={svc.title}
+                      key={svc.id}
                       variants={item}
                       whileHover={{ scale: 1.04, y: -3 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => navigate(svc.path)}
-                      className={`bg-card rounded-2xl p-5 border border-border text-left shadow-sm hover:shadow-lg transition-all duration-300 group ${svc.borderHover}`}
+                      className="bg-card rounded-2xl p-5 border border-border text-left shadow-sm hover:shadow-lg transition-all duration-300 group"
                     >
-                      <div className={`w-12 h-12 rounded-2xl ${svc.bgColor} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                        <svc.icon className={`w-5.5 h-5.5 ${svc.color}`} />
+                      <div className={`w-12 h-12 rounded-2xl ${svc.bg_color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                        <SvcIcon className={`w-5.5 h-5.5 ${svc.color}`} />
                       </div>
                       <h3 className="font-bold text-foreground text-[15px]">{svc.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">{svc.desc}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{svc.description}</p>
                       <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-primary transition-colors duration-300">
                         <TrendingUp className="w-3 h-3" /> Explore
                       </div>
                     </motion.button>
-                  ))}
+                    );
+                  })}
                 </div>
               </motion.div>
 
