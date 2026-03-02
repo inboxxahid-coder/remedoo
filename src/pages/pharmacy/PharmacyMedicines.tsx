@@ -88,7 +88,7 @@ export default function PharmacyMedicines() {
           <p className="text-xs mt-1">Try a different search or category</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
           {filtered.map((m) => {
             const discountedPrice = getDiscountedPrice(m);
             const hasDiscount = (m.discount_percent || 0) > 0;

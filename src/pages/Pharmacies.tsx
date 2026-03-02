@@ -88,7 +88,7 @@ const Pharmacies = () => {
         </div>
       </div>
 
-      <div className="px-5 mt-4 space-y-3">
+      <div className="px-4 mt-4 grid grid-cols-2 gap-3">
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading pharmacies...</div>
         ) : filtered.length === 0 ? (
