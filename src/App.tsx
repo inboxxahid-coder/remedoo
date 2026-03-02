@@ -19,6 +19,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Doctors = lazy(() => import("./pages/Doctors"));
 const DoctorDetail = lazy(() => import("./pages/DoctorDetail"));
 const Hospitals = lazy(() => import("./pages/Hospitals"));
+const HospitalDetail = lazy(() => import("./pages/HospitalDetail"));
 const Labs = lazy(() => import("./pages/Labs"));
 const LabDetail = lazy(() => import("./pages/LabDetail"));
 const Pharmacies = lazy(() => import("./pages/Pharmacies"));
@@ -181,6 +182,7 @@ const App = () => {
             <Route path="/doctors" element={<Doctors />} />
             <Route path="/doctor/:id" element={<DoctorDetail />} />
             <Route path="/hospitals" element={<Hospitals />} />
+            <Route path="/hospital/:id" element={<HospitalDetail />} />
             <Route path="/labs" element={<Labs />} />
             <Route path="/lab/:id" element={<LabDetail />} />
             <Route path="/pharmacies" element={<Pharmacies />} />
