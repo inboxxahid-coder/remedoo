@@ -98,25 +98,25 @@ const Pharmacies = () => {
             <button
               key={p.id}
               onClick={() => navigate(`/pharmacy/${p.id}`)}
-              className="w-full text-left bg-card rounded-2xl border border-border p-4 shadow-sm hover:shadow-md transition-shadow"
+              className="w-full text-left bg-card rounded-xl border border-border p-2.5 shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex gap-3">
-                <div className="w-16 h-16 rounded-xl bg-accent flex items-center justify-center text-3xl flex-shrink-0">💊</div>
+              <div className="flex gap-2">
+                <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-xl flex-shrink-0">💊</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
-                    <h3 className="font-semibold text-foreground truncate">{p.name}</h3>
-                    <button onClick={(e) => toggleFavorite(e, p.id)}>
-                      <Heart className={`w-5 h-5 ${favorites.has(p.id) ? "fill-emergency text-emergency" : "text-muted-foreground"}`} />
+                    <h3 className="font-semibold text-foreground text-[11px] leading-tight truncate">{p.name}</h3>
+                    <button onClick={(e) => toggleFavorite(e, p.id)} className="ml-1 flex-shrink-0">
+                      <Heart className={`w-3.5 h-3.5 ${favorites.has(p.id) ? "fill-emergency text-emergency" : "text-muted-foreground"}`} />
                     </button>
                   </div>
-                  {p.location && <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{p.location}</p>}
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <span className="flex items-center gap-1 text-xs"><Star className="w-3.5 h-3.5 fill-warning text-warning" /><span className="font-medium">{p.rating}</span></span>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground"><ShoppingBag className="w-3 h-3" />{medicineCounts[p.id] || 0} items</span>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="w-3 h-3" />25-35 min</span>
+                  {p.location && <p className="text-[9px] text-muted-foreground flex items-center gap-0.5 mt-0.5 truncate"><MapPin className="w-2.5 h-2.5 flex-shrink-0" />{p.location}</p>}
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="flex items-center gap-0.5 text-[9px]"><Star className="w-2.5 h-2.5 fill-warning text-warning" /><span className="font-medium">{p.rating}</span></span>
+                    <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground"><ShoppingBag className="w-2.5 h-2.5" />{medicineCounts[p.id] || 0}</span>
+                    <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground"><Clock className="w-2.5 h-2.5" />25-35m</span>
                     {p.distance_km != null && (
-                      <span className="text-xs text-primary font-medium flex items-center gap-0.5">
-                        <Navigation className="w-3 h-3" />{formatDistance(p.distance_km)}
+                      <span className="text-[9px] text-primary font-medium flex items-center gap-0.5">
+                        <Navigation className="w-2.5 h-2.5" />{formatDistance(p.distance_km)}
                       </span>
                     )}
                   </div>
