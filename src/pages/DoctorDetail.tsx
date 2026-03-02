@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Star, MapPin, Phone, Clock, Briefcase, Heart, IndianRupee, Calendar, Building2 } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Phone, Clock, Briefcase, Heart, IndianRupee, Calendar, Building2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import ReviewDialog from "@/components/patient/ReviewDialog";
 
 const DoctorDetail = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const DoctorDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [hasCompletedAppointment, setHasCompletedAppointment] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,8 +53,12 @@ const DoctorDetail = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setUserId(session.user.id);
-        const { data: fav } = await supabase.from("favorites").select("id").eq("user_id", session.user.id).eq("provider_id", id).eq("provider_type", "doctor").maybeSingle();
-        setIsFavorite(!!fav);
+        const [favRes, apptRes] = await Promise.all([
+          supabase.from("favorites").select("id").eq("user_id", session.user.id).eq("provider_id", id).eq("provider_type", "doctor").maybeSingle(),
+          supabase.from("appointments").select("id").eq("patient_id", session.user.id).eq("doctor_id", id).eq("status", "completed").limit(1).maybeSingle(),
+        ]);
+        setIsFavorite(!!favRes.data);
+        setHasCompletedAppointment(apptRes.data?.id || null);
       }
 
       setLoading(false);
@@ -263,7 +270,52 @@ const DoctorDetail = () => {
             </div>
           </motion.div>
         )}
+
+        {/* Write Review */}
+        {hasCompletedAppointment && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-card rounded-2xl border border-border p-5 shadow-sm"
+          >
+            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-primary" /> Share Your Experience
+            </h3>
+            <p className="text-sm text-muted-foreground mb-3">You've visited this doctor. Leave a review to help other patients.</p>
+            <Button
+              onClick={() => setReviewOpen(true)}
+              variant="outline"
+              className="w-full rounded-xl"
+            >
+              <Star className="w-4 h-4 mr-2" /> Write a Review
+            </Button>
+          </motion.div>
+        )}
       </div>
+
+      {/* Review Dialog */}
+      {hasCompletedAppointment && (
+        <ReviewDialog
+          open={reviewOpen}
+          onOpenChange={setReviewOpen}
+          providerId={id!}
+          providerType="doctor"
+          providerName={doctor.name}
+          appointmentId={hasCompletedAppointment}
+          onReviewSubmitted={() => {
+            supabase.from("reviews").select("*").eq("provider_id", id!).eq("provider_type", "doctor").order("created_at", { ascending: false }).limit(10).then(({ data }) => {
+              if (data) {
+                const userIds = data.map((r) => r.user_id);
+                supabase.from("profiles").select("user_id, full_name").in("user_id", userIds).then(({ data: profiles }) => {
+                  const nameMap = new Map(profiles?.map((p) => [p.user_id, p.full_name]) || []);
+                  setReviews(data.map((r) => ({ ...r, user_name: nameMap.get(r.user_id) || "Patient" })));
+                });
+              }
+            });
+          }}
+        />
+      )}
 
       {/* Fixed Book Button */}
       <div className="fixed bottom-20 left-0 right-0 px-5 z-50">
