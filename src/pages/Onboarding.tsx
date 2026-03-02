@@ -1,33 +1,33 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { Calendar, AlertTriangle, MapPin, Wallet, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import onboardingAppointments from "@/assets/onboarding-appointments.png";
-import onboardingEmergency from "@/assets/onboarding-emergency.png";
-import onboardingTracking from "@/assets/onboarding-tracking.png";
-import onboardingWallet from "@/assets/onboarding-wallet.png";
 
 const slides = [
   {
-    image: onboardingAppointments,
+    icon: Calendar,
     title: "Book Appointments",
     description: "Easily schedule visits with doctors, hospitals, labs, and pharmacies — all in one place.",
+    color: "from-primary to-primary/80",
   },
   {
-    image: onboardingEmergency,
+    icon: AlertTriangle,
     title: "Emergency SOS",
     description: "One tap to send your location and dispatch the nearest ambulance instantly.",
+    color: "from-emergency to-emergency/80",
   },
   {
-    image: onboardingTracking,
+    icon: MapPin,
     title: "Track Ambulances",
     description: "Real-time GPS tracking of your ambulance with live ETA updates.",
+    color: "from-success to-success/80",
   },
   {
-    image: onboardingWallet,
+    icon: Wallet,
     title: "Wallet & Payments",
     description: "Manage payments, view transaction history, and download receipts effortlessly.",
+    color: "from-warning to-warning/80",
   },
 ];
 
@@ -62,7 +62,12 @@ const Onboarding = () => {
             transition={{ duration: 0.35 }}
             className="flex flex-col items-center text-center max-w-sm"
           >
-            <img src={slides[current].image} alt={slides[current].title} className="w-56 h-56 object-contain mb-8 drop-shadow-lg" />
+            <div className={`w-28 h-28 rounded-3xl bg-gradient-to-br ${slides[current].color} flex items-center justify-center mb-8 shadow-lg`}>
+              {(() => {
+                const Icon = slides[current].icon;
+                return <Icon className="w-14 h-14 text-primary-foreground" />;
+              })()}
+            </div>
             <h2 className="text-2xl font-bold text-foreground mb-3">{slides[current].title}</h2>
             <p className="text-muted-foreground leading-relaxed">{slides[current].description}</p>
           </motion.div>
