@@ -224,7 +224,7 @@ const Dashboard = () => {
           <div className="bg-background pb-24">
             {/* Header */}
             <div className="relative">
-              <div className="gradient-primary px-5 pt-6 pb-12 rounded-b-[2.5rem]">
+              <div className="gradient-primary px-4 sm:px-5 pt-5 sm:pt-6 pb-10 sm:pb-12 rounded-b-[2rem] sm:rounded-b-[2.5rem]">
                 {/* Animated decorative shapes */}
                 <motion.div
                   animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.1, 0.05] }}
@@ -252,7 +252,7 @@ const Dashboard = () => {
                     <AnimatedMenuButton />
                     <div>
                       <p className="text-primary-foreground/70 text-sm font-medium">{greeting} {greetingEmoji}</p>
-                      <h1 className="text-xl font-bold text-primary-foreground tracking-tight">{displayName}</h1>
+                      <h1 className="text-lg sm:text-xl font-bold text-primary-foreground tracking-tight">{displayName}</h1>
                     </div>
                   </div>
                   <motion.button
@@ -290,7 +290,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="px-5 -mt-6 space-y-4 relative z-10">
+            <div className="px-3 sm:px-5 -mt-5 sm:-mt-6 space-y-3 sm:space-y-4 relative z-10 pb-24">
               {/* Loading Skeleton */}
               {isLoading ? (
                 <div className="space-y-6 pt-2">
@@ -348,9 +348,9 @@ const Dashboard = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
-                  className="glass rounded-2xl p-2 shadow-2xl shadow-primary/5"
+                  className="glass rounded-2xl p-1.5 sm:p-2 shadow-2xl shadow-primary/5"
                 >
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.97 }}
@@ -396,9 +396,9 @@ const Dashboard = () => {
                 variants={container}
                 initial="hidden"
                 animate="show"
-                className="glass rounded-2xl p-3 shadow-2xl shadow-primary/5"
+                className="glass rounded-2xl p-2 sm:p-3 shadow-2xl shadow-primary/5"
               >
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                   {quickActions.map((action) => {
                     const Icon = getIcon(action.icon_name);
                     return (
@@ -410,7 +410,7 @@ const Dashboard = () => {
                       onClick={() => navigate(action.path)}
                       className="flex flex-col items-center gap-1.5 group"
                     >
-                      <div className={`relative w-11 h-11 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
+                      <div className={`relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300`}>
                         <Icon className="w-5 h-5 text-primary-foreground" />
                         <div className="absolute inset-0 rounded-xl bg-primary-foreground/0 group-hover:bg-primary-foreground/10 transition-colors duration-300" />
                       </div>
@@ -456,7 +456,7 @@ const Dashboard = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.35 + idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
                       onClick={() => tip.link && navigate(tip.link)}
-                      className={`flex-shrink-0 w-[80vw] max-w-[320px] rounded-2xl ${hasImage ? "" : `bg-gradient-to-br ${gradients[tip.accent % 3]}`} relative overflow-hidden shadow-lg text-left snap-start group cursor-pointer`}
+                      className={`flex-shrink-0 w-[75vw] sm:w-[80vw] max-w-[320px] rounded-2xl ${hasImage ? "" : `bg-gradient-to-br ${gradients[tip.accent % 3]}`} relative overflow-hidden shadow-lg text-left snap-start group cursor-pointer`}
                     >
                       {hasImage && (
                         <img
@@ -478,10 +478,10 @@ const Dashboard = () => {
                           />
                         </div>
                       )}
-                      <div className="relative z-10 p-5 flex flex-col h-44 justify-end">
+                      <div className="relative z-10 p-4 sm:p-5 flex flex-col h-36 sm:h-44 justify-end">
                         <div>
-                          <p className="font-extrabold text-lg text-white leading-snug drop-shadow-md">{tip.title}</p>
-                          <p className="text-xs text-white/80 mt-1 line-clamp-2 leading-relaxed drop-shadow-sm">{tip.desc}</p>
+                          <p className="font-extrabold text-base sm:text-lg text-white leading-snug drop-shadow-md">{tip.title}</p>
+                          <p className="text-[11px] sm:text-xs text-white/80 mt-1 line-clamp-2 leading-relaxed drop-shadow-sm">{tip.desc}</p>
                         </div>
                         {tip.link && (
                           <div className="flex items-center gap-1 text-white/60 text-[11px] font-semibold group-hover:text-white/90 transition-colors self-start mt-2">
@@ -513,7 +513,7 @@ const Dashboard = () => {
                         transition={{ delay: 0.5 + idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
                         whileHover={{ y: -6, transition: { duration: 0.2 } }}
                         onClick={() => navigate(`/doctor/${doc.id}`)}
-                        className="flex-shrink-0 w-44 bg-card rounded-2xl border border-border p-4 shadow-sm text-left snap-start hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group"
+                        className="flex-shrink-0 w-36 sm:w-44 bg-card rounded-2xl border border-border p-3 sm:p-4 shadow-sm text-left snap-start hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group"
                       >
                         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-primary/15 flex items-center justify-center text-2xl mb-3 group-hover:scale-105 transition-transform duration-300">
                           👨‍⚕️
@@ -552,7 +552,7 @@ const Dashboard = () => {
                           transition={{ delay: 0.55 + idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
                           whileHover={{ y: -6, transition: { duration: 0.2 } }}
                           onClick={() => navigate(`/pharmacies`)}
-                          className="flex-shrink-0 w-40 bg-card rounded-2xl border border-border p-4 shadow-sm text-left snap-start hover:border-success/30 hover:shadow-lg hover:shadow-success/5 transition-all duration-300 group"
+                          className="flex-shrink-0 w-36 sm:w-40 bg-card rounded-2xl border border-border p-3 sm:p-4 shadow-sm text-left snap-start hover:border-success/30 hover:shadow-lg hover:shadow-success/5 transition-all duration-300 group"
                         >
                           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-success/10 to-success/20 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-300">
                             <Pill className="w-6 h-6 text-success" />
@@ -584,7 +584,7 @@ const Dashboard = () => {
                 transition={{ delayChildren: 0.55 }}
               >
                 <h2 className="text-lg font-bold mb-4 text-foreground">Browse Services</h2>
-                <div className="grid grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5">
                   {services.map((svc) => {
                     const SvcIcon = getIcon(svc.icon_name);
                     return (
@@ -594,12 +594,12 @@ const Dashboard = () => {
                       whileHover={{ scale: 1.04, y: -3 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => navigate(svc.path)}
-                      className="bg-card rounded-2xl p-5 border border-border text-left shadow-sm hover:shadow-lg transition-all duration-300 group"
+                      className="bg-card rounded-2xl p-4 sm:p-5 border border-border text-left shadow-sm hover:shadow-lg transition-all duration-300 group"
                     >
                       <div className={`w-12 h-12 rounded-2xl ${svc.bg_color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
                         <SvcIcon className={`w-5.5 h-5.5 ${svc.color}`} />
                       </div>
-                      <h3 className="font-bold text-foreground text-[15px]">{svc.title}</h3>
+                      <h3 className="font-bold text-foreground text-sm sm:text-[15px]">{svc.title}</h3>
                       <p className="text-xs text-muted-foreground mt-1">{svc.description}</p>
                       <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-primary transition-colors duration-300">
                         <TrendingUp className="w-3 h-3" /> Explore
