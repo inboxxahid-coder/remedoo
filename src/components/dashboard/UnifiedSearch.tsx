@@ -94,7 +94,7 @@ const UnifiedSearch = () => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => results.length > 0 && setOpen(true)}
-        className="pl-11 pr-9 bg-card/95 backdrop-blur-md border-0 shadow-xl h-12 rounded-2xl text-sm focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
+        className="pl-11 pr-9 bg-card/95 backdrop-blur-md border-0 shadow-xl h-10 rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-primary-foreground/30"
       />
       {query && (
         <button onClick={() => { setQuery(""); setOpen(false); }} className="absolute right-3 top-1/2 -translate-y-1/2">
