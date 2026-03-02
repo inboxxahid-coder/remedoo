@@ -333,9 +333,9 @@ const Dashboard = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
-                  className="glass rounded-2xl p-2.5 shadow-2xl shadow-primary/5"
+                  className="glass rounded-2xl p-3 shadow-2xl shadow-primary/5"
                 >
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-3">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.97 }}
