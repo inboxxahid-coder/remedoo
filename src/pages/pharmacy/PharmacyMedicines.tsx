@@ -96,46 +96,46 @@ export default function PharmacyMedicines() {
             return (
               <div
                 key={m.id}
-                className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group"
+                className="bg-card rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group"
               >
                 {hasDiscount && (
-                  <div className="absolute top-2 left-2 z-10">
-                    <Badge className="bg-success text-success-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-lg shadow-sm">
-                      {m.discount_percent}% OFF
+                  <div className="absolute top-1 left-1 z-10">
+                    <Badge className="bg-success text-success-foreground text-[8px] font-bold px-1 py-0 rounded-md shadow-sm">
+                      {m.discount_percent}%
                     </Badge>
                   </div>
                 )}
 
                 {m.requires_prescription && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <Badge variant="outline" className="bg-card/90 backdrop-blur-sm text-[10px] border-primary text-primary px-1.5 py-0.5 rounded-lg">
-                      <FileText className="w-2.5 h-2.5 mr-0.5" />Rx
+                  <div className="absolute top-1 right-1 z-10">
+                    <Badge variant="outline" className="bg-card/90 backdrop-blur-sm text-[8px] border-primary text-primary px-1 py-0 rounded-md">
+                      Rx
                     </Badge>
                   </div>
                 )}
 
-                <div className="h-28 bg-gradient-to-br from-accent/60 to-accent/20 flex items-center justify-center relative overflow-hidden">
+                <div className="h-20 bg-gradient-to-br from-accent/60 to-accent/20 flex items-center justify-center relative overflow-hidden">
                   {m.image_url ? (
                     <img src={m.image_url} alt={m.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-4xl">{getCategoryIcon(m.category)}</span>
-                      <span className="text-[10px] text-accent-foreground/50 font-medium">{m.category}</span>
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-2xl">{getCategoryIcon(m.category)}</span>
+                      <span className="text-[8px] text-accent-foreground/50 font-medium">{m.category}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-3 space-y-1.5">
-                  <h3 className="font-semibold text-foreground text-xs leading-tight line-clamp-2 min-h-[2rem]">{m.name}</h3>
-                  {m.generic_name && <p className="text-[10px] text-muted-foreground truncate">{m.generic_name}</p>}
-                  <p className="text-[10px] text-muted-foreground">{m.unit} {m.manufacturer && `• ${m.manufacturer}`}</p>
+                <div className="p-2 space-y-1">
+                  <h3 className="font-semibold text-foreground text-[10px] leading-tight line-clamp-2 min-h-[1.5rem]">{m.name}</h3>
+                  {m.generic_name && <p className="text-[8px] text-muted-foreground truncate">{m.generic_name}</p>}
+                  <p className="text-[8px] text-muted-foreground">{m.unit} {m.manufacturer && `• ${m.manufacturer}`}</p>
 
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="font-bold text-foreground text-sm">₹{discountedPrice.toFixed(0)}</span>
-                    {hasDiscount && <span className="text-[10px] text-muted-foreground line-through">₹{m.price}</span>}
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-bold text-foreground text-xs">₹{discountedPrice.toFixed(0)}</span>
+                    {hasDiscount && <span className="text-[8px] text-muted-foreground line-through">₹{m.price}</span>}
                   </div>
 
-                  <Badge variant={m.in_stock ? "default" : "destructive"} className="text-[10px] mt-1">
+                  <Badge variant={m.in_stock ? "default" : "destructive"} className="text-[8px] mt-0.5">
                     {m.in_stock ? "In Stock" : "Out of Stock"}
                     {m.stock_quantity != null && m.in_stock ? ` (${m.stock_quantity})` : ""}
                   </Badge>
