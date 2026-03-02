@@ -63,7 +63,7 @@ const Hospitals = () => {
   const privateHospitals = sorted.filter((h: any) => !h.is_government);
 
   const renderCard = (h: any) => (
-    <div key={h.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm">
+    <div key={h.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm cursor-pointer" onClick={() => navigate(`/hospital/${h.id}`)}>
       <div className="flex gap-3">
         <div className="w-16 h-16 rounded-xl bg-accent flex items-center justify-center text-3xl flex-shrink-0">
           {h.is_government ? "🏛️" : "🏥"}
@@ -78,7 +78,7 @@ const Hospitals = () => {
                 </span>
               )}
             </div>
-            <button onClick={() => toggleFavorite(h.id)}>
+            <button onClick={(e) => { e.stopPropagation(); toggleFavorite(h.id); }}>
               <Heart className={`w-5 h-5 ${favorites.has(h.id) ? "fill-emergency text-emergency" : "text-muted-foreground"}`} />
             </button>
           </div>
@@ -95,7 +95,7 @@ const Hospitals = () => {
           </div>
           {!h.is_government && (
             <button
-              onClick={() => navigate(`/book/hospital/${h.id}`)}
+              onClick={(e) => { e.stopPropagation(); navigate(`/book/hospital/${h.id}`); }}
               className="mt-2 w-full py-1.5 rounded-lg text-xs font-semibold gradient-primary text-primary-foreground flex items-center justify-center gap-1"
             >
               <CalendarPlus className="w-3.5 h-3.5" />Book Now
