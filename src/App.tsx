@@ -63,6 +63,11 @@ const AdminRevenueDashboard = lazy(() => import("./pages/admin/AdminRevenueDashb
 const AdminPayouts = lazy(() => import("./pages/admin/AdminPayouts"));
 const AdminSupportTickets = lazy(() => import("./pages/admin/AdminSupportTickets"));
 const AdminSuspiciousActivity = lazy(() => import("./pages/admin/AdminSuspiciousActivity"));
+const AdminQuickActions = lazy(() => import("./pages/admin/AdminQuickActions"));
+const AdminServices = lazy(() => import("./pages/admin/AdminServices"));
+const AdminHealthTips = lazy(() => import("./pages/admin/AdminHealthTips"));
+const AdminFeaturedDoctors = lazy(() => import("./pages/admin/AdminFeaturedDoctors"));
+const AdminFeaturedMedicines = lazy(() => import("./pages/admin/AdminFeaturedMedicines"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -220,6 +225,11 @@ const App = () => {
               <Route path="payouts" element={<AdminPayouts />} />
               <Route path="support-tickets" element={<AdminSupportTickets />} />
               <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
+              <Route path="quick-actions" element={<AdminQuickActions />} />
+              <Route path="services" element={<AdminServices />} />
+              <Route path="health-tips" element={<AdminHealthTips />} />
+              <Route path="featured-doctors" element={<AdminFeaturedDoctors />} />
+              <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
             </Route>
 
             {/* Doctor routes */}
