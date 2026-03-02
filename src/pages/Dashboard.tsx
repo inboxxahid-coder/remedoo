@@ -267,7 +267,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="px-5 -mt-6 space-y-8 relative z-10">
+            <div className="px-5 -mt-6 space-y-4 relative z-10">
               {/* Loading Skeleton */}
               {isLoading ? (
                 <div className="space-y-6 pt-2">
