@@ -466,7 +466,7 @@ const Dashboard = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 + idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
                         whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                        onClick={() => navigate(`/book/doctor/${doc.id}`)}
+                        onClick={() => navigate(`/doctor/${doc.id}`)}
                         className="flex-shrink-0 w-44 bg-card rounded-2xl border border-border p-4 shadow-sm text-left snap-start hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group"
                       >
                         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-primary/15 flex items-center justify-center text-2xl mb-3 group-hover:scale-105 transition-transform duration-300">
