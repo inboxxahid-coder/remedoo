@@ -103,7 +103,7 @@ const Doctors = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-foreground truncate">{doc.name}</h3>
+                      <h3 className="font-semibold text-foreground truncate cursor-pointer hover:text-primary" onClick={() => navigate(`/doctor/${doc.id}`)}>{doc.name}</h3>
                       <p className="text-sm text-primary font-medium">{doc.specialization}</p>
                     </div>
                     <button onClick={() => toggleFavorite(doc.id)}>
