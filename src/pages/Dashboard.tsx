@@ -76,37 +76,42 @@ const Dashboard = () => {
   useRealtimeNotifications();
 
   const fetchAllData = useCallback(async () => {
-    const [slidesRes, doctorsRes, adsRes, medsRes] = await Promise.all([
-      supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
-      supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5),
-      supabase.from("ads").select("*").eq("active", true),
-      supabase.from("medicines").select("*, pharmacies(name)").eq("in_stock", true).order("created_at", { ascending: false }).limit(10),
-    ]);
-    if (slidesRes.data) setSlides(slidesRes.data);
-    if (doctorsRes.data) setTopDoctors(doctorsRes.data);
-    if (adsRes.data) setAds(adsRes.data);
-    if (medsRes.data) {
-      setPopularMedicines(medsRes.data.map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name })));
+    try {
+      const [slidesRes, doctorsRes, adsRes, medsRes] = await Promise.all([
+        supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
+        supabase.from("doctors").select("*").order("rating", { ascending: false }).limit(5),
+        supabase.from("ads").select("*").eq("active", true),
+        supabase.from("medicines").select("*, pharmacies(name)").eq("in_stock", true).order("created_at", { ascending: false }).limit(10),
+      ]);
+      if (slidesRes.data) setSlides(slidesRes.data);
+      if (doctorsRes.data) setTopDoctors(doctorsRes.data);
+      if (adsRes.data) setAds(adsRes.data);
+      if (medsRes.data) {
+        setPopularMedicines(medsRes.data.map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name })));
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setIsLoading(false); return; }
+      const userId = session.user.id;
+
+      const today = new Date().toISOString().split("T")[0];
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+
+      const [notifRes, apptRes, orderRes, activeRes] = await Promise.all([
+        supabase.from("notifications").select("*", { count: "exact", head: true }).eq("user_id", userId).eq("read", false),
+        supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", userId).gte("appointment_date", today).in("status", ["pending", "confirmed"]),
+        supabase.from("orders").select("*", { count: "exact", head: true }).eq("user_id", userId).gte("created_at", thirtyDaysAgo),
+        supabase.from("orders").select("*", { count: "exact", head: true }).eq("user_id", userId).in("status", ["placed", "confirmed", "out_for_delivery"]),
+      ]);
+      setUnreadCount(notifRes.count ?? 0);
+      setUpcomingAppts(apptRes.count ?? 0);
+      setRecentOrders(orderRes.count ?? 0);
+      setActiveOrders(activeRes.count ?? 0);
+    } catch (error) {
+      console.error("Dashboard fetch error:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { setIsLoading(false); return; }
-    const userId = session.user.id;
-
-    const today = new Date().toISOString().split("T")[0];
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
-
-    const [notifRes, apptRes, orderRes, activeRes] = await Promise.all([
-      supabase.from("notifications").select("*", { count: "exact", head: true }).eq("user_id", userId).eq("read", false),
-      supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", userId).gte("appointment_date", today).in("status", ["pending", "confirmed"]),
-      supabase.from("orders").select("*", { count: "exact", head: true }).eq("user_id", userId).gte("created_at", thirtyDaysAgo),
-      supabase.from("orders").select("*", { count: "exact", head: true }).eq("user_id", userId).in("status", ["placed", "confirmed", "out_for_delivery"]),
-    ]);
-    setUnreadCount(notifRes.count ?? 0);
-    setUpcomingAppts(apptRes.count ?? 0);
-    setRecentOrders(orderRes.count ?? 0);
-    setActiveOrders(activeRes.count ?? 0);
-    setIsLoading(false);
   }, []);
 
   const handleRefresh = useCallback(async () => {
