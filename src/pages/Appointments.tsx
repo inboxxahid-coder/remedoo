@@ -268,18 +268,70 @@ const Appointments = () => {
                       <Star className="w-3.5 h-3.5 mr-1" />Rate
                     </Button>
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={async () => {
-                      await generateAppointmentInvoice({
-                        appointmentId: apt.id,
-                        providerName: apt.provider_name,
-                        providerType: apt.service_type,
-                        patientName: "Patient",
-                        appointmentDate: apt.appointment_date,
-                        appointmentTime: apt.appointment_time,
-                        consultationFee: 0,
-                        paymentMethod: "at_clinic",
-                        paymentStatus: "paid",
-                        tokenNumber: apt.token_number,
-                      });
+                      try {
+                        // Fetch full appointment details
+                        const { data: fullApt } = await supabase
+                          .from("appointments")
+                          .select("*, doctors(name, phone, specialization, consultation_fee), hospitals(name, phone, location), labs(name, phone, location), pharmacies(name, phone, location)")
+                          .eq("id", apt.id)
+                          .single();
+
+                        // Fetch patient profile
+                        const { data: { session } } = await supabase.auth.getSession();
+                        let profile: any = null;
+                        if (session) {
+                          const { data: p } = await supabase
+                            .from("profiles")
+                            .select("full_name, phone, email")
+                            .eq("user_id", session.user.id)
+                            .maybeSingle();
+                          profile = p;
+                        }
+
+                        // Fetch prescription + items if exists
+                        let prescriptionItems: any[] = [];
+                        let diagnosis: string | null = null;
+                        const { data: prescription } = await supabase
+                          .from("prescriptions")
+                          .select("*, prescription_items(*)")
+                          .eq("appointment_id", apt.id)
+                          .maybeSingle();
+                        if (prescription) {
+                          diagnosis = prescription.diagnosis;
+                          prescriptionItems = (prescription as any).prescription_items || [];
+                        }
+
+                        const doctor = (fullApt as any)?.doctors;
+                        const hospital = (fullApt as any)?.hospitals;
+                        const lab = (fullApt as any)?.labs;
+                        const pharmacy = (fullApt as any)?.pharmacies;
+                        const provider = doctor || hospital || lab || pharmacy;
+
+                        await generateAppointmentInvoice({
+                          appointmentId: apt.id,
+                          providerName: apt.provider_name,
+                          providerType: apt.service_type,
+                          providerPhone: provider?.phone || null,
+                          providerLocation: provider?.location || null,
+                          patientName: profile?.full_name || "Patient",
+                          patientPhone: profile?.phone || null,
+                          patientEmail: profile?.email || null,
+                          appointmentDate: apt.appointment_date,
+                          appointmentTime: apt.appointment_time,
+                          consultationFee: doctor?.consultation_fee || 0,
+                          paymentMethod: fullApt?.payment_method || "at_clinic",
+                          paymentStatus: fullApt?.payment_status || "paid",
+                          tokenNumber: apt.token_number,
+                          department: fullApt?.department || doctor?.specialization || null,
+                          consultationNotes: fullApt?.consultation_notes || null,
+                          diagnosis,
+                          prescriptionItems,
+                          followUpDate: fullApt?.follow_up_date || null,
+                        });
+                      } catch (err) {
+                        console.error("Invoice generation error:", err);
+                        toast.error("Failed to generate invoice");
+                      }
                     }}>
                       <Download className="w-3.5 h-3.5 mr-1" />Invoice
                     </Button>
