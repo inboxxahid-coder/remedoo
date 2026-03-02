@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Stethoscope, Building2, FlaskConical, Store, X } from "lucide-react";
+import { Search, Stethoscope, Building2, FlaskConical, Store, Pill, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,7 +9,7 @@ interface SearchResult {
   id: string;
   name: string;
   subtitle: string;
-  type: "doctor" | "hospital" | "lab" | "pharmacy";
+  type: "doctor" | "hospital" | "lab" | "pharmacy" | "medicine";
 }
 
 const typeConfig = {
@@ -17,6 +17,7 @@ const typeConfig = {
   hospital: { icon: Building2, label: "Hospital", path: () => "/hospitals" },
   lab: { icon: FlaskConical, label: "Lab", path: () => "/labs" },
   pharmacy: { icon: Store, label: "Pharmacy", path: () => "/pharmacies" },
+  medicine: { icon: Pill, label: "Medicine", path: (id: string, extra?: string) => extra ? `/pharmacy/${extra}` : "/pharmacies" },
 };
 
 const UnifiedSearch = () => {
@@ -49,11 +50,12 @@ const UnifiedSearch = () => {
     const pattern = `%${term}%`;
 
     const fetchAll = async () => {
-      const [doctors, hospitals, labs, pharmacies] = await Promise.all([
+      const [doctors, hospitals, labs, pharmacies, medicines] = await Promise.all([
         supabase.from("doctors").select("id, name, specialization").ilike("name", pattern).limit(5),
         supabase.from("hospitals").select("id, name, location").ilike("name", pattern).limit(5),
         supabase.from("labs").select("id, name, location").ilike("name", pattern).limit(5),
         supabase.from("pharmacies").select("id, name, location").ilike("name", pattern).limit(5),
+        supabase.from("medicines").select("id, name, generic_name, category, pharmacy_id").ilike("name", pattern).eq("in_stock", true).limit(5),
       ]);
 
       const mapped: SearchResult[] = [
@@ -61,6 +63,7 @@ const UnifiedSearch = () => {
         ...(hospitals.data?.map((h) => ({ id: h.id, name: h.name, subtitle: h.location || "Hospital", type: "hospital" as const })) || []),
         ...(labs.data?.map((l) => ({ id: l.id, name: l.name, subtitle: l.location || "Lab", type: "lab" as const })) || []),
         ...(pharmacies.data?.map((p) => ({ id: p.id, name: p.name, subtitle: p.location || "Pharmacy", type: "pharmacy" as const })) || []),
+        ...(medicines.data?.map((m) => ({ id: m.id, name: m.name, subtitle: m.generic_name || m.category || "Medicine", type: "medicine" as const, extra: m.pharmacy_id })) || []),
       ];
 
       setResults(mapped);
@@ -72,17 +75,22 @@ const UnifiedSearch = () => {
     return () => clearTimeout(debounce);
   }, [query]);
 
-  const handleSelect = (r: SearchResult) => {
+  const handleSelect = (r: SearchResult & { extra?: string }) => {
     setOpen(false);
     setQuery("");
-    navigate(typeConfig[r.type].path(r.id));
+    const cfg = typeConfig[r.type];
+    if (r.type === "medicine" && r.extra) {
+      navigate(`/pharmacy/${r.extra}`);
+    } else {
+      navigate(cfg.path(r.id));
+    }
   };
 
   return (
     <div ref={containerRef} className="relative z-20">
       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
       <Input
-        placeholder="Search doctors, hospitals, labs..."
+        placeholder="Search doctors, hospitals, labs, medicines..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => results.length > 0 && setOpen(true)}
