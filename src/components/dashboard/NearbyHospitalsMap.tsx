@@ -1,28 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Building2, ChevronRight, Navigation } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useGeolocation, getDistanceKm, formatDistance } from "@/hooks/useGeolocation";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-const hospitalIcon = new L.Icon({
-  iconUrl: "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [20, 33],
-  iconAnchor: [10, 33],
-  popupAnchor: [0, -33],
-});
-
-const userIcon = new L.DivIcon({
-  html: `<div style="width:14px;height:14px;background:#3b82f6;border:3px solid white;border-radius:50%;box-shadow:0 0 6px rgba(59,130,246,0.5)"></div>`,
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-  className: "",
-});
+const NearbyHospitalsMapInner = lazy(() => import("./NearbyHospitalsMapInner"));
 
 interface NearbyHospital {
   id: string;
@@ -39,7 +23,7 @@ const NearbyHospitalsMap = () => {
   const [hospitals, setHospitals] = useState<NearbyHospital[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       const { data } = await supabase
         .from("hospitals")
         .select("id, name, location, latitude, longitude")
@@ -61,7 +45,7 @@ const NearbyHospitalsMap = () => {
 
       setHospitals(sorted);
     };
-    if (location) fetch();
+    if (location) fetchData();
   }, [location]);
 
   if (!location || hospitals.length === 0) return null;
@@ -85,28 +69,14 @@ const NearbyHospitalsMap = () => {
       </div>
 
       <div className="rounded-2xl overflow-hidden border border-border shadow-sm" style={{ height: 180 }}>
-        <MapContainer
-          center={[location.latitude, location.longitude]}
-          zoom={12}
-          scrollWheelZoom={false}
-          dragging={false}
-          zoomControl={false}
-          attributionControl={false}
-          style={{ height: "100%", width: "100%" }}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Marker position={[location.latitude, location.longitude]} icon={userIcon}>
-            <Popup>You are here</Popup>
-          </Marker>
-          {hospitals.map((h) => (
-            <Marker key={h.id} position={[h.latitude, h.longitude]} icon={hospitalIcon}>
-              <Popup>
-                <div className="text-xs font-semibold">{h.name}</div>
-                <div className="text-[10px] text-muted-foreground">{formatDistance(h.distance_km)}</div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
+        <Suspense fallback={<div className="w-full h-full bg-muted animate-pulse" />}>
+          <NearbyHospitalsMapInner
+            userLat={location.latitude}
+            userLng={location.longitude}
+            hospitals={hospitals}
+            formatDistance={formatDistance}
+          />
+        </Suspense>
       </div>
 
       {/* Compact list below map */}
