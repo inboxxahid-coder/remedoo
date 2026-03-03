@@ -21,7 +21,7 @@ const Hospitals = () => {
   useEffect(() => {
     const fetchHospitals = async () => {
       try {
-        const { data: hRes } = await supabase.from("hospitals").select("*");
+        const { data: hRes } = await supabase.from("hospitals_public").select("*");
         if (hRes) setHospitals(hRes);
       } catch (e) { console.error("Failed to fetch hospitals:", e); }
       setLoading(false);

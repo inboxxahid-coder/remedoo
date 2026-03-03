@@ -25,7 +25,7 @@ const NearbyHospitalsMap = () => {
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await supabase
-        .from("hospitals")
+        .from("hospitals_public")
         .select("id, name, location, latitude, longitude")
         .not("latitude", "is", null)
         .not("longitude", "is", null)

@@ -11,7 +11,7 @@ const EMERGENCY_NUMBER = "112";
 
 const Emergency = () => {
   const navigate = useNavigate();
-  const [hospitals, setHospitals] = useState<Tables<"hospitals">[]>([]);
+  const [hospitals, setHospitals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [sosActive, setSosActive] = useState(false);
@@ -26,7 +26,7 @@ const Emergency = () => {
       );
     }
 
-    supabase.from("hospitals").select("*").order("rating", { ascending: false }).then(({ data }) => {
+    supabase.from("hospitals").select("id, name, location, image_url, rating, beds, available_beds, icu_available, is_government, latitude, longitude, phone, emergency_contact").order("rating", { ascending: false }).then(({ data }) => {
       if (data) setHospitals(data);
       setLoading(false);
     });

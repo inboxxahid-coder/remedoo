@@ -51,10 +51,10 @@ const UnifiedSearch = () => {
 
     const fetchAll = async () => {
       const [doctors, hospitals, labs, pharmacies, medicines] = await Promise.all([
-        supabase.from("doctors").select("id, name, specialization").ilike("name", pattern).limit(5),
-        supabase.from("hospitals").select("id, name, location").ilike("name", pattern).limit(5),
-        supabase.from("labs").select("id, name, location").ilike("name", pattern).limit(5),
-        supabase.from("pharmacies").select("id, name, location").ilike("name", pattern).limit(5),
+        supabase.from("doctors_public").select("id, name, specialization").ilike("name", pattern).limit(5),
+        supabase.from("hospitals_public").select("id, name, location").ilike("name", pattern).limit(5),
+        supabase.from("labs_public").select("id, name, location").ilike("name", pattern).limit(5),
+        supabase.from("pharmacies_public").select("id, name, location").ilike("name", pattern).limit(5),
         supabase.from("medicines").select("id, name, generic_name, category, pharmacy_id").ilike("name", pattern).eq("in_stock", true).limit(5),
       ]);
 

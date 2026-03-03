@@ -13,7 +13,7 @@ import MedicalLoader from "@/components/ui/MedicalLoader";
 
 const Labs = () => {
   const navigate = useNavigate();
-  const [labs, setLabs] = useState<Tables<"labs">[]>([]);
+  const [labs, setLabs] = useState<any[]>([]);
   const [labTests, setLabTests] = useState<Record<string, Tables<"lab_tests">[]>>({});
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const Labs = () => {
     const fetchData = async () => {
       try {
         const [{ data: lRes }, { data: tRes }] = await Promise.all([
-          supabase.from("labs").select("*"),
+          supabase.from("labs_public").select("*"),
           supabase.from("lab_tests").select("*").order("is_popular", { ascending: false }),
         ]);
         if (lRes) setLabs(lRes);
