@@ -15,8 +15,8 @@ const BottomNav = () => {
   const { pathname } = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border safe-area-bottom">
-      <div className="flex items-center justify-around h-14 sm:h-16 max-w-lg mx-auto px-1 sm:px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border safe-area-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {tabs.map((tab) => {
           const active = pathname === tab.path;
           return (
@@ -25,15 +25,12 @@ const BottomNav = () => {
               onClick={() => navigate(tab.path)}
               className="relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full"
             >
-              {active && (
-                <motion.div
-                  layoutId="bottomNavIndicator"
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-primary"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-              <tab.icon className={`w-[18px] h-[18px] sm:w-5 sm:h-5 transition-colors ${active ? "text-primary" : "text-muted-foreground"}`} />
-              <span className={`text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>
+              <tab.icon
+                className={`w-[22px] h-[22px] transition-colors ${active ? "text-[hsl(220,70%,45%)]" : "text-muted-foreground"}`}
+                strokeWidth={active ? 2.2 : 1.8}
+                fill={active ? "hsl(220,70%,45%)" : "none"}
+              />
+              <span className={`text-[10px] font-semibold transition-colors ${active ? "text-[hsl(220,70%,45%)]" : "text-muted-foreground"}`}>
                 {tab.label}
               </span>
             </button>
