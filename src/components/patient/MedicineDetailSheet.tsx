@@ -80,6 +80,9 @@ export default function MedicineDetailSheet({ medicine: m, open, onClose, cartQt
               {/* Brand & Generic */}
               <div>
                 <h2 className="text-lg font-bold text-foreground leading-tight">{m.name}</h2>
+                {m.brand_name && (
+                  <p className="text-sm text-primary font-semibold mt-0.5">{m.brand_name}</p>
+                )}
                 {m.generic_name && (
                   <p className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1.5">
                     <Tag className="w-3.5 h-3.5" />

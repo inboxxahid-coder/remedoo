@@ -25,7 +25,7 @@ export default function PharmacyMedicinesEnhanced() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    name: "", generic_name: "", category: "General", price: 0, discount_percent: 0,
+    name: "", generic_name: "", brand_name: "", category: "General", price: 0, discount_percent: 0,
     description: "", unit: "strip", requires_prescription: false, in_stock: true,
     stock_quantity: 0, batch_number: "", expiry_date: "", low_stock_threshold: 10,
     manufacturer: "", image_url: "",
@@ -59,14 +59,14 @@ export default function PharmacyMedicinesEnhanced() {
 
   const openAdd = () => {
     setEditingId(null);
-    setForm({ name: "", generic_name: "", category: "General", price: 0, discount_percent: 0, description: "", unit: "strip", requires_prescription: false, in_stock: true, stock_quantity: 0, batch_number: "", expiry_date: "", low_stock_threshold: 10, manufacturer: "", image_url: "" });
+    setForm({ name: "", generic_name: "", brand_name: "", category: "General", price: 0, discount_percent: 0, description: "", unit: "strip", requires_prescription: false, in_stock: true, stock_quantity: 0, batch_number: "", expiry_date: "", low_stock_threshold: 10, manufacturer: "", image_url: "" });
     setDialogOpen(true);
   };
 
   const openEdit = (med: any) => {
     setEditingId(med.id);
     setForm({
-      name: med.name, generic_name: med.generic_name || "", category: med.category, price: med.price,
+      name: med.name, generic_name: med.generic_name || "", brand_name: med.brand_name || "", category: med.category, price: med.price,
       discount_percent: med.discount_percent || 0, description: med.description || "", unit: med.unit || "strip",
       requires_prescription: med.requires_prescription || false, in_stock: med.in_stock ?? true,
       stock_quantity: med.stock_quantity || 0, batch_number: med.batch_number || "",
@@ -178,6 +178,7 @@ export default function PharmacyMedicinesEnhanced() {
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground truncate">{med.name}</p>
+                  {med.brand_name && <p className="text-xs text-primary font-medium truncate">{med.brand_name}</p>}
                   {med.generic_name && <p className="text-xs text-muted-foreground">{med.generic_name}</p>}
                   <p className="text-sm text-primary font-bold mt-1">₹{med.price}</p>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -223,13 +224,17 @@ export default function PharmacyMedicinesEnhanced() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Name *</Label>
+                <Label>Medicine Name *</Label>
                 <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <Label>Generic Name</Label>
-                <Input value={form.generic_name} onChange={e => setForm(f => ({ ...f, generic_name: e.target.value }))} />
+                <Label>Brand Name</Label>
+                <Input value={form.brand_name} onChange={e => setForm(f => ({ ...f, brand_name: e.target.value }))} placeholder="e.g. Crocin by GSK" />
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Generic Name</Label>
+              <Input value={form.generic_name} onChange={e => setForm(f => ({ ...f, generic_name: e.target.value }))} placeholder="e.g. Paracetamol" />
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">

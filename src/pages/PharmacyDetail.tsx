@@ -204,6 +204,9 @@ const PharmacyDetail = () => {
                   {/* Details */}
                   <div className="p-2 space-y-1">
                     <h3 className="font-semibold text-foreground text-[10px] leading-tight line-clamp-2 min-h-[1.5rem]">{m.name}</h3>
+                    {m.brand_name && (
+                      <p className="text-[9px] text-primary font-medium truncate">{m.brand_name}</p>
+                    )}
                     {m.generic_name && (
                       <p className="text-[8px] text-muted-foreground truncate">{m.generic_name}</p>
                     )}
