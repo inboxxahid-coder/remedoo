@@ -62,6 +62,7 @@ const Dashboard = () => {
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [popularHospitals, setPopularHospitals] = useState<any[]>([]);
   const [featuredPackages, setFeaturedPackages] = useState<any[]>([]);
+  const [pharmacyOffers, setPharmacyOffers] = useState<any[]>([]);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +70,7 @@ const Dashboard = () => {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes] = await Promise.all([
+      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes, pharmacyOffersRes] = await Promise.all([
         supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
         supabase.from("doctors").select("*, hospitals!left(is_government)").eq("is_featured", true).order("featured_sort_order").limit(10),
         supabase.from("ads").select("*").eq("active", true),
@@ -78,6 +79,7 @@ const Dashboard = () => {
         supabase.from("dashboard_services").select("*").eq("active", true).order("sort_order"),
         supabase.from("hospitals").select("id, name, location, rating, image_url, total_beds, is_government").eq("approval_status", "approved").order("rating", { ascending: false }).limit(5),
         supabase.from("lab_test_packages").select("*, labs(name)").eq("is_active", true).order("created_at", { ascending: false }).limit(6),
+        supabase.from("pharmacies").select("id, name, location, rating, image_url").eq("approval_status", "approved").order("rating", { ascending: false }).limit(6),
       ]);
       if (slidesRes.data) setSlides(slidesRes.data);
       if (doctorsRes.data) {
@@ -102,6 +104,26 @@ const Dashboard = () => {
       if (svcRes.data) setServices(svcRes.data);
       if (hospitalsRes.data) setPopularHospitals(hospitalsRes.data);
       if (packagesRes.data) setFeaturedPackages(packagesRes.data.map((p: any) => ({ ...p, lab_name: p.labs?.name })));
+
+      // Fetch pharmacy offers (medicines with discounts) for each pharmacy
+      if (pharmacyOffersRes.data && pharmacyOffersRes.data.length > 0) {
+        const pharmacyIds = pharmacyOffersRes.data.map((p: any) => p.id);
+        const { data: offerMeds } = await supabase
+          .from("medicines")
+          .select("id, name, price, discount_percent, pharmacy_id")
+          .in("pharmacy_id", pharmacyIds)
+          .gt("discount_percent", 0)
+          .eq("in_stock", true)
+          .order("discount_percent", { ascending: false })
+          .limit(50);
+
+        const pharmaciesWithOffers = pharmacyOffersRes.data.map((ph: any) => {
+          const meds = (offerMeds || []).filter((m: any) => m.pharmacy_id === ph.id);
+          const maxDiscount = meds.length > 0 ? Math.max(...meds.map((m: any) => m.discount_percent || 0)) : 0;
+          return { ...ph, offerCount: meds.length, maxDiscount, topOffers: meds.slice(0, 3) };
+        });
+        setPharmacyOffers(pharmaciesWithOffers);
+      }
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { setIsLoading(false); return; }
@@ -613,30 +635,91 @@ const Dashboard = () => {
                 {/* ===== PHARMACY BENEFITS ===== */}
                 <div className="px-5">
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.47 }}>
-                    <h2 className="text-lg font-bold mb-3 text-foreground">Pharmacy Benefits</h2>
-                    <div className="bg-gradient-to-br from-[hsl(205,80%,94%)] to-[hsl(210,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(210,30%,20%)] rounded-2xl p-4 border border-border shadow-sm">
-                      <div className="grid grid-cols-2 gap-3">
-                        {[
-                          { icon: Tag, label: "10% Discounts", color: "text-primary", bg: "bg-primary/10" },
-                          { icon: ShoppingBag, label: "Home Delivery", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
-                          { icon: Stethoscope, label: "Free Consultation", color: "text-[hsl(200,65%,48%)]", bg: "bg-[hsl(200,60%,92%)] dark:bg-[hsl(200,30%,18%)]" },
-                          { icon: Heart, label: "Secure Payment", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
-                        ].map((item, idx) => (
-                          <motion.div
-                            key={item.label}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.5 + idx * 0.05 }}
-                            className="bg-card rounded-xl p-3 flex items-center gap-2 shadow-sm border border-border"
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-lg font-bold text-foreground">Pharmacy Benefits</h2>
+                      <button onClick={() => navigate("/pharmacies")} className="text-primary font-bold text-sm flex items-center">
+                        <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
+                      </button>
+                    </div>
+
+                    {pharmacyOffers.length > 0 ? (
+                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
+                        {pharmacyOffers.map((ph: any, idx: number) => (
+                          <motion.button
+                            key={ph.id}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5 + idx * 0.06 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => navigate(`/pharmacy/${ph.id}`)}
+                            className="flex-shrink-0 w-[200px] bg-card rounded-2xl border border-border p-4 text-left snap-start shadow-sm relative overflow-hidden"
                           >
-                            <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center flex-shrink-0`}>
-                              <item.icon className={`w-4 h-4 ${item.color}`} />
+                            {ph.maxDiscount > 0 && (
+                              <span className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                                Up to {ph.maxDiscount}% OFF
+                              </span>
+                            )}
+                            <div className="w-11 h-11 rounded-xl bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] flex items-center justify-center mb-2">
+                              {ph.image_url ? (
+                                <img src={ph.image_url} alt={ph.name} className="w-9 h-9 rounded-lg object-cover" loading="lazy" />
+                              ) : (
+                                <Store className="w-5 h-5 text-[hsl(152,55%,40%)]" />
+                              )}
                             </div>
-                            <span className="text-xs font-semibold text-foreground leading-tight">{item.label}</span>
-                          </motion.div>
+                            <h4 className="font-bold text-sm text-foreground truncate">{ph.name}</h4>
+                            {ph.location && (
+                              <p className="text-[10px] text-muted-foreground truncate flex items-center gap-0.5 mt-0.5">
+                                <MapPin className="w-3 h-3 flex-shrink-0" /> {ph.location}
+                              </p>
+                            )}
+                            {ph.rating > 0 && (
+                              <div className="flex items-center gap-1 mt-1">
+                                <Star className="w-3.5 h-3.5 fill-[hsl(38,90%,55%)] text-[hsl(38,90%,55%)]" />
+                                <span className="text-xs font-bold text-foreground">{ph.rating}</span>
+                              </div>
+                            )}
+                            {ph.offerCount > 0 ? (
+                              <div className="mt-2 bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] rounded-lg px-2 py-1.5">
+                                <p className="text-[10px] font-semibold text-[hsl(152,55%,35%)] dark:text-[hsl(152,50%,60%)]">
+                                  🎉 {ph.offerCount} offer{ph.offerCount > 1 ? "s" : ""} available
+                                </p>
+                                {ph.topOffers.slice(0, 2).map((offer: any) => (
+                                  <p key={offer.id} className="text-[9px] text-muted-foreground truncate mt-0.5">
+                                    {offer.name} — {offer.discount_percent}% off
+                                  </p>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-[10px] text-muted-foreground mt-2">Home delivery available</p>
+                            )}
+                          </motion.button>
                         ))}
                       </div>
-                    </div>
+                    ) : (
+                      <div className="bg-gradient-to-br from-[hsl(205,80%,94%)] to-[hsl(210,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(210,30%,20%)] rounded-2xl p-4 border border-border shadow-sm">
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { icon: Tag, label: "10% Discounts", color: "text-primary", bg: "bg-primary/10" },
+                            { icon: ShoppingBag, label: "Home Delivery", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
+                            { icon: Stethoscope, label: "Free Consultation", color: "text-[hsl(200,65%,48%)]", bg: "bg-[hsl(200,60%,92%)] dark:bg-[hsl(200,30%,18%)]" },
+                            { icon: Heart, label: "Secure Payment", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
+                          ].map((item, idx) => (
+                            <motion.div
+                              key={item.label}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: 0.5 + idx * 0.05 }}
+                              className="bg-card rounded-xl p-3 flex items-center gap-2 shadow-sm border border-border"
+                            >
+                              <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center flex-shrink-0`}>
+                                <item.icon className={`w-4 h-4 ${item.color}`} />
+                              </div>
+                              <span className="text-xs font-semibold text-foreground leading-tight">{item.label}</span>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 </div>
 
