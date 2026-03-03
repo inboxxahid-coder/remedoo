@@ -225,7 +225,7 @@ const Appointments = () => {
             const cfg = statusConfig[apt.status] || statusConfig.pending;
             const Icon = cfg.icon;
             return (
-              <div key={apt.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm">
+              <div key={apt.id} onClick={() => navigate(`/appointment/${apt.id}`)} className="bg-card rounded-2xl border border-border p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <h3 className="font-semibold text-foreground">{apt.provider_name}</h3>
@@ -253,7 +253,7 @@ const Appointments = () => {
                   />
                 )}
                 {(apt.status === "pending" || apt.status === "confirmed") && tab === "upcoming" && (
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => openReschedule(apt)}>
                       <CalendarClock className="w-3.5 h-3.5 mr-1" />Reschedule
                     </Button>
@@ -263,7 +263,7 @@ const Appointments = () => {
                   </div>
                 )}
                 {apt.status === "completed" && (
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
                     <Button size="sm" variant="outline" className="flex-1 h-8 text-xs rounded-lg" onClick={() => setReviewTarget(apt)}>
                       <Star className="w-3.5 h-3.5 mr-1" />Rate
                     </Button>

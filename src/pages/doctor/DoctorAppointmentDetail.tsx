@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { logAuditAction } from "@/lib/auditLog";
 import {
   ArrowLeft, CalendarCheck, CreditCard, Banknote, Clock,
-  CheckCircle, XCircle, User, Hash, IndianRupee, FileText
+  CheckCircle, XCircle, User, Hash, IndianRupee, FileText, Upload, Download
 } from "lucide-react";
 import PatientHistory from "@/components/doctor/PatientHistory";
 
@@ -26,6 +26,8 @@ export default function DoctorAppointmentDetail() {
   const [showReject, setShowReject] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [providerName, setProviderName] = useState("");
+  const [uploadingPrescription, setUploadingPrescription] = useState(false);
+  const prescriptionFileRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     if (!appointmentId) return;
@@ -83,6 +85,32 @@ export default function DoctorAppointmentDetail() {
     logAuditAction({ action: "appointment_cancelled", entityType: "appointment", entityId: apt.id, details: { reason: rejectionReason } });
     setShowReject(false);
     load();
+  };
+
+  const handlePrescriptionUpload = async (file: File) => {
+    if (!apt) return;
+    setUploadingPrescription(true);
+    try {
+      const filePath = `${apt.patient_id}/${apt.id}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("prescriptions")
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { error: updateError } = await supabase
+        .from("appointments")
+        .update({ prescription_url: filePath })
+        .eq("id", apt.id);
+      if (updateError) throw updateError;
+
+      toast.success("Prescription uploaded successfully");
+      logAuditAction({ action: "prescription_uploaded", entityType: "appointment", entityId: apt.id });
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setUploadingPrescription(false);
+    }
   };
 
   const paymentMethodLabel = (method: string) => {
@@ -285,6 +313,48 @@ export default function DoctorAppointmentDetail() {
               </div>
             </div>
           )}
+        </Card>
+      )}
+
+      {/* Prescription Upload */}
+      {(apt.status === "confirmed" || apt.status === "completed") && (
+        <Card className="p-5 space-y-3">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <FileText className="w-4 h-4 text-primary" /> Prescription
+          </h3>
+          {apt.prescription_url && (
+            <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-3">
+              <FileText className="w-4 h-4 text-success" />
+              <span className="text-sm text-foreground flex-1">Prescription uploaded</span>
+              <Button size="sm" variant="ghost" onClick={async () => {
+                const { data } = await supabase.storage.from("prescriptions").createSignedUrl(apt.prescription_url!, 300);
+                if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                else toast.error("Could not generate download link");
+              }}>
+                <Download className="w-3.5 h-3.5 mr-1" /> View
+              </Button>
+            </div>
+          )}
+          <input
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            className="hidden"
+            ref={prescriptionFileRef}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handlePrescriptionUpload(file);
+              e.target.value = "";
+            }}
+          />
+          <Button
+            variant={apt.prescription_url ? "outline" : "default"}
+            size="sm"
+            disabled={uploadingPrescription}
+            onClick={() => prescriptionFileRef.current?.click()}
+          >
+            <Upload className="w-3.5 h-3.5 mr-1" />
+            {uploadingPrescription ? "Uploading..." : apt.prescription_url ? "Re-upload Prescription" : "Upload Prescription"}
+          </Button>
         </Card>
       )}
 
