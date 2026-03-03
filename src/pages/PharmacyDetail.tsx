@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package, Info, Navigation } from "lucide-react";
+import { withAuthGuard } from "@/hooks/useRequireAuth";
 import MedicineDetailSheet from "@/components/patient/MedicineDetailSheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -300,4 +301,4 @@ const PharmacyDetail = () => {
   );
 };
 
-export default PharmacyDetail;
+export default withAuthGuard(PharmacyDetail);

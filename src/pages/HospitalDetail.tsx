@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import { withAuthGuard } from "@/hooks/useRequireAuth";
 
 const HospitalDetail = () => {
   const navigate = useNavigate();
@@ -290,4 +291,4 @@ const HospitalDetail = () => {
   );
 };
 
-export default HospitalDetail;
+export default withAuthGuard(HospitalDetail);
