@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, Ambulance, type LucideIcon } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, Ambulance, MapPin, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
@@ -28,11 +28,11 @@ const AnimatedMenuButton = () => {
   return (
     <button
       onClick={toggleSidebar}
-      className="w-10 h-10 flex items-center justify-center rounded-xl bg-muted/60 hover:bg-muted transition-all duration-300 active:scale-90"
+      className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted/60 transition-all duration-300 active:scale-90"
     >
       <div className="relative w-6 h-6">
-        <Menu className={`w-6 h-6 text-foreground absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`} />
-        <X className={`w-6 h-6 text-foreground absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`} />
+        <Menu className={`w-6 h-6 text-[hsl(220,25%,15%)] absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`} />
+        <X className={`w-6 h-6 text-[hsl(220,25%,15%)] absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`} />
       </div>
     </button>
   );
@@ -183,20 +183,6 @@ const Dashboard = () => {
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient";
 
-  const quickActionCards = [
-    { label: "Book\nAppointment", icon: Calendar, gradient: "from-blue-500 to-blue-600", path: "/doctors" },
-    { label: "Order\nMedicine", icon: ShoppingBag, gradient: "from-emerald-500 to-emerald-600", path: "/pharmacies" },
-    { label: "Lab\nTests", icon: FlaskConical, gradient: "from-blue-400 to-blue-500", path: "/labs" },
-    { label: "Emergency", icon: AlertTriangle, gradient: "from-red-500 to-red-600", path: "/emergency" },
-  ];
-
-  const infoCards = [
-    { label: "Wallet Balance", value: `₹${walletBalance.toLocaleString()}`, icon: Wallet, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", path: "/wallet" },
-    { label: "My Prescriptions", value: `${prescriptionCount} Saved`, icon: FileText, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20", path: "/medical-history" },
-    { label: "Lab Reports", value: `${labReportCount} Reports`, icon: Microscope, color: "text-sky-600", bg: "bg-sky-50 dark:bg-sky-900/20", path: "/lab-reports" },
-    { label: "Favorites", value: `${favoritesCount} Saved`, icon: Heart, color: "text-red-500", bg: "bg-red-50 dark:bg-red-900/20", path: "/favorites" },
-  ];
-
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -206,7 +192,7 @@ const Dashboard = () => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-background"
+          className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-[hsl(210,20%,97%)] dark:bg-background"
           style={{ overscrollBehavior: "contain" }}
         >
           {/* Pull-to-refresh */}
@@ -228,25 +214,24 @@ const Dashboard = () => {
           </AnimatePresence>
 
           <div className="pb-24">
-            {/* Top Bar - Logo centered */}
-            <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border">
+            {/* ===== TOP BAR ===== */}
+            <div className="sticky top-0 z-40 bg-card border-b border-border">
               <div className="flex items-center justify-between px-4 h-14">
                 <AnimatedMenuButton />
                 <img src={remedooLogo} alt="Remedoo" className="h-8" />
                 <motion.button
-                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => navigate("/notifications")}
-                  className="relative w-10 h-10 rounded-full bg-muted/60 flex items-center justify-center"
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center"
                 >
-                  <Bell className="w-5 h-5 text-foreground" />
+                  <Bell className="w-6 h-6 text-[hsl(220,60%,45%)]" strokeWidth={1.8} />
                   <AnimatePresence>
                     {unreadCount > 0 && (
                       <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
-                        className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-destructive rounded-full flex items-center justify-center"
+                        className="absolute -top-0.5 -right-0.5 min-w-[20px] h-[20px] px-1 bg-destructive rounded-full flex items-center justify-center border-2 border-card"
                       >
                         <span className="text-[10px] font-bold text-destructive-foreground leading-none">{unreadCount > 99 ? "99+" : unreadCount}</span>
                       </motion.span>
@@ -256,367 +241,345 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Welcome + Search */}
-            <div className="px-4 pt-4 pb-3">
-              <div className="flex items-center justify-between mb-3">
-                <h1 className="text-xl font-bold text-foreground">Welcome, {displayName}!</h1>
+            {/* ===== WELCOME + SEARCH ===== */}
+            <div className="px-5 pt-4 pb-3 bg-card border-b border-border">
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold text-foreground whitespace-nowrap">Welcome, {displayName}!</h1>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center bg-[hsl(210,20%,96%)] dark:bg-muted rounded-full px-3.5 py-2 border border-border">
+                    <svg className="w-4 h-4 text-muted-foreground mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <span className="text-xs text-muted-foreground truncate">Search doctors, hospitals...</span>
+                  </div>
+                </div>
               </div>
-              <UnifiedSearch />
             </div>
 
             {isLoading ? (
-              <div className="px-4 space-y-4">
+              <div className="px-5 space-y-4 pt-4">
                 <Skeleton className="w-full h-44 rounded-2xl" />
                 <div className="grid grid-cols-4 gap-3">
-                  {[1,2,3,4].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
+                  {[1,2,3,4].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
                 </div>
                 <Skeleton className="w-full h-24 rounded-2xl" />
-                <div className="grid grid-cols-4 gap-3">
-                  {[1,2,3,4].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
-                </div>
               </div>
             ) : (
-              <div className="space-y-5 px-4">
-                {/* Hero Banner Slider */}
-                <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide snap-x snap-mandatory">
-                  {(slides.length > 0 ? slides : [
-                    { id: "default", title: "Stay Healthy with Remedoo", description: "Book appointments, order medicines & more", url: null, type: "image", target_link: null } as any
-                  ]).map((slide: any, idx: number) => {
-                    const gradients = [
-                      "from-sky-100 to-blue-50 dark:from-sky-900/30 dark:to-blue-900/20",
-                      "from-emerald-100 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/20",
-                      "from-violet-100 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/20",
-                    ];
-                    const hasImage = slide.url && slide.type !== "video";
-                    return (
-                      <motion.div
-                        key={slide.id}
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        onClick={() => slide.target_link && navigate(slide.target_link)}
-                        className={`flex-shrink-0 w-[90vw] max-w-[400px] rounded-2xl overflow-hidden relative snap-start cursor-pointer ${hasImage ? '' : `bg-gradient-to-r ${gradients[idx % 3]}`}`}
-                        style={{ minHeight: 160 }}
-                      >
-                        {hasImage ? (
-                          <>
-                            <img src={slide.url} alt={slide.title || ""} className="w-full h-40 sm:h-44 object-cover" loading="lazy" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                            <div className="absolute bottom-0 left-0 p-4">
-                              <p className="text-white font-bold text-lg drop-shadow-md">{slide.title}</p>
-                              {slide.description && <p className="text-white/80 text-xs mt-0.5">{slide.description}</p>}
+              <div className="space-y-5 pt-4">
+
+                {/* ===== HERO BANNER ===== */}
+                <div className="px-5">
+                  <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+                    {(slides.length > 0 ? slides : [
+                      { id: "default", title: "Stay Healthy with Remedoo", description: "Book appointments, order medicines & more", url: null, type: "image", target_link: null } as any
+                    ]).map((slide: any, idx: number) => {
+                      const hasImage = slide.url && slide.type !== "video";
+                      return (
+                        <motion.div
+                          key={slide.id}
+                          initial={{ opacity: 0, x: 30 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.1 }}
+                          onClick={() => slide.target_link && navigate(slide.target_link)}
+                          className="flex-shrink-0 w-full max-w-full rounded-2xl overflow-hidden relative snap-start cursor-pointer bg-gradient-to-r from-[hsl(205,80%,92%)] to-[hsl(205,70%,96%)] dark:from-[hsl(205,40%,18%)] dark:to-[hsl(205,30%,22%)]"
+                          style={{ minHeight: 170 }}
+                        >
+                          {hasImage ? (
+                            <>
+                              <img src={slide.url} alt={slide.title || ""} className="w-full h-[170px] object-cover" loading="lazy" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                              <div className="absolute bottom-0 left-0 p-4">
+                                <p className="text-white font-bold text-lg drop-shadow-md">{slide.title}</p>
+                                {slide.description && <p className="text-white/80 text-xs mt-0.5">{slide.description}</p>}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="p-5 flex flex-col justify-center h-[170px]">
+                              <p className="text-foreground font-bold text-xl italic">
+                                <span className="font-extrabold not-italic">Stay Healthy</span> with Remedoo
+                              </p>
+                              <p className="text-muted-foreground text-sm mt-1">{slide.description}</p>
                             </div>
-                          </>
-                        ) : (
-                          <div className="p-5 flex flex-col justify-center h-40 sm:h-44">
-                            <p className="text-foreground font-bold text-lg">{slide.title}</p>
-                            {slide.description && <p className="text-muted-foreground text-sm mt-1">{slide.description}</p>}
-                          </div>
-                        )}
-                      </motion.div>
-                    );
-                  })}
-                </div>
-
-                {/* Quick Action Cards */}
-                <div className="grid grid-cols-4 gap-2.5">
-                  {quickActionCards.map((action, idx) => (
-                    <motion.button
-                      key={action.label}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 + idx * 0.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => navigate(action.path)}
-                      className={`bg-gradient-to-br ${action.gradient} rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 shadow-md hover:shadow-lg transition-shadow`}
-                    >
-                      <action.icon className="w-6 h-6 text-white" />
-                      <span className="text-[10px] sm:text-xs text-white font-semibold text-center leading-tight whitespace-pre-line">{action.label}</span>
-                    </motion.button>
-                  ))}
-                </div>
-
-                {/* Upcoming Appointments */}
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-base font-bold text-foreground">Your Upcoming Appointments</h2>
-                    {upcomingAppts > 0 && (
-                      <button onClick={() => navigate("/appointments")} className="text-muted-foreground hover:text-primary">
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    )}
+                          )}
+                        </motion.div>
+                      );
+                    })}
                   </div>
-                  {upcomingAppointments.length > 0 ? (
-                    <div className="space-y-2.5">
-                      {upcomingAppointments.map((apt: any) => {
-                        const doc = apt.doctors;
-                        const dateObj = new Date(apt.appointment_date);
-                        const today = new Date();
-                        const tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1);
-                        const isToday = dateObj.toDateString() === today.toDateString();
-                        const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
-                        const dateLabel = isToday ? "Today" : isTomorrow ? "Tomorrow" : dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+                </div>
 
-                        return (
-                          <motion.div
-                            key={apt.id}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate(`/appointment/${apt.id}`)}
-                            className="bg-card rounded-2xl border border-border p-4 flex items-center gap-3 cursor-pointer hover:shadow-md transition-shadow"
-                          >
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center flex-shrink-0">
-                              {doc?.image_url ? (
-                                <img src={doc.image_url} alt={doc.name} className="w-12 h-12 rounded-full object-cover" />
-                              ) : (
-                                <Stethoscope className="w-5 h-5 text-primary" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-bold text-sm text-foreground truncate">{doc?.name || "Doctor"}</p>
-                              <p className="text-xs text-muted-foreground">{doc?.specialization || "General"}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">{dateLabel} | {apt.appointment_time}</p>
-                            </div>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); navigate(`/appointment/${apt.id}`); }}
-                              className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap"
-                            >
-                              View Details &gt;
-                            </button>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="bg-card rounded-2xl border border-border p-6 text-center">
-                      <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">No upcoming appointments</p>
-                      <button onClick={() => navigate("/doctors")} className="text-xs text-primary font-semibold mt-2 hover:underline">Book Now →</button>
-                    </div>
-                  )}
-                </motion.div>
-
-                {/* Info Cards Row */}
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                  <div className="grid grid-cols-4 gap-2">
-                    {infoCards.map((card, idx) => (
+                {/* ===== QUICK ACTION CARDS (4 squares) ===== */}
+                <div className="px-5">
+                  <div className="grid grid-cols-4 gap-3">
+                    {[
+                      { label: "Book\nAppointment", icon: Calendar, bg: "bg-[hsl(220,75%,55%)]", path: "/doctors" },
+                      { label: "Order\nMedicine", icon: ClipboardList, bg: "bg-[hsl(152,60%,42%)]", path: "/pharmacies" },
+                      { label: "Lab\nTests", icon: FlaskConical, bg: "bg-[hsl(200,70%,50%)]", path: "/labs" },
+                      { label: "Emergency", icon: AlertTriangle, bg: "bg-[hsl(0,72%,55%)]", path: "/emergency" },
+                    ].map((action, idx) => (
                       <motion.button
-                        key={card.label}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => navigate(card.path)}
-                        className={`${card.bg} rounded-xl p-2.5 flex flex-col items-center gap-1 text-center`}
+                        key={action.label}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 + idx * 0.05 }}
+                        whileTap={{ scale: 0.93 }}
+                        onClick={() => navigate(action.path)}
+                        className={`${action.bg} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
                       >
-                        <card.icon className={`w-5 h-5 ${card.color}`} />
-                        <span className="text-[10px] font-semibold text-foreground leading-tight">{card.label.split(" ")[0]}</span>
-                        <span className="text-[10px] font-bold text-foreground">{card.value}</span>
+                        <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                          <action.icon className="w-5 h-5 text-white" strokeWidth={2} />
+                        </div>
+                        <span className="text-[10px] text-white font-bold text-center leading-tight whitespace-pre-line">{action.label}</span>
                       </motion.button>
                     ))}
                   </div>
-                </motion.div>
+                </div>
 
-                {/* Popular Doctors */}
-                {topDoctors.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+                {/* ===== YOUR UPCOMING APPOINTMENTS ===== */}
+                <div className="px-5">
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
                     <div className="flex items-center justify-between mb-3">
-                      <h2 className="text-base font-bold text-foreground">Popular Doctors</h2>
-                      <button onClick={() => navigate("/doctors")} className="text-primary text-sm font-semibold flex items-center gap-0.5">
-                        <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
-                      </button>
+                      <h2 className="text-lg font-bold text-foreground">Your Upcoming Appointments</h2>
+                      {upcomingAppts > 0 && (
+                        <button onClick={() => navigate("/appointments")} className="text-muted-foreground hover:text-primary">
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+                      )}
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
-                      {topDoctors.map((doc, idx) => (
+                    {upcomingAppointments.length > 0 ? (
+                      <div className="space-y-2.5">
+                        {upcomingAppointments.map((apt: any) => {
+                          const doc = apt.doctors;
+                          const dateObj = new Date(apt.appointment_date);
+                          const today = new Date();
+                          const tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1);
+                          const isToday = dateObj.toDateString() === today.toDateString();
+                          const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
+                          const dateLabel = isToday ? "Today" : isTomorrow ? "Tomorrow" : dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+
+                          return (
+                            <motion.div
+                              key={apt.id}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => navigate(`/appointment/${apt.id}`)}
+                              className="bg-card rounded-2xl border border-border p-4 flex items-center gap-3 cursor-pointer shadow-sm"
+                            >
+                              <div className="w-14 h-14 rounded-full bg-[hsl(210,20%,96%)] dark:bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                {doc?.image_url ? (
+                                  <img src={doc.image_url} alt={doc.name} className="w-14 h-14 rounded-full object-cover" />
+                                ) : (
+                                  <Stethoscope className="w-6 h-6 text-primary" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-sm text-foreground truncate">{doc?.name || "Doctor"}</p>
+                                <p className="text-xs text-muted-foreground">{doc?.specialization || "General"}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">{dateLabel} | {apt.appointment_time}</p>
+                              </div>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); navigate(`/appointment/${apt.id}`); }}
+                                className="text-xs font-bold text-white bg-[hsl(220,75%,55%)] px-4 py-2 rounded-full hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm"
+                              >
+                                View Details &gt;
+                              </button>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="bg-card rounded-2xl border border-border p-6 text-center shadow-sm">
+                        <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground">No upcoming appointments</p>
+                        <button onClick={() => navigate("/doctors")} className="text-xs text-primary font-semibold mt-2 hover:underline">Book Now →</button>
+                      </div>
+                    )}
+                  </motion.div>
+                </div>
+
+                {/* ===== INFO CARDS ROW (Wallet, Prescriptions, Lab Reports, Favorites) ===== */}
+                <div className="px-5">
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                    <div className="grid grid-cols-4 gap-2.5">
+                      {[
+                        { label: "Wallet Balance", value: `₹${walletBalance.toLocaleString()}`, icon: Wallet, iconBg: "bg-[hsl(38,80%,92%)]", iconColor: "text-[hsl(38,80%,45%)]", path: "/wallet" },
+                        { label: "My Prescriptions", value: `${prescriptionCount} Saved`, icon: FileText, iconBg: "bg-[hsl(220,70%,92%)]", iconColor: "text-[hsl(220,70%,50%)]", path: "/medical-history" },
+                        { label: "Lab Reports", value: `${labReportCount} Reports`, icon: Microscope, iconBg: "bg-[hsl(200,70%,92%)]", iconColor: "text-[hsl(200,70%,45%)]", path: "/lab-reports" },
+                        { label: "Favorites", value: `${favoritesCount} Saved`, icon: Heart, iconBg: "bg-[hsl(0,70%,92%)]", iconColor: "text-[hsl(0,70%,50%)]", path: "/favorites" },
+                      ].map((card) => (
                         <motion.button
-                          key={doc.id}
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 + idx * 0.06 }}
-                          onClick={() => navigate(`/doctor/${doc.id}`)}
-                          className="flex-shrink-0 w-[140px] bg-card rounded-2xl border border-border p-3 text-center snap-start hover:shadow-md transition-shadow"
+                          key={card.label}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => navigate(card.path)}
+                          className="bg-card rounded-2xl border border-border p-3 flex flex-col items-center gap-1.5 text-center shadow-sm"
                         >
-                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center mx-auto mb-2 overflow-hidden">
-                            {doc.image_url ? (
-                              <img src={doc.image_url} alt={doc.name} className="w-14 h-14 rounded-full object-cover" />
-                            ) : (
-                              <span className="text-2xl">👨‍⚕️</span>
-                            )}
+                          <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center`}>
+                            <card.icon className={`w-5 h-5 ${card.iconColor}`} strokeWidth={1.8} />
                           </div>
-                          <h4 className="font-bold text-xs truncate text-foreground">{doc.name}</h4>
-                          <p className="text-[10px] text-primary font-medium truncate">{doc.specialization}</p>
-                          <div className="flex items-center justify-center gap-1 mt-2">
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            <span className="text-xs font-bold text-foreground">{doc.rating || "N/A"}</span>
-                            <span className="text-[9px] text-muted-foreground ml-1">
-                              {doc.experience_years ? `${doc.experience_years}+ Yrs` : "Nearby"}
-                            </span>
-                          </div>
+                          <span className="text-[9px] font-semibold text-foreground leading-tight">{card.label}</span>
+                          <span className="text-[10px] font-bold text-foreground">{card.value}</span>
                         </motion.button>
                       ))}
                     </div>
                   </motion.div>
-                )}
+                </div>
 
-                {/* Popular Medicines */}
-                {popularMedicines.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                    <div className="flex items-center justify-between mb-3">
-                      <h2 className="text-base font-bold text-foreground">Popular Medicines</h2>
-                      <button onClick={() => navigate("/pharmacies")} className="text-sm text-primary font-semibold flex items-center gap-0.5">
-                        Browse <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
-                      {popularMedicines.map((med, idx) => {
-                        const discounted = med.discount_percent && med.discount_percent > 0;
-                        const finalPrice = discounted ? med.price * (1 - (med.discount_percent || 0) / 100) : med.price;
-                        return (
+                {/* ===== POPULAR DOCTORS ===== */}
+                {topDoctors.length > 0 && (
+                  <div className="px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-bold text-foreground">Popular Doctors</h2>
+                        <button onClick={() => navigate("/doctors")} className="text-[hsl(220,60%,50%)] font-bold text-sm flex items-center">
+                          <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
+                        </button>
+                      </div>
+                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
+                        {topDoctors.map((doc, idx) => (
                           <motion.button
-                            key={med.id}
+                            key={doc.id}
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.45 + idx * 0.06 }}
-                            onClick={() => navigate(`/pharmacies`)}
-                            className="flex-shrink-0 w-36 bg-card rounded-2xl border border-border p-3 text-left snap-start hover:shadow-md transition-shadow"
+                            transition={{ delay: 0.4 + idx * 0.06 }}
+                            onClick={() => navigate(`/doctor/${doc.id}`)}
+                            className="flex-shrink-0 w-[150px] bg-card rounded-2xl border border-border p-3 text-center snap-start shadow-sm"
                           >
-                            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-2">
-                              <Pill className="w-5 h-5 text-emerald-600" />
-                            </div>
-                            <h4 className="font-bold text-xs truncate text-foreground">{med.name}</h4>
-                            <p className="text-[10px] text-muted-foreground truncate">{med.pharmacy_name || med.category}</p>
-                            <div className="flex items-center gap-1 mt-2">
-                              <span className="text-xs font-bold text-foreground">₹{Math.round(finalPrice)}</span>
-                              {discounted && (
-                                <span className="text-[10px] text-muted-foreground line-through">₹{med.price}</span>
+                            <div className="w-14 h-14 rounded-full bg-[hsl(210,20%,96%)] dark:bg-muted flex items-center justify-center mx-auto mb-2 overflow-hidden">
+                              {doc.image_url ? (
+                                <img src={doc.image_url} alt={doc.name} className="w-14 h-14 rounded-full object-cover" />
+                              ) : (
+                                <span className="text-2xl">👨‍⚕️</span>
                               )}
                             </div>
+                            <h4 className="font-bold text-xs truncate text-foreground">{doc.name}</h4>
+                            <p className="text-[10px] text-primary font-medium truncate">{doc.specialization}</p>
+                            <div className="flex items-center justify-center gap-1 mt-2">
+                              <Star className="w-3.5 h-3.5 fill-[hsl(38,90%,55%)] text-[hsl(38,90%,55%)]" />
+                              <span className="text-xs font-bold text-foreground">{doc.rating || "N/A"}</span>
+                              <span className="text-[9px] text-muted-foreground ml-0.5">
+                                {doc.experience_years ? `${doc.experience_years}+ Years Exp` : "Nearby"}
+                              </span>
+                            </div>
                           </motion.button>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
+                        ))}
+                      </div>
+                      {/* Dots indicator */}
+                      <div className="flex items-center justify-center gap-1.5 mt-1">
+                        <div className="w-6 h-1.5 rounded-full bg-primary" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+                      </div>
+                    </motion.div>
+                  </div>
                 )}
 
-                {/* Popular Hospitals */}
+                {/* ===== POPULAR HOSPITALS ===== */}
                 {popularHospitals.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }}>
-                    <div className="flex items-center justify-between mb-3">
-                      <h2 className="text-base font-bold text-foreground">Popular Hospitals</h2>
-                      <button onClick={() => navigate("/hospitals")} className="text-primary text-sm font-semibold flex items-center gap-0.5">
-                        <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
-                      </button>
-                    </div>
-                    <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
-                      {popularHospitals.map((hosp: any, idx: number) => (
-                        <motion.button
-                          key={hosp.id}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.45 + idx * 0.06 }}
-                          onClick={() => navigate(`/hospital/${hosp.id}`)}
-                          className="flex-shrink-0 w-[280px] bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl border border-border p-4 text-left snap-start hover:shadow-md transition-shadow relative overflow-hidden"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-sm text-foreground truncate">{hosp.name}</h4>
-                              <div className="flex items-center gap-1 mt-1">
-                                {Array.from({ length: Math.round(hosp.rating || 0) }).map((_, i) => (
-                                  <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                  <div className="px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-bold text-foreground">Popular Hospitals</h2>
+                        <button onClick={() => navigate("/hospitals")} className="text-[hsl(220,60%,50%)] font-bold text-sm flex items-center">
+                          <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
+                        </button>
+                      </div>
+                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
+                        {popularHospitals.map((hosp: any, idx: number) => (
+                          <motion.button
+                            key={hosp.id}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.45 + idx * 0.06 }}
+                            onClick={() => navigate(`/hospital/${hosp.id}`)}
+                            className="flex-shrink-0 w-[300px] bg-gradient-to-r from-[hsl(205,80%,94%)] to-[hsl(205,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(205,30%,20%)] rounded-2xl border border-border p-4 text-left snap-start shadow-sm relative overflow-hidden"
+                            style={{ minHeight: 150 }}
+                          >
+                            <div className="relative z-10">
+                              <h4 className="font-bold text-base text-foreground">{hosp.name}</h4>
+                              <div className="flex items-center gap-0.5 mt-1">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(hosp.rating || 0) ? "fill-[hsl(38,90%,55%)] text-[hsl(38,90%,55%)]" : "fill-none text-muted-foreground/30"}`} />
                                 ))}
                               </div>
-                              {hosp.location && <p className="text-[10px] text-muted-foreground mt-1 truncate">📍 {hosp.location}</p>}
-                              <div className="flex items-center gap-2 mt-2">
-                                {hosp.is_government && <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">Govt</span>}
+                              <p className="text-xs text-muted-foreground mt-1.5">● Multispeciality</p>
+                              <div className="flex items-center gap-2 mt-3">
+                                {hosp.location && (
+                                  <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                                    <MapPin className="w-3 h-3" /> {hosp.total_beds || "15"}+ Doctors
+                                  </span>
+                                )}
                                 <button
                                   onClick={(e) => { e.stopPropagation(); navigate(`/hospital/${hosp.id}`); }}
-                                  className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg"
+                                  className="text-[11px] font-bold text-white bg-[hsl(220,60%,50%)] px-3 py-1.5 rounded-full shadow-sm"
                                 >
                                   View Details &gt;
                                 </button>
                               </div>
                             </div>
-                            <div className="w-16 h-16 rounded-xl bg-card/60 flex items-center justify-center flex-shrink-0 ml-2 overflow-hidden">
-                              {hosp.image_url ? (
-                                <img src={hosp.image_url} alt={hosp.name} className="w-16 h-16 rounded-xl object-cover" />
-                              ) : (
-                                <Building2 className="w-8 h-8 text-primary/40" />
-                              )}
-                            </div>
-                          </div>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </motion.div>
+                            {hosp.image_url && (
+                              <img src={hosp.image_url} alt={hosp.name} className="absolute right-0 bottom-0 w-28 h-28 object-contain opacity-80" />
+                            )}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </div>
                 )}
 
-                {/* Quick Access More */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-base font-bold text-foreground">Quick Access More</h2>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/doctors")}
-                      className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px]">
-                      <p className="text-white font-bold text-sm">Find Doctors</p>
-                      <p className="text-white/80 text-[10px] mt-0.5">400+ Available</p>
-                      <Stethoscope className="absolute bottom-2 right-2 w-10 h-10 text-white/20" />
-                    </motion.button>
-                    <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/emergency")}
-                      className="bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px] border border-border">
-                      <p className="text-foreground font-bold text-sm">Ambulance Service</p>
-                      <p className="text-muted-foreground text-[10px] mt-0.5">10 min Guaranteed</p>
-                      <Ambulance className="absolute bottom-2 right-2 w-10 h-10 text-muted-foreground/20" />
-                    </motion.button>
-                    <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/pharmacies")}
-                      className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px]">
-                      <p className="text-white font-bold text-sm">Medicine Delivery</p>
-                      <p className="text-white/80 text-[10px] mt-0.5">Fast Home Delivery</p>
-                      <Pill className="absolute bottom-2 right-2 w-10 h-10 text-white/20" />
-                    </motion.button>
-                    <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/labs")}
-                      className="bg-gradient-to-br from-violet-100 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px] border border-border">
-                      <p className="text-foreground font-bold text-sm">Health Packages</p>
-                      <p className="text-muted-foreground text-[10px] mt-0.5">Full Body Checkups</p>
-                      <FlaskConical className="absolute bottom-2 right-2 w-10 h-10 text-muted-foreground/20" />
-                    </motion.button>
-                  </div>
-                </motion.div>
-
-                {/* Featured Packages */}
-                {featuredPackages.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                    <h2 className="text-base font-bold mb-3 text-foreground">Featured Packages</h2>
-                    <div className="grid grid-cols-2 gap-2.5 mb-3">
-                      {featuredPackages.slice(0, 2).map((pkg: any) => {
-                        const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
-                        const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
-                        const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
-                        return (
-                          <motion.button
-                            key={pkg.id}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate("/labs")}
-                            className="bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl p-3.5 text-left border border-border relative overflow-hidden"
-                          >
-                            {hasDiscount && (
-                              <span className="absolute top-2 right-2 text-[9px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded">Recommended</span>
-                            )}
-                            <h4 className="font-bold text-sm text-foreground pr-16 truncate">{pkg.name}</h4>
-                            <div className="flex items-center gap-1.5 mt-1.5">
-                              <span className="text-sm font-bold text-foreground">₹{pkg.package_price}</span>
-                              {hasDiscount && <span className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</span>}
-                            </div>
-                            {hasDiscount && (
-                              <span className="inline-block mt-1.5 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                                {pkg.discount_percent}% OFF &gt;
-                              </span>
-                            )}
-                            {tests.length > 0 && <p className="text-[10px] text-muted-foreground mt-1">{tests.length}+ Tests</p>}
-                          </motion.button>
-                        );
-                      })}
+                {/* ===== QUICK ACCESS MORE (2x2 grid) ===== */}
+                <div className="px-5">
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
+                    <div className="flex items-center gap-1 mb-3">
+                      <h2 className="text-lg font-bold text-foreground">Quick Access More</h2>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>
-                    {featuredPackages.length > 2 && (
-                      <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
-                        {featuredPackages.slice(2).map((pkg: any) => {
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Find Doctors */}
+                      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/doctors")}
+                        className="bg-gradient-to-br from-[hsl(220,75%,55%)] to-[hsl(220,70%,45%)] rounded-2xl p-4 text-left relative overflow-hidden shadow-md"
+                        style={{ minHeight: 130 }}>
+                        <p className="text-white font-bold text-base">Find Doctors</p>
+                        <p className="text-white/80 text-xs mt-0.5">400+ Available</p>
+                        <Stethoscope className="absolute bottom-3 right-3 w-12 h-12 text-white/15" />
+                      </motion.button>
+
+                      {/* Ambulance Service */}
+                      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/emergency")}
+                        className="bg-gradient-to-br from-[hsl(210,20%,96%)] to-[hsl(205,30%,94%)] dark:from-[hsl(210,20%,16%)] dark:to-[hsl(205,20%,14%)] rounded-2xl p-4 text-left relative overflow-hidden border border-border shadow-sm"
+                        style={{ minHeight: 130 }}>
+                        <p className="text-foreground font-bold text-base">Ambulance Service</p>
+                        <p className="text-muted-foreground text-xs mt-0.5">10 min Guaranteed</p>
+                        <p className="text-muted-foreground text-xs mt-0.5">₹200</p>
+                        <Ambulance className="absolute bottom-3 right-3 w-12 h-12 text-muted-foreground/15" />
+                      </motion.button>
+
+                      {/* Medicine Delivery */}
+                      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/pharmacies")}
+                        className="bg-gradient-to-br from-[hsl(152,60%,42%)] to-[hsl(152,55%,35%)] rounded-2xl p-4 text-left relative overflow-hidden shadow-md"
+                        style={{ minHeight: 130 }}>
+                        <p className="text-white font-bold text-base">Medicine Delivery</p>
+                        <p className="text-white/80 text-xs mt-0.5">Fast Home Delivery</p>
+                        <Pill className="absolute bottom-3 right-3 w-12 h-12 text-white/15" />
+                      </motion.button>
+
+                      {/* Health Packages */}
+                      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/labs")}
+                        className="bg-gradient-to-br from-[hsl(270,40%,92%)] to-[hsl(280,35%,88%)] dark:from-[hsl(270,30%,18%)] dark:to-[hsl(280,25%,15%)] rounded-2xl p-4 text-left relative overflow-hidden border border-border shadow-sm"
+                        style={{ minHeight: 130 }}>
+                        <p className="text-foreground font-bold text-base">Health Packages</p>
+                        <p className="text-muted-foreground text-xs mt-0.5">Full Body Checkups</p>
+                        <p className="text-muted-foreground text-xs font-semibold mt-2">Starting From ₹999</p>
+                        <FlaskConical className="absolute bottom-3 right-3 w-12 h-12 text-muted-foreground/15" />
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* ===== FEATURED PACKAGES ===== */}
+                {featuredPackages.length > 0 && (
+                  <div className="px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                      <h2 className="text-lg font-bold mb-3 text-foreground">Featured Packages</h2>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        {featuredPackages.slice(0, 2).map((pkg: any) => {
                           const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
                           const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
                           const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
@@ -625,91 +588,173 @@ const Dashboard = () => {
                               key={pkg.id}
                               whileTap={{ scale: 0.97 }}
                               onClick={() => navigate("/labs")}
-                              className="flex-shrink-0 w-[240px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start hover:shadow-md transition-shadow"
+                              className="bg-gradient-to-br from-[hsl(205,80%,94%)] to-[hsl(205,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(205,30%,20%)] rounded-2xl p-3.5 text-left border border-border relative overflow-hidden shadow-sm"
                             >
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                  <FlaskConical className="w-5 h-5 text-primary" />
+                              {hasDiscount && (
+                                <span className="absolute top-2 right-2 text-[9px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded">Recommended</span>
+                              )}
+                              <h4 className="font-bold text-sm text-foreground pr-16 truncate">{pkg.name}</h4>
+                              <div className="flex items-center gap-1.5 mt-1.5">
+                                <span className="text-sm font-bold text-foreground">₹{pkg.package_price}</span>
+                                {hasDiscount && <span className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</span>}
+                              </div>
+                              {hasDiscount && (
+                                <span className="inline-block mt-1.5 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                                  {pkg.discount_percent}% OFF &gt;
+                                </span>
+                              )}
+                              {tests.length > 0 && <p className="text-[10px] text-muted-foreground mt-1">{tests.length}+ Tests</p>}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                      {featuredPackages.length > 2 && (
+                        <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
+                          {featuredPackages.slice(2).map((pkg: any) => {
+                            const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
+                            const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
+                            const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
+                            return (
+                              <motion.button
+                                key={pkg.id}
+                                whileTap={{ scale: 0.97 }}
+                                onClick={() => navigate("/labs")}
+                                className="flex-shrink-0 w-[260px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start shadow-sm"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <FlaskConical className="w-6 h-6 text-primary" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-xs text-foreground truncate">{pkg.name}</h4>
+                                    {hasDiscount && <span className="text-[9px] text-primary font-medium">Recommended</span>}
+                                    {tests.length > 0 && <p className="text-[10px] text-muted-foreground">{tests.length}+ Tests</p>}
+                                  </div>
+                                  <div className="text-right flex-shrink-0">
+                                    <p className="text-sm font-bold text-foreground">₹{pkg.package_price}</p>
+                                    {hasDiscount && (
+                                      <>
+                                        <p className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</p>
+                                        <span className="text-[9px] font-semibold text-primary">{pkg.discount_percent}% OFF &gt;</span>
+                                      </>
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-bold text-xs text-foreground truncate">{pkg.name}</h4>
-                                  {hasDiscount && <span className="text-[9px] text-primary font-medium">Recommended</span>}
-                                  {tests.length > 0 && <p className="text-[10px] text-muted-foreground">{tests.length}+ Tests</p>}
-                                </div>
-                                <div className="text-right flex-shrink-0">
-                                  <p className="text-sm font-bold text-foreground">₹{pkg.package_price}</p>
-                                  {hasDiscount && (
-                                    <>
-                                      <p className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</p>
-                                      <span className="text-[9px] font-semibold text-primary">{pkg.discount_percent}% OFF &gt;</span>
-                                    </>
-                                  )}
-                                </div>
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </motion.div>
+                  </div>
+                )}
+
+                {/* ===== POPULAR MEDICINES ===== */}
+                {popularMedicines.length > 0 && (
+                  <div className="px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-bold text-foreground">Popular Medicines</h2>
+                        <button onClick={() => navigate("/pharmacies")} className="text-sm text-primary font-semibold flex items-center gap-0.5">
+                          Browse <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
+                        {popularMedicines.map((med, idx) => {
+                          const discounted = med.discount_percent && med.discount_percent > 0;
+                          const finalPrice = discounted ? med.price * (1 - (med.discount_percent || 0) / 100) : med.price;
+                          return (
+                            <motion.button
+                              key={med.id}
+                              initial={{ opacity: 0, y: 15 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.45 + idx * 0.06 }}
+                              onClick={() => navigate(`/pharmacies`)}
+                              className="flex-shrink-0 w-36 bg-card rounded-2xl border border-border p-3 text-left snap-start shadow-sm"
+                            >
+                              <div className="w-10 h-10 rounded-xl bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] flex items-center justify-center mb-2">
+                                <Pill className="w-5 h-5 text-[hsl(152,60%,42%)]" />
+                              </div>
+                              <h4 className="font-bold text-xs truncate text-foreground">{med.name}</h4>
+                              <p className="text-[10px] text-muted-foreground truncate">{med.pharmacy_name || med.category}</p>
+                              <div className="flex items-center gap-1 mt-2">
+                                <span className="text-xs font-bold text-foreground">₹{Math.round(finalPrice)}</span>
+                                {discounted && (
+                                  <span className="text-[10px] text-muted-foreground line-through">₹{med.price}</span>
+                                )}
                               </div>
                             </motion.button>
                           );
                         })}
                       </div>
-                    )}
-                  </motion.div>
+                    </motion.div>
+                  </div>
                 )}
 
-                {/* Browse Services */}
+                {/* ===== BROWSE SERVICES ===== */}
                 {services.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
-                    <h2 className="text-base font-bold mb-3 text-foreground">Browse Services</h2>
-                    <div className="grid grid-cols-2 gap-2.5">
-                      {services.map((svc: any) => {
-                        const SvcIcon = getIcon(svc.icon_name);
-                        return (
-                          <motion.button
-                            key={svc.id}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate(svc.path)}
-                            className="bg-card rounded-2xl p-4 border border-border text-left hover:shadow-md transition-shadow"
-                          >
-                            <div className={`w-10 h-10 rounded-xl ${svc.bg_color} flex items-center justify-center mb-2`}>
-                              <SvcIcon className={`w-5 h-5 ${svc.color}`} />
-                            </div>
-                            <h3 className="font-bold text-sm text-foreground">{svc.title}</h3>
-                            <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{svc.description}</p>
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
+                  <div className="px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+                      <h2 className="text-lg font-bold mb-3 text-foreground">Browse Services</h2>
+                      <div className="grid grid-cols-2 gap-3">
+                        {services.map((svc: any) => {
+                          const SvcIcon = getIcon(svc.icon_name);
+                          return (
+                            <motion.button
+                              key={svc.id}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() => navigate(svc.path)}
+                              className="bg-card rounded-2xl p-4 border border-border text-left shadow-sm"
+                            >
+                              <div className={`w-10 h-10 rounded-xl ${svc.bg_color} flex items-center justify-center mb-2`}>
+                                <SvcIcon className={`w-5 h-5 ${svc.color}`} />
+                              </div>
+                              <h3 className="font-bold text-sm text-foreground">{svc.title}</h3>
+                              <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{svc.description}</p>
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  </div>
                 )}
 
-                {/* Health Tips */}
-                <HealthTipsCards />
+                {/* ===== HEALTH TIPS ===== */}
+                <div className="px-5">
+                  <HealthTipsCards />
+                </div>
 
-                {/* Nearby Hospitals Map */}
-                <NearbyHospitalsMap />
+                {/* ===== NEARBY HOSPITALS MAP ===== */}
+                <div className="px-5">
+                  <NearbyHospitalsMap />
+                </div>
 
-                {/* Ads */}
+                {/* ===== ADS ===== */}
                 {ads.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                    <div className="space-y-3">
-                      {ads.map((ad) => (
-                        <motion.a
-                          key={ad.id}
-                          whileHover={{ scale: 1.01 }}
-                          href={ad.target_link || "#"}
-                          target={ad.target_link?.startsWith("http") ? "_blank" : "_self"}
-                          rel="noopener noreferrer"
-                          className="block rounded-2xl overflow-hidden shadow-md border border-border hover:shadow-lg transition-shadow"
-                        >
-                          <img src={ad.content_url} alt={ad.title || "Ad"} className="w-full h-32 object-cover" loading="lazy" />
-                          {ad.title && (
-                            <div className="bg-card px-4 py-2.5">
-                              <p className="text-xs font-semibold text-foreground">{ad.title}</p>
-                              <p className="text-[10px] text-muted-foreground">Sponsored</p>
-                            </div>
-                          )}
-                        </motion.a>
-                      ))}
-                    </div>
-                  </motion.div>
+                  <div className="px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                      <div className="space-y-3">
+                        {ads.map((ad) => (
+                          <motion.a
+                            key={ad.id}
+                            whileHover={{ scale: 1.01 }}
+                            href={ad.target_link || "#"}
+                            target={ad.target_link?.startsWith("http") ? "_blank" : "_self"}
+                            rel="noopener noreferrer"
+                            className="block rounded-2xl overflow-hidden shadow-md border border-border"
+                          >
+                            <img src={ad.content_url} alt={ad.title || "Ad"} className="w-full h-32 object-cover" loading="lazy" />
+                            {ad.title && (
+                              <div className="bg-card px-4 py-2.5">
+                                <p className="text-xs font-semibold text-foreground">{ad.title}</p>
+                                <p className="text-[10px] text-muted-foreground">Sponsored</p>
+                              </div>
+                            )}
+                          </motion.a>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </div>
                 )}
               </div>
             )}
