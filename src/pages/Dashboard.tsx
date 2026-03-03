@@ -1,7 +1,60 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, Ambulance, MapPin, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const logoIcons = ["💊", "🩺", "🏥", "❤️", "💉", "🧬", "🧪"];
+const logoLetters = "Remedoo".split("");
+
+const AnimatedLogo = () => {
+  const [morphed, setMorphed] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMorphed(true), 600);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-0">
+      {logoLetters.map((letter, i) => (
+        <div key={i} className="relative w-[0.85rem] h-7 flex items-center justify-center">
+          <motion.span
+            className="absolute text-[10px]"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{
+              opacity: morphed ? 0 : 1,
+              scale: morphed ? 0.3 : 1,
+              rotateY: morphed ? 90 : 0,
+            }}
+            transition={{
+              opacity: { duration: 0.2, delay: morphed ? i * 0.05 : i * 0.06 },
+              scale: { duration: 0.25, delay: morphed ? i * 0.05 : i * 0.06 },
+              rotateY: { duration: 0.2, delay: morphed ? i * 0.05 : 0 },
+            }}
+          >
+            {logoIcons[i]}
+          </motion.span>
+          <motion.span
+            className="absolute text-xl font-extrabold text-primary-foreground"
+            initial={{ opacity: 0, scale: 0.3, rotateY: -90 }}
+            animate={{
+              opacity: morphed ? 1 : 0,
+              scale: morphed ? 1 : 0.3,
+              rotateY: morphed ? 0 : -90,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 280,
+              damping: 18,
+              delay: i * 0.06 + 0.1,
+            }}
+          >
+            {letter}
+          </motion.span>
+        </div>
+      ))}
+    </div>
+  );
+};
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
 import HealthTipsCards from "@/components/dashboard/HealthTipsCards";
 
@@ -13,7 +66,6 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import BottomNav from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
-import remedooLogo from "@/assets/remedoo-logo.png";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -241,7 +293,7 @@ const Dashboard = () => {
             <div className="sticky top-0 z-40 bg-primary">
               <div className="flex items-center justify-between px-4 h-14">
                 <AnimatedMenuButton />
-                <img src={remedooLogo} alt="Remedoo" className="h-8 brightness-0 invert" />
+                <AnimatedLogo />
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => navigate("/notifications")}
