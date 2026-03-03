@@ -13,6 +13,7 @@ const Doctors = () => {
   const navigate = useNavigate();
   const [doctors, setDoctors] = useState<(Tables<"doctors"> & { hospital_name?: string; hospital_latitude?: number | null; hospital_longitude?: number | null })[]>([]);
   const [search, setSearch] = useState("");
+  const [selectedSpec, setSelectedSpec] = useState<string>("All");
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
@@ -63,16 +64,23 @@ const Doctors = () => {
     }
   };
 
+  const specializations = useMemo(() => {
+    const specs = new Set(doctors.map((d) => d.specialization).filter(Boolean) as string[]);
+    return ["All", ...Array.from(specs).sort()];
+  }, [doctors]);
+
   const filtered = useMemo(() => {
-    const searched = doctors.filter((d) =>
-      d.name.toLowerCase().includes(search.toLowerCase()) ||
-      (d.specialization?.toLowerCase().includes(search.toLowerCase()))
-    );
+    const searched = doctors.filter((d) => {
+      const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase()) ||
+        (d.specialization?.toLowerCase().includes(search.toLowerCase()));
+      const matchesSpec = selectedSpec === "All" || d.specialization === selectedSpec;
+      return matchesSearch && matchesSpec;
+    });
     if (location) {
       return sortByDistance(searched, location.latitude, location.longitude);
     }
     return searched;
-  }, [doctors, search, location]);
+  }, [doctors, search, selectedSpec, location]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -85,7 +93,23 @@ const Doctors = () => {
               <Navigation className="w-3 h-3" />Nearby
             </span>
           )}
-        </div>
+      </div>
+
+      <div className="px-5 mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {specializations.map((spec) => (
+          <button
+            key={spec}
+            onClick={() => setSelectedSpec(spec)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              selectedSpec === spec
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-accent"
+            }`}
+          >
+            {spec}
+          </button>
+        ))}
+      </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search by name or specialization..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card border-0 shadow-lg h-11 rounded-xl" />
