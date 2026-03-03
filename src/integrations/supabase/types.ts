@@ -1360,6 +1360,7 @@ export type Database = {
       medicines: {
         Row: {
           batch_number: string | null
+          brand_name: string | null
           category: string
           created_at: string
           description: string | null
@@ -1382,6 +1383,7 @@ export type Database = {
         }
         Insert: {
           batch_number?: string | null
+          brand_name?: string | null
           category?: string
           created_at?: string
           description?: string | null
@@ -1404,6 +1406,7 @@ export type Database = {
         }
         Update: {
           batch_number?: string | null
+          brand_name?: string | null
           category?: string
           created_at?: string
           description?: string | null

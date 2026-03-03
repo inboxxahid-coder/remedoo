@@ -1,0 +1,1 @@
+ALTER TABLE public.medicines ADD COLUMN brand_name text;

@@ -4,6 +4,7 @@ import AdminCrudTable, { ColumnDef } from "@/components/admin/AdminCrudTable";
 
 const columns: ColumnDef[] = [
   { key: "name", label: "Name", editable: true },
+  { key: "brand_name", label: "Brand Name", editable: true },
   { key: "generic_name", label: "Generic Name", editable: true },
   { key: "category", label: "Category", editable: true },
   { key: "price", label: "Price", type: "number", editable: true },
