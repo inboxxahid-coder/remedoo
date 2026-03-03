@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Pill, FlaskConical, FileText, Download, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Calendar, Pill, FlaskConical, FileText, Download, Clock, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ const MedicalHistory = () => {
       if (!session) { navigate("/login", { replace: true }); return; }
       const userId = session.user.id;
 
-      const [aptsRes, rxRes] = await Promise.all([
+      const [aptsRes, rxRes, labRes] = await Promise.all([
         supabase
           .from("appointments")
           .select("*, doctors(name), hospitals(name), labs(name), pharmacies(name)")
@@ -46,6 +46,11 @@ const MedicalHistory = () => {
           .select("*, prescription_items(*), doctors(name)")
           .eq("patient_id", userId)
           .order("created_at", { ascending: false }),
+        supabase
+          .from("lab_sample_collections")
+          .select("*, labs(name)")
+          .eq("patient_id", userId)
+          .order("scheduled_date", { ascending: false }),
       ]);
 
       const items: TimelineItem[] = [];
@@ -81,6 +86,24 @@ const MedicalHistory = () => {
             diagnosis: rx.diagnosis,
             notes: rx.notes,
             items: rx.prescription_items || [],
+          },
+        });
+      });
+
+      // Lab Sample Collections (actual reports)
+      (labRes.data || []).forEach((s: any) => {
+        items.push({
+          id: `lab-${s.id}`,
+          type: "lab_report",
+          date: s.scheduled_date,
+          title: s.test_name,
+          subtitle: `${s.labs?.name || "Lab"} · ${s.sample_type}`,
+          status: s.status,
+          details: {
+            notes: s.notes,
+            reportUrl: s.report_url,
+            reportVersion: s.report_version,
+            collectionType: s.collection_type,
           },
         });
       });
@@ -202,6 +225,22 @@ const MedicalHistory = () => {
                           </div>
                         ))}
                       </div>
+                    )}
+                    {item.details.reportUrl && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5 h-8 text-xs mt-1"
+                        onClick={(e) => { e.stopPropagation(); window.open(item.details.reportUrl, "_blank"); }}
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        Download Report (v{item.details.reportVersion || 1})
+                      </Button>
+                    )}
+                    {item.type === "lab_report" && !item.details.reportUrl && item.status === "completed" && (
+                      <p className="text-xs text-warning flex items-center gap-1">
+                        <FileText className="w-3 h-3" /> Report pending upload
+                      </p>
                     )}
                   </div>
                 )}

@@ -37,6 +37,7 @@ const Wallet = lazy(() => import("./pages/Wallet"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const MedicalHistory = lazy(() => import("./pages/MedicalHistory"));
+const LabReports = lazy(() => import("./pages/LabReports"));
 const PaymentFailure = lazy(() => import("./pages/PaymentFailure"));
 const RefundTracking = lazy(() => import("./pages/RefundTracking"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -200,6 +201,7 @@ const App = () => {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/medical-history" element={<MedicalHistory />} />
+            <Route path="/lab-reports" element={<LabReports />} />
             <Route path="/payment-failure" element={<PaymentFailure />} />
             <Route path="/refunds" element={<RefundTracking />} />
             <Route path="/support-tickets" element={<SupportTickets />} />
