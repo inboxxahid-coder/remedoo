@@ -155,8 +155,8 @@ const Doctors = () => {
                   </div>
                   <div className="flex items-center justify-between mt-3">
                     <span className="text-sm font-semibold text-primary">₹{doc.consultation_fee}</span>
-                    <Button size="sm" className="h-8 rounded-lg gradient-primary text-primary-foreground text-xs" onClick={() => navigate(`/book/doctor/${doc.id}`)}>
-                      Book Now
+                    <Button size="sm" className="h-8 rounded-lg gradient-primary text-primary-foreground text-xs" onClick={() => navigate(`/doctor/${doc.id}`)}>
+                      View Profile
                     </Button>
                   </div>
                 </div>
