@@ -103,7 +103,7 @@ export default function DoctorAppointmentDetail() {
         .eq("id", apt.id);
       if (updateError) throw updateError;
 
-      toast.success("Prescription uploaded successfully");
+      toast.success("Prescription uploaded successfully", { duration: 6000 });
       logAuditAction({ action: "prescription_uploaded", entityType: "appointment", entityId: apt.id });
       load();
     } catch (err: any) {
