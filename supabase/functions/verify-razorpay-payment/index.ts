@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { isString, isUUID, validationError } from "../_shared/validate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,7 +18,6 @@ Deno.serve(async (req) => {
       throw new Error("Razorpay secret not configured");
     }
 
-    // Authenticate user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -41,10 +41,27 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = await req.json();
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return validationError("Invalid JSON body", corsHeaders);
+    }
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !order_id) {
-      throw new Error("Missing payment verification parameters");
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = body as Record<string, unknown>;
+
+    // Validate all inputs
+    if (!isString(razorpay_order_id, 1, 100)) {
+      return validationError("razorpay_order_id is required", corsHeaders);
+    }
+    if (!isString(razorpay_payment_id, 1, 100)) {
+      return validationError("razorpay_payment_id is required", corsHeaders);
+    }
+    if (!isString(razorpay_signature, 1, 200)) {
+      return validationError("razorpay_signature is required", corsHeaders);
+    }
+    if (!isUUID(order_id)) {
+      return validationError("order_id must be a valid UUID", corsHeaders);
     }
 
     // Verify signature using HMAC-SHA256
@@ -70,7 +87,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Update order payment status using service role
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -80,7 +96,7 @@ Deno.serve(async (req) => {
       .from("orders")
       .update({
         payment_status: "paid",
-        stripe_payment_id: razorpay_payment_id, // reusing column for payment ID
+        stripe_payment_id: razorpay_payment_id as string,
       })
       .eq("id", order_id);
 

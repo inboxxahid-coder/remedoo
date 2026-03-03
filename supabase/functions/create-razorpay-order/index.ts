@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { isString, isPositiveNumber, validationError } from "../_shared/validate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,7 +20,6 @@ Deno.serve(async (req) => {
       throw new Error("Razorpay credentials not configured");
     }
 
-    // Authenticate user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -45,15 +45,26 @@ Deno.serve(async (req) => {
 
     const userId = claimsData.claims.sub as string;
 
-    // Rate limit: 10 order creation requests per 10 minutes per user
     const allowed = await checkRateLimit(userId, "create-razorpay-order", 10, 600);
     if (!allowed) {
       return rateLimitResponse(corsHeaders);
     }
 
-    const { order_id, amount } = await req.json();
-    if (!order_id || !amount) {
-      throw new Error("order_id and amount are required");
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return validationError("Invalid JSON body", corsHeaders);
+    }
+
+    const { order_id, amount } = body as Record<string, unknown>;
+
+    // Validate inputs
+    if (!isString(order_id, 1, 100)) {
+      return validationError("order_id is required and must be 1-100 characters", corsHeaders);
+    }
+    if (!isPositiveNumber(amount, 500000)) {
+      return validationError("amount must be a positive number up to ₹5,00,000", corsHeaders);
     }
 
     // Create Razorpay order

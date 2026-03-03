@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { isUUID, isString, validationError } from "../_shared/validate.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -36,12 +37,21 @@ Deno.serve(async (req) => {
     }
     const userId = claimsData.claims.sub as string;
 
-    const { appointment_id, otp_code } = await req.json();
-    if (!appointment_id || !otp_code) {
-      return new Response(JSON.stringify({ error: "appointment_id and otp_code required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return validationError("Invalid JSON body", corsHeaders);
+    }
+
+    const { appointment_id, otp_code } = body as Record<string, unknown>;
+
+    // Validate inputs
+    if (!isUUID(appointment_id)) {
+      return validationError("appointment_id must be a valid UUID", corsHeaders);
+    }
+    if (!isString(otp_code, 6, 6) || !/^\d{6}$/.test(otp_code as string)) {
+      return validationError("otp_code must be a 6-digit number", corsHeaders);
     }
 
     // Find valid OTP
