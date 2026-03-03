@@ -1,12 +1,12 @@
 import { useProviderAuth } from "@/hooks/useProviderAuth";
 import ProviderLayout from "@/components/provider/ProviderLayout";
-import { Building2, LayoutDashboard, CalendarCheck, Stethoscope, BedDouble, Siren, Building, Wrench, Scissors, IndianRupee, BarChart3, ScrollText, User, Settings, Ambulance, Route, Settings2 } from "lucide-react";
+import { Building2, LayoutDashboard, CalendarCheck, Stethoscope, BedDouble, AlertTriangle, Building, Wrench, Scissors, IndianRupee, BarChart3, ScrollText, User, Settings, Ambulance, Route, Settings2 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/hospital", icon: LayoutDashboard },
   { label: "Appointments", path: "/hospital/appointments", icon: CalendarCheck },
   { label: "Beds & ICU", path: "/hospital/beds", icon: BedDouble },
-  { label: "Emergencies", path: "/hospital/emergencies", icon: Siren },
+  { label: "Emergencies", path: "/hospital/emergencies", icon: AlertTriangle },
   { label: "Doctors", path: "/hospital/doctors", icon: Stethoscope },
   { label: "Departments", path: "/hospital/departments", icon: Building },
   { label: "Operation Theaters", path: "/hospital/ots", icon: Scissors },
