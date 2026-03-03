@@ -6,6 +6,7 @@ import {
   Droplets, AlertCircle, CheckCircle2, Info, Calendar, ArrowRightLeft, Navigation
 } from "lucide-react";
 import { withAuthGuard } from "@/hooks/useRequireAuth";
+import { resolveImageUrl } from "@/lib/storageUrl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -72,6 +73,7 @@ const LabDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [lab, setLab] = useState<Tables<"labs"> | null>(null);
+  const [resolvedImageUrl, setResolvedImageUrl] = useState<string | null>(null);
   const [tests, setTests] = useState<Tables<"lab_tests">[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -88,7 +90,10 @@ const LabDetail = () => {
         supabase.from("labs").select("*").eq("id", id).single(),
         supabase.from("lab_tests").select("*").eq("lab_id", id).order("is_popular", { ascending: false }),
       ]);
-      if (labData) setLab(labData);
+      if (labData) {
+        setLab(labData);
+        resolveImageUrl(labData.image_url).then(setResolvedImageUrl);
+      }
       if (testData) setTests(testData);
       setLoading(false);
 
@@ -161,7 +166,12 @@ const LabDetail = () => {
             <button onClick={() => navigate(-1)} className="text-primary-foreground">
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-xl font-bold text-primary-foreground truncate">{lab.name}</h1>
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              {resolvedImageUrl && (
+                <img src={resolvedImageUrl} alt={lab.name} className="w-10 h-10 rounded-xl object-cover border-2 border-primary-foreground/20 flex-shrink-0" />
+              )}
+              <h1 className="text-xl font-bold text-primary-foreground truncate">{lab.name}</h1>
+            </div>
           </div>
           <button onClick={toggleFavorite}>
             <Heart className={`w-6 h-6 ${isFavorite ? "fill-red-400 text-red-400" : "text-primary-foreground/70"}`} />
