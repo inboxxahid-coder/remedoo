@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, Siren, type LucideIcon } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, Ambulance, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
@@ -563,7 +563,7 @@ const Dashboard = () => {
                       className="bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px] border border-border">
                       <p className="text-foreground font-bold text-sm">Ambulance Service</p>
                       <p className="text-muted-foreground text-[10px] mt-0.5">10 min Guaranteed</p>
-                      <Siren className="absolute bottom-2 right-2 w-10 h-10 text-muted-foreground/20" />
+                      <Ambulance className="absolute bottom-2 right-2 w-10 h-10 text-muted-foreground/20" />
                     </motion.button>
                     <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/pharmacies")}
                       className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px]">
