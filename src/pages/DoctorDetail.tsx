@@ -9,6 +9,7 @@ import BottomNav from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import ReviewDialog from "@/components/patient/ReviewDialog";
+import { withAuthGuard } from "@/hooks/useRequireAuth";
 
 const DoctorDetail = () => {
   const navigate = useNavigate();
@@ -349,4 +350,4 @@ const DoctorDetail = () => {
   );
 };
 
-export default DoctorDetail;
+export default withAuthGuard(DoctorDetail);

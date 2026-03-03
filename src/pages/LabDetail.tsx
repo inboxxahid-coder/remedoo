@@ -5,6 +5,7 @@ import {
   Beaker, Home, Utensils, BadgePercent, ChevronDown, ChevronUp,
   Droplets, AlertCircle, CheckCircle2, Info, Calendar, ArrowRightLeft, Navigation
 } from "lucide-react";
+import { withAuthGuard } from "@/hooks/useRequireAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -404,4 +405,4 @@ const LabDetail = () => {
   );
 };
 
-export default LabDetail;
+export default withAuthGuard(LabDetail);
