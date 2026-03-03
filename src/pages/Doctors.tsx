@@ -8,6 +8,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolocation";
+import MedicalLoader from "@/components/ui/MedicalLoader";
 
 const Doctors = () => {
   const navigate = useNavigate();
@@ -118,7 +119,7 @@ const Doctors = () => {
 
       <div className="px-5 mt-4 space-y-3">
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading...</div>
+          <MedicalLoader text="Finding doctors" />
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">No doctors found</div>
         ) : (
