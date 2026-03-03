@@ -4,7 +4,7 @@ import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight
 import { motion, AnimatePresence } from "framer-motion";
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
 import HealthTipsCards from "@/components/dashboard/HealthTipsCards";
-import RecentActivityFeed from "@/components/dashboard/RecentActivityFeed";
+
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -764,11 +764,6 @@ const Dashboard = () => {
                     </motion.div>
                   </div>
                 )}
-
-                {/* ===== RECENT ACTIVITY ===== */}
-                <div className="px-5">
-                  <RecentActivityFeed />
-                </div>
 
                 {/* ===== HEALTH TIPS ===== */}
                 <div className="px-5">
