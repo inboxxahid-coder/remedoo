@@ -397,6 +397,42 @@ const LabDetail = () => {
         )}
       </div>
 
+      {/* Location Map */}
+      {(lab.latitude && lab.longitude || lab.location) && (
+        <div className="px-5 mt-4">
+          <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
+            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Navigation className="w-4 h-4 text-primary" /> Location
+            </h3>
+            {lab.location && (
+              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mb-3">
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {lab.location}
+              </p>
+            )}
+            {lab.latitude && lab.longitude && (
+              <div className="rounded-xl overflow-hidden border border-border h-44">
+                <iframe
+                  title="Lab Location"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${lab.longitude - 0.01},${lab.latitude - 0.01},${lab.longitude + 0.01},${lab.latitude + 0.01}&layer=mapnik&marker=${lab.latitude},${lab.longitude}`}
+                />
+              </div>
+            )}
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${lab.latitude && lab.longitude ? `${lab.latitude},${lab.longitude}` : encodeURIComponent(lab.location || '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 w-full h-9 rounded-xl text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/5 flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Navigation className="w-3.5 h-3.5" /> Get Directions
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Compare Sheet */}
       <LabTestCompareSheet test={compareTest} open={!!compareTest} onClose={() => setCompareTest(null)} />
 
