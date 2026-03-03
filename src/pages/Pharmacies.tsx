@@ -11,7 +11,7 @@ import MedicalLoader from "@/components/ui/MedicalLoader";
 
 const Pharmacies = () => {
   const navigate = useNavigate();
-  const [pharmacies, setPharmacies] = useState<Tables<"pharmacies">[]>([]);
+  const [pharmacies, setPharmacies] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -23,7 +23,7 @@ const Pharmacies = () => {
     const fetchPharmacies = async () => {
       try {
         const [pRes, mRes] = await Promise.all([
-          supabase.from("pharmacies").select("*"),
+          supabase.from("pharmacies_public").select("*"),
           supabase.from("medicines").select("pharmacy_id"),
         ]);
         if (pRes.data) setPharmacies(pRes.data);

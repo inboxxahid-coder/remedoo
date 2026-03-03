@@ -14,7 +14,7 @@ const Doctors = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const specFromUrl = searchParams.get("spec") || "All";
-  const [doctors, setDoctors] = useState<(Tables<"doctors"> & { hospital_name?: string; hospital_latitude?: number | null; hospital_longitude?: number | null })[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [selectedSpec, setSelectedSpec] = useState<string>(specFromUrl);
   const [loading, setLoading] = useState(true);
@@ -25,7 +25,7 @@ const Doctors = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const { data: doctorsRes } = await supabase.from("doctors").select("*, hospitals(name, latitude, longitude, is_government)");
+        const { data: doctorsRes } = await supabase.from("doctors_public").select("*, hospitals(name, latitude, longitude, is_government)");
         if (doctorsRes) {
           setDoctors(doctorsRes
             .filter((d: any) => !d.hospitals?.is_government)

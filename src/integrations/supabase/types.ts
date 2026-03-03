@@ -175,6 +175,13 @@ export type Database = {
             referencedRelation: "hospitals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ambulance_trips_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ambulances: {
@@ -229,6 +236,13 @@ export type Database = {
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulances_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -329,6 +343,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "appointments_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "appointments_lab_id_fkey"
             columns: ["lab_id"]
             isOneToOne: false
@@ -336,10 +357,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "appointments_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "appointments_pharmacy_id_fkey"
             columns: ["pharmacy_id"]
             isOneToOne: false
             referencedRelation: "pharmacies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_pharmacy_id_fkey"
+            columns: ["pharmacy_id"]
+            isOneToOne: false
+            referencedRelation: "pharmacies_public"
             referencedColumns: ["id"]
           },
         ]
@@ -691,6 +726,13 @@ export type Database = {
             referencedRelation: "hospitals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "departments_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       doctor_blocked_slots: {
@@ -844,6 +886,13 @@ export type Database = {
             referencedRelation: "hospitals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "doctors_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       emergency_requests: {
@@ -954,6 +1003,13 @@ export type Database = {
             referencedRelation: "hospitals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "hospital_ambulance_config_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: true
+            referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       hospital_earnings: {
@@ -1003,6 +1059,13 @@ export type Database = {
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_earnings_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1057,6 +1120,13 @@ export type Database = {
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_equipment_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1245,6 +1315,13 @@ export type Database = {
             referencedRelation: "labs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "lab_sample_collections_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       lab_test_packages: {
@@ -1287,6 +1364,13 @@ export type Database = {
             columns: ["lab_id"]
             isOneToOne: false
             referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_test_packages_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1346,6 +1430,13 @@ export type Database = {
             columns: ["lab_id"]
             isOneToOne: false
             referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_tests_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1488,6 +1579,13 @@ export type Database = {
             referencedRelation: "pharmacies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "medicines_pharmacy_id_fkey"
+            columns: ["pharmacy_id"]
+            isOneToOne: false
+            referencedRelation: "pharmacies_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notifications: {
@@ -1567,6 +1665,13 @@ export type Database = {
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operation_theaters_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1695,6 +1800,13 @@ export type Database = {
             columns: ["pharmacy_id"]
             isOneToOne: false
             referencedRelation: "pharmacies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_pharmacy_id_fkey"
+            columns: ["pharmacy_id"]
+            isOneToOne: false
+            referencedRelation: "pharmacies_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2487,7 +2599,158 @@ export type Database = {
             referencedRelation: "hospitals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "doctors_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      hospitals_public: {
+        Row: {
+          approval_status: string | null
+          available_beds: number | null
+          available_icu_beds: number | null
+          beds: number | null
+          created_at: string | null
+          holidays: string[] | null
+          icu_available: boolean | null
+          id: string | null
+          image_url: string | null
+          is_government: boolean | null
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          name: string | null
+          rating: number | null
+          total_beds: number | null
+          total_icu_beds: number | null
+          working_hours: Json | null
+        }
+        Insert: {
+          approval_status?: string | null
+          available_beds?: number | null
+          available_icu_beds?: number | null
+          beds?: number | null
+          created_at?: string | null
+          holidays?: string[] | null
+          icu_available?: boolean | null
+          id?: string | null
+          image_url?: string | null
+          is_government?: boolean | null
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string | null
+          rating?: number | null
+          total_beds?: number | null
+          total_icu_beds?: number | null
+          working_hours?: Json | null
+        }
+        Update: {
+          approval_status?: string | null
+          available_beds?: number | null
+          available_icu_beds?: number | null
+          beds?: number | null
+          created_at?: string | null
+          holidays?: string[] | null
+          icu_available?: boolean | null
+          id?: string | null
+          image_url?: string | null
+          is_government?: boolean | null
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string | null
+          rating?: number | null
+          total_beds?: number | null
+          total_icu_beds?: number | null
+          working_hours?: Json | null
+        }
+        Relationships: []
+      }
+      labs_public: {
+        Row: {
+          approval_status: string | null
+          created_at: string | null
+          id: string | null
+          image_url: string | null
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          name: string | null
+          rating: number | null
+          services: string[] | null
+          working_hours: Json | null
+        }
+        Insert: {
+          approval_status?: string | null
+          created_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string | null
+          rating?: number | null
+          services?: string[] | null
+          working_hours?: Json | null
+        }
+        Update: {
+          approval_status?: string | null
+          created_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string | null
+          rating?: number | null
+          services?: string[] | null
+          working_hours?: Json | null
+        }
+        Relationships: []
+      }
+      pharmacies_public: {
+        Row: {
+          approval_status: string | null
+          created_at: string | null
+          id: string | null
+          image_url: string | null
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          name: string | null
+          rating: number | null
+          working_hours: Json | null
+        }
+        Insert: {
+          approval_status?: string | null
+          created_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string | null
+          rating?: number | null
+          working_hours?: Json | null
+        }
+        Update: {
+          approval_status?: string | null
+          created_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string | null
+          rating?: number | null
+          working_hours?: Json | null
+        }
+        Relationships: []
       }
     }
     Functions: {
@@ -2501,6 +2764,19 @@ export type Database = {
         Returns: boolean
       }
       cleanup_rate_limits: { Args: never; Returns: undefined }
+      get_ambulances_public: {
+        Args: never
+        Returns: {
+          current_latitude: number
+          current_longitude: number
+          equipment_details: string
+          hospital_id: string
+          id: string
+          status: string
+          vehicle_number: string
+          vehicle_type: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
