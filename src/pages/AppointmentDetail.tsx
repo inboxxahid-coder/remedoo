@@ -94,8 +94,13 @@ export default function AppointmentDetail() {
             <div className="flex-1">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h2 className="font-bold text-foreground">{providerName}</h2>
-                  <p className="text-xs text-muted-foreground capitalize">{apt.service_type}</p>
+                   <h2
+                     className={`font-bold text-foreground ${apt.doctor_id ? "underline decoration-primary/40 cursor-pointer hover:text-primary transition-colors" : ""}`}
+                     onClick={() => apt.doctor_id && navigate(`/doctor/${apt.doctor_id}`)}
+                   >
+                     {providerName}
+                   </h2>
+                   <p className="text-xs text-muted-foreground capitalize">{apt.service_type}</p>
                   {apt.doctors?.specialization && (
                     <p className="text-xs text-primary">{apt.doctors.specialization}</p>
                   )}
