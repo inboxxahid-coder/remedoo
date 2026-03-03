@@ -26,6 +26,8 @@ Deno.serve(async (req) => {
     // Check if this is a service_role call
     const isServiceRole = token === serviceRoleKey;
 
+    let authenticatedUserId: string | null = null;
+
     if (!isInternalCall && !isServiceRole) {
       // Validate as authenticated user JWT
       const supabaseAuth = createClient(
@@ -41,9 +43,15 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      authenticatedUserId = claimsData.claims.sub as string;
     }
 
-    const { user_id, title, message, path } = await req.json();
+    const { user_id: requestedUserId, title, message, path } = await req.json();
+
+    // For regular users, enforce that they can only send notifications to themselves
+    const user_id = (isInternalCall || isServiceRole)
+      ? requestedUserId
+      : authenticatedUserId;
 
     if (!user_id || !title) {
       return new Response(JSON.stringify({ error: "user_id and title required" }), {
