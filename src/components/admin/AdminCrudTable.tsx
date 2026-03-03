@@ -28,10 +28,11 @@ interface AdminCrudTableProps {
   onDelete: (id: string) => Promise<void>;
   loading?: boolean;
   canAdd?: boolean;
+  customAddButton?: React.ReactNode;
 }
 
 export default function AdminCrudTable({
-  title, data, columns, onAdd, onUpdate, onDelete, loading, canAdd = true,
+  title, data, columns, onAdd, onUpdate, onDelete, loading, canAdd = true, customAddButton,
 }: AdminCrudTableProps) {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -98,9 +99,11 @@ export default function AdminCrudTable({
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl md:text-2xl font-bold text-foreground">{title}</h1>
         {canAdd && (
-          <Button onClick={openAdd} size="sm" className="gap-2">
-            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add New</span><span className="sm:hidden">Add</span>
-          </Button>
+          customAddButton || (
+            <Button onClick={openAdd} size="sm" className="gap-2">
+              <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add New</span><span className="sm:hidden">Add</span>
+            </Button>
+          )
         )}
       </div>
 
