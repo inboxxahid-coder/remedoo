@@ -278,7 +278,7 @@ const Dashboard = () => {
                         >
                           {hasImage ? (
                             <>
-                              <img src={slide.url} alt={slide.title || ""} className="w-full h-[170px] object-cover" loading="lazy" />
+                              <img src={slide.url} alt={slide.title || ""} className="w-full h-[170px] object-cover" loading="lazy" decoding="async" />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                               <div className="absolute bottom-0 left-0 p-4">
                                 <p className="text-white font-bold text-lg drop-shadow-md">{slide.title}</p>
@@ -508,7 +508,7 @@ const Dashboard = () => {
                               </div>
                             </div>
                             {hosp.image_url && (
-                              <img src={hosp.image_url} alt={hosp.name} className="absolute right-0 bottom-0 w-28 h-28 object-contain opacity-80" />
+                              <img src={hosp.image_url} alt={hosp.name} className="absolute right-0 bottom-0 w-28 h-28 object-contain opacity-80" loading="lazy" decoding="async" />
                             )}
                           </motion.button>
                         ))}
@@ -741,7 +741,7 @@ const Dashboard = () => {
                             rel="noopener noreferrer"
                             className="block rounded-2xl overflow-hidden shadow-md border border-border"
                           >
-                            <img src={ad.content_url} alt={ad.title || "Ad"} className="w-full h-32 object-cover" loading="lazy" />
+                            <img src={ad.content_url} alt={ad.title || "Ad"} className="w-full h-32 object-cover" loading="lazy" decoding="async" />
                             {ad.title && (
                               <div className="bg-card px-4 py-2.5">
                                 <p className="text-xs font-semibold text-foreground">{ad.title}</p>
