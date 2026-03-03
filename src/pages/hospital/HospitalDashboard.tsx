@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { CalendarCheck, Stethoscope, BedDouble, Activity, Siren, IndianRupee, TrendingUp, Heart, Ambulance, Building, Percent, ArrowRight } from "lucide-react";
+import { CalendarCheck, Stethoscope, BedDouble, Activity, AlertTriangle, IndianRupee, TrendingUp, Heart, Ambulance, Building, Percent, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function HospitalDashboard() {
@@ -83,8 +83,8 @@ export default function HospitalDashboard() {
   const kpiCards = [
     { label: "Today's Appointments", value: stats.todayAppointments, icon: CalendarCheck, color: "text-primary", bg: "from-primary/5 to-primary/10", path: "/hospital/appointments" },
     { label: "Upcoming Appointments", value: stats.upcomingAppointments, icon: Activity, color: "text-blue-500", bg: "from-blue-500/5 to-blue-500/10", path: "/hospital/appointments" },
-    { label: "Active Emergencies", value: stats.activeEmergencies, icon: Siren, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", path: "/hospital/emergencies" },
-    { label: "Emergencies Today", value: stats.totalEmergenciesToday, icon: Siren, color: "text-amber-500", bg: "from-amber-500/5 to-amber-500/10", path: "/hospital/emergencies" },
+    { label: "Active Emergencies", value: stats.activeEmergencies, icon: AlertTriangle, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", path: "/hospital/emergencies" },
+    { label: "Emergencies Today", value: stats.totalEmergenciesToday, icon: AlertTriangle, color: "text-amber-500", bg: "from-amber-500/5 to-amber-500/10", path: "/hospital/emergencies" },
     { label: "Available Beds", value: `${stats.availableBeds}/${stats.totalBeds}`, icon: BedDouble, color: "text-primary", bg: "from-primary/5 to-primary/10", path: "/hospital/beds" },
     { label: "ICU Available", value: `${stats.availableIcu}/${stats.totalIcu}`, icon: Heart, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", path: "/hospital/beds" },
     { label: "Doctors", value: stats.doctors, icon: Stethoscope, color: "text-emerald-600", bg: "from-emerald-500/5 to-emerald-500/10", path: "/hospital/doctors" },
@@ -93,7 +93,7 @@ export default function HospitalDashboard() {
   ];
 
   const quickLinks = [
-    { label: "Emergency", path: "/hospital/emergencies", icon: Siren, color: "text-destructive" },
+    { label: "Emergency", path: "/hospital/emergencies", icon: AlertTriangle, color: "text-destructive" },
     { label: "Beds & ICU", path: "/hospital/beds", icon: BedDouble, color: "text-primary" },
     { label: "Doctors", path: "/hospital/doctors", icon: Stethoscope, color: "text-emerald-600" },
     { label: "Appointments", path: "/hospital/appointments", icon: CalendarCheck, color: "text-blue-500" },
@@ -110,7 +110,7 @@ export default function HospitalDashboard() {
         <Card className="p-4 border-destructive/30 bg-destructive/5 cursor-pointer" onClick={() => navigate("/hospital/emergencies")}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Siren className="w-5 h-5 text-destructive animate-pulse" />
+              <AlertTriangle className="w-5 h-5 text-destructive animate-pulse" />
               <p className="font-semibold text-destructive">{stats.activeEmergencies} Active Emergency Case{stats.activeEmergencies > 1 ? "s" : ""}</p>
             </div>
             <ArrowRight className="w-4 h-4 text-destructive" />
