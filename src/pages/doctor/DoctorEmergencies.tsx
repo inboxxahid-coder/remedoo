@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logAuditAction } from "@/lib/auditLog";
-import { AlertTriangle, CheckCircle, Clock, Siren } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock, Ambulance } from "lucide-react";
 
 export default function DoctorEmergencies() {
   const [loading, setLoading] = useState(true);
@@ -71,7 +71,7 @@ export default function DoctorEmergencies() {
       case "pending": return <AlertTriangle className="w-4 h-4 text-destructive animate-pulse" />;
       case "dispatched": return <Clock className="w-4 h-4 text-amber-500" />;
       case "resolved": return <CheckCircle className="w-4 h-4 text-emerald-500" />;
-      default: return <Siren className="w-4 h-4 text-muted-foreground" />;
+      default: return <Ambulance className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -87,7 +87,7 @@ export default function DoctorEmergencies() {
   if (!doctor?.hospital_id) {
     return (
       <div className="text-center py-12">
-        <Siren className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+        <Ambulance className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
         <p className="text-muted-foreground">Emergency alerts are only available for hospital-attached doctors</p>
       </div>
     );
@@ -96,7 +96,7 @@ export default function DoctorEmergencies() {
   if (!(doctor as any).emergency_available) {
     return (
       <div className="text-center py-12">
-        <Siren className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+        <Ambulance className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
         <p className="text-muted-foreground">Emergency availability is disabled. Enable it in Schedule settings.</p>
       </div>
     );
@@ -109,7 +109,7 @@ export default function DoctorEmergencies() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <Siren className="w-6 h-6 text-destructive" /> Emergency Alerts
+          <Ambulance className="w-6 h-6 text-destructive" /> Emergency Alerts
         </h1>
         <Badge variant={active.length > 0 ? "destructive" : "secondary"}>
           {active.length} active
