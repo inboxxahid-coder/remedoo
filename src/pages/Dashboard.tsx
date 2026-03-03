@@ -29,11 +29,11 @@ const AnimatedMenuButton = () => {
   return (
     <button
       onClick={toggleSidebar}
-      className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted/60 transition-all duration-300 active:scale-90"
+      className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 transition-all duration-300 active:scale-90"
     >
       <div className="relative w-6 h-6">
-        <Menu className={`w-6 h-6 text-foreground absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`} />
-        <X className={`w-6 h-6 text-foreground absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`} />
+        <Menu className={`w-6 h-6 text-white absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`} />
+        <X className={`w-6 h-6 text-white absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`} />
       </div>
     </button>
   );
@@ -216,23 +216,23 @@ const Dashboard = () => {
 
           <div className="pb-24">
             {/* ===== TOP BAR ===== */}
-            <div className="sticky top-0 z-40 bg-card border-b border-border">
+            <div className="sticky top-0 z-40 bg-primary">
               <div className="flex items-center justify-between px-4 h-14">
                 <AnimatedMenuButton />
-                <img src={remedooLogo} alt="Remedoo" className="h-8" />
+                <img src={remedooLogo} alt="Remedoo" className="h-8 brightness-0 invert" />
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => navigate("/notifications")}
                   className="relative w-10 h-10 rounded-full flex items-center justify-center"
                 >
-                  <Bell className="w-6 h-6 text-primary" strokeWidth={1.8} />
+                  <Bell className="w-6 h-6 text-white" strokeWidth={1.8} />
                   <AnimatePresence>
                     {unreadCount > 0 && (
                       <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
-                        className="absolute -top-0.5 -right-0.5 min-w-[20px] h-[20px] px-1 bg-destructive rounded-full flex items-center justify-center border-2 border-card"
+                        className="absolute -top-0.5 -right-0.5 min-w-[20px] h-[20px] px-1 bg-destructive rounded-full flex items-center justify-center border-2 border-primary"
                       >
                         <span className="text-[10px] font-bold text-destructive-foreground leading-none">{unreadCount > 99 ? "99+" : unreadCount}</span>
                       </motion.span>
@@ -243,8 +243,8 @@ const Dashboard = () => {
             </div>
 
             {/* ===== WELCOME + SEARCH ===== */}
-            <div className="px-5 pt-4 pb-3 bg-card border-b border-border">
-              <h1 className="text-lg font-bold text-foreground mb-2">Welcome, {displayName}!</h1>
+            <div className="px-5 pt-4 pb-4 bg-primary rounded-b-3xl">
+              <h1 className="text-lg font-bold text-white mb-2">Welcome, {displayName}!</h1>
               <UnifiedSearch />
             </div>
 
