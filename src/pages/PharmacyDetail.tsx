@@ -264,6 +264,42 @@ const PharmacyDetail = () => {
         )}
       </div>
 
+      {/* Location Map */}
+      {(pharmacy.latitude && pharmacy.longitude || pharmacy.location) && (
+        <div className="px-4 mt-4">
+          <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
+            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Navigation className="w-4 h-4 text-primary" /> Location
+            </h3>
+            {pharmacy.location && (
+              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mb-3">
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {pharmacy.location}
+              </p>
+            )}
+            {pharmacy.latitude && pharmacy.longitude && (
+              <div className="rounded-xl overflow-hidden border border-border h-44">
+                <iframe
+                  title="Pharmacy Location"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${pharmacy.longitude - 0.01},${pharmacy.latitude - 0.01},${pharmacy.longitude + 0.01},${pharmacy.latitude + 0.01}&layer=mapnik&marker=${pharmacy.latitude},${pharmacy.longitude}`}
+                />
+              </div>
+            )}
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${pharmacy.latitude && pharmacy.longitude ? `${pharmacy.latitude},${pharmacy.longitude}` : encodeURIComponent(pharmacy.location || '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 w-full h-9 rounded-xl text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/5 flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Navigation className="w-3.5 h-3.5" /> Get Directions
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Medicine Detail Sheet */}
       <MedicineDetailSheet
         medicine={selectedMedicine}
