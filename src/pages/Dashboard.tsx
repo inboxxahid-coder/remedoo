@@ -2,9 +2,9 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, Ambulance, MapPin, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
 import HealthTipsCards from "@/components/dashboard/HealthTipsCards";
+import RecentActivityFeed from "@/components/dashboard/RecentActivityFeed";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,8 +31,8 @@ const AnimatedMenuButton = () => {
       className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted/60 transition-all duration-300 active:scale-90"
     >
       <div className="relative w-6 h-6">
-        <Menu className={`w-6 h-6 text-[hsl(220,25%,15%)] absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`} />
-        <X className={`w-6 h-6 text-[hsl(220,25%,15%)] absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`} />
+        <Menu className={`w-6 h-6 text-foreground absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`} />
+        <X className={`w-6 h-6 text-foreground absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`} />
       </div>
     </button>
   );
@@ -124,7 +124,7 @@ const Dashboard = () => {
       setRecentOrders(orderRes.count ?? 0);
       setActiveOrders(activeRes.count ?? 0);
       setUpcomingAppointments(upcomingRes.data || []);
-      
+
       const payments = walletRes.data || [];
       const balance = payments.reduce((sum, p) => sum + (p.type === "credit" ? Number(p.amount) : -Number(p.amount)), 0);
       setWalletBalance(Math.max(0, balance));
@@ -224,7 +224,7 @@ const Dashboard = () => {
                   onClick={() => navigate("/notifications")}
                   className="relative w-10 h-10 rounded-full flex items-center justify-center"
                 >
-                  <Bell className="w-6 h-6 text-[hsl(220,60%,45%)]" strokeWidth={1.8} />
+                  <Bell className="w-6 h-6 text-primary" strokeWidth={1.8} />
                   <AnimatePresence>
                     {unreadCount > 0 && (
                       <motion.span
@@ -246,7 +246,7 @@ const Dashboard = () => {
               <div className="flex items-center gap-3">
                 <h1 className="text-xl font-bold text-foreground whitespace-nowrap">Welcome, {displayName}!</h1>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center bg-[hsl(210,20%,96%)] dark:bg-muted rounded-full px-3.5 py-2 border border-border">
+                  <div className="flex items-center bg-muted rounded-full px-3.5 py-2 border border-border">
                     <svg className="w-4 h-4 text-muted-foreground mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                     <span className="text-xs text-muted-foreground truncate">Search doctors, hospitals...</span>
                   </div>
@@ -309,10 +309,10 @@ const Dashboard = () => {
                 <div className="px-5">
                   <div className="grid grid-cols-4 gap-3">
                     {[
-                      { label: "Book\nAppointment", icon: Calendar, bg: "bg-[hsl(220,75%,55%)]", path: "/doctors" },
-                      { label: "Order\nMedicine", icon: ClipboardList, bg: "bg-[hsl(152,60%,42%)]", path: "/pharmacies" },
-                      { label: "Lab\nTests", icon: FlaskConical, bg: "bg-[hsl(200,70%,50%)]", path: "/labs" },
-                      { label: "Emergency", icon: AlertTriangle, bg: "bg-[hsl(0,72%,55%)]", path: "/emergency" },
+                      { label: "Book\nAppointment", icon: Calendar, bg: "bg-[hsl(215,70%,50%)]", path: "/doctors" },
+                      { label: "Order\nMedicine", icon: ClipboardList, bg: "bg-[hsl(152,55%,40%)]", path: "/pharmacies" },
+                      { label: "Lab\nTests", icon: FlaskConical, bg: "bg-[hsl(200,65%,48%)]", path: "/labs" },
+                      { label: "Emergency", icon: AlertTriangle, bg: "bg-[hsl(0,70%,52%)]", path: "/emergency" },
                     ].map((action, idx) => (
                       <motion.button
                         key={action.label}
@@ -361,7 +361,7 @@ const Dashboard = () => {
                               onClick={() => navigate(`/appointment/${apt.id}`)}
                               className="bg-card rounded-2xl border border-border p-4 flex items-center gap-3 cursor-pointer shadow-sm"
                             >
-                              <div className="w-14 h-14 rounded-full bg-[hsl(210,20%,96%)] dark:bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
+                              <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
                                 {doc?.image_url ? (
                                   <img src={doc.image_url} alt={doc.name} className="w-14 h-14 rounded-full object-cover" />
                                 ) : (
@@ -375,7 +375,7 @@ const Dashboard = () => {
                               </div>
                               <button
                                 onClick={(e) => { e.stopPropagation(); navigate(`/appointment/${apt.id}`); }}
-                                className="text-xs font-bold text-white bg-[hsl(220,75%,55%)] px-4 py-2 rounded-full hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm"
+                                className="text-xs font-bold text-white bg-primary px-4 py-2 rounded-full hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm"
                               >
                                 View Details &gt;
                               </button>
@@ -393,14 +393,14 @@ const Dashboard = () => {
                   </motion.div>
                 </div>
 
-                {/* ===== INFO CARDS ROW (Wallet, Prescriptions, Lab Reports, Favorites) ===== */}
+                {/* ===== INFO CARDS ROW ===== */}
                 <div className="px-5">
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                     <div className="grid grid-cols-4 gap-2.5">
                       {[
                         { label: "Wallet Balance", value: `₹${walletBalance.toLocaleString()}`, icon: Wallet, iconBg: "bg-[hsl(38,80%,92%)]", iconColor: "text-[hsl(38,80%,45%)]", path: "/wallet" },
-                        { label: "My Prescriptions", value: `${prescriptionCount} Saved`, icon: FileText, iconBg: "bg-[hsl(220,70%,92%)]", iconColor: "text-[hsl(220,70%,50%)]", path: "/medical-history" },
-                        { label: "Lab Reports", value: `${labReportCount} Reports`, icon: Microscope, iconBg: "bg-[hsl(200,70%,92%)]", iconColor: "text-[hsl(200,70%,45%)]", path: "/lab-reports" },
+                        { label: "My Prescriptions", value: `${prescriptionCount} Saved`, icon: FileText, iconBg: "bg-[hsl(215,60%,92%)]", iconColor: "text-primary", path: "/medical-history" },
+                        { label: "Lab Reports", value: `${labReportCount} Reports`, icon: Microscope, iconBg: "bg-[hsl(200,65%,90%)]", iconColor: "text-[hsl(200,65%,40%)]", path: "/lab-reports" },
                         { label: "Favorites", value: `${favoritesCount} Saved`, icon: Heart, iconBg: "bg-[hsl(0,70%,92%)]", iconColor: "text-[hsl(0,70%,50%)]", path: "/favorites" },
                       ].map((card) => (
                         <motion.button
@@ -426,7 +426,7 @@ const Dashboard = () => {
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
                       <div className="flex items-center justify-between mb-3">
                         <h2 className="text-lg font-bold text-foreground">Popular Doctors</h2>
-                        <button onClick={() => navigate("/doctors")} className="text-[hsl(220,60%,50%)] font-bold text-sm flex items-center">
+                        <button onClick={() => navigate("/doctors")} className="text-primary font-bold text-sm flex items-center">
                           <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
                         </button>
                       </div>
@@ -440,7 +440,7 @@ const Dashboard = () => {
                             onClick={() => navigate(`/doctor/${doc.id}`)}
                             className="flex-shrink-0 w-[150px] bg-card rounded-2xl border border-border p-3 text-center snap-start shadow-sm"
                           >
-                            <div className="w-14 h-14 rounded-full bg-[hsl(210,20%,96%)] dark:bg-muted flex items-center justify-center mx-auto mb-2 overflow-hidden">
+                            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-2 overflow-hidden">
                               {doc.image_url ? (
                                 <img src={doc.image_url} alt={doc.name} className="w-14 h-14 rounded-full object-cover" />
                               ) : (
@@ -459,7 +459,6 @@ const Dashboard = () => {
                           </motion.button>
                         ))}
                       </div>
-                      {/* Dots indicator */}
                       <div className="flex items-center justify-center gap-1.5 mt-1">
                         <div className="w-6 h-1.5 rounded-full bg-primary" />
                         <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
@@ -477,7 +476,7 @@ const Dashboard = () => {
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }}>
                       <div className="flex items-center justify-between mb-3">
                         <h2 className="text-lg font-bold text-foreground">Popular Hospitals</h2>
-                        <button onClick={() => navigate("/hospitals")} className="text-[hsl(220,60%,50%)] font-bold text-sm flex items-center">
+                        <button onClick={() => navigate("/hospitals")} className="text-primary font-bold text-sm flex items-center">
                           <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
                         </button>
                       </div>
@@ -508,7 +507,7 @@ const Dashboard = () => {
                                 )}
                                 <button
                                   onClick={(e) => { e.stopPropagation(); navigate(`/hospital/${hosp.id}`); }}
-                                  className="text-[11px] font-bold text-white bg-[hsl(220,60%,50%)] px-3 py-1.5 rounded-full shadow-sm"
+                                  className="text-[11px] font-bold text-white bg-primary px-3 py-1.5 rounded-full shadow-sm"
                                 >
                                   View Details &gt;
                                 </button>
@@ -534,7 +533,7 @@ const Dashboard = () => {
                     <div className="grid grid-cols-2 gap-3">
                       {/* Find Doctors */}
                       <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/doctors")}
-                        className="bg-gradient-to-br from-[hsl(220,75%,55%)] to-[hsl(220,70%,45%)] rounded-2xl p-4 text-left relative overflow-hidden shadow-md"
+                        className="bg-gradient-to-br from-[hsl(215,70%,50%)] to-[hsl(215,65%,40%)] rounded-2xl p-4 text-left relative overflow-hidden shadow-md"
                         style={{ minHeight: 130 }}>
                         <p className="text-white font-bold text-base">Find Doctors</p>
                         <p className="text-white/80 text-xs mt-0.5">400+ Available</p>
@@ -543,7 +542,7 @@ const Dashboard = () => {
 
                       {/* Ambulance Service */}
                       <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/emergency")}
-                        className="bg-gradient-to-br from-[hsl(210,20%,96%)] to-[hsl(205,30%,94%)] dark:from-[hsl(210,20%,16%)] dark:to-[hsl(205,20%,14%)] rounded-2xl p-4 text-left relative overflow-hidden border border-border shadow-sm"
+                        className="bg-gradient-to-br from-muted to-[hsl(205,30%,94%)] dark:from-[hsl(210,20%,16%)] dark:to-[hsl(205,20%,14%)] rounded-2xl p-4 text-left relative overflow-hidden border border-border shadow-sm"
                         style={{ minHeight: 130 }}>
                         <p className="text-foreground font-bold text-base">Ambulance Service</p>
                         <p className="text-muted-foreground text-xs mt-0.5">10 min Guaranteed</p>
@@ -553,7 +552,7 @@ const Dashboard = () => {
 
                       {/* Medicine Delivery */}
                       <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/pharmacies")}
-                        className="bg-gradient-to-br from-[hsl(152,60%,42%)] to-[hsl(152,55%,35%)] rounded-2xl p-4 text-left relative overflow-hidden shadow-md"
+                        className="bg-gradient-to-br from-[hsl(152,55%,40%)] to-[hsl(152,50%,32%)] rounded-2xl p-4 text-left relative overflow-hidden shadow-md"
                         style={{ minHeight: 130 }}>
                         <p className="text-white font-bold text-base">Medicine Delivery</p>
                         <p className="text-white/80 text-xs mt-0.5">Fast Home Delivery</p>
@@ -673,7 +672,7 @@ const Dashboard = () => {
                               className="flex-shrink-0 w-36 bg-card rounded-2xl border border-border p-3 text-left snap-start shadow-sm"
                             >
                               <div className="w-10 h-10 rounded-xl bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] flex items-center justify-center mb-2">
-                                <Pill className="w-5 h-5 text-[hsl(152,60%,42%)]" />
+                                <Pill className="w-5 h-5 text-[hsl(152,55%,40%)]" />
                               </div>
                               <h4 className="font-bold text-xs truncate text-foreground">{med.name}</h4>
                               <p className="text-[10px] text-muted-foreground truncate">{med.pharmacy_name || med.category}</p>
@@ -718,6 +717,11 @@ const Dashboard = () => {
                     </motion.div>
                   </div>
                 )}
+
+                {/* ===== RECENT ACTIVITY ===== */}
+                <div className="px-5">
+                  <RecentActivityFeed />
+                </div>
 
                 {/* ===== HEALTH TIPS ===== */}
                 <div className="px-5">
