@@ -81,15 +81,15 @@ export default function HospitalDashboard() {
   }
 
   const kpiCards = [
-    { label: "Today's Appointments", value: stats.todayAppointments, icon: CalendarCheck, color: "text-primary", bg: "from-primary/5 to-primary/10" },
-    { label: "Upcoming Appointments", value: stats.upcomingAppointments, icon: Activity, color: "text-blue-500", bg: "from-blue-500/5 to-blue-500/10" },
-    { label: "Active Emergencies", value: stats.activeEmergencies, icon: Siren, color: "text-destructive", bg: "from-destructive/5 to-destructive/10" },
-    { label: "Emergencies Today", value: stats.totalEmergenciesToday, icon: Siren, color: "text-amber-500", bg: "from-amber-500/5 to-amber-500/10" },
-    { label: "Available Beds", value: `${stats.availableBeds}/${stats.totalBeds}`, icon: BedDouble, color: "text-primary", bg: "from-primary/5 to-primary/10" },
-    { label: "ICU Available", value: `${stats.availableIcu}/${stats.totalIcu}`, icon: Heart, color: "text-destructive", bg: "from-destructive/5 to-destructive/10" },
-    { label: "Doctors", value: stats.doctors, icon: Stethoscope, color: "text-emerald-600", bg: "from-emerald-500/5 to-emerald-500/10" },
-    { label: "Departments", value: stats.departments, icon: Building, color: "text-violet-500", bg: "from-violet-500/5 to-violet-500/10" },
-    { label: "Ambulance Fleet", value: `${stats.ambulanceAvailable}/${stats.ambulanceFleet}`, icon: Ambulance, color: "text-blue-500", bg: "from-blue-500/5 to-blue-500/10" },
+    { label: "Today's Appointments", value: stats.todayAppointments, icon: CalendarCheck, color: "text-primary", bg: "from-primary/5 to-primary/10", path: "/hospital/appointments" },
+    { label: "Upcoming Appointments", value: stats.upcomingAppointments, icon: Activity, color: "text-blue-500", bg: "from-blue-500/5 to-blue-500/10", path: "/hospital/appointments" },
+    { label: "Active Emergencies", value: stats.activeEmergencies, icon: Siren, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", path: "/hospital/emergencies" },
+    { label: "Emergencies Today", value: stats.totalEmergenciesToday, icon: Siren, color: "text-amber-500", bg: "from-amber-500/5 to-amber-500/10", path: "/hospital/emergencies" },
+    { label: "Available Beds", value: `${stats.availableBeds}/${stats.totalBeds}`, icon: BedDouble, color: "text-primary", bg: "from-primary/5 to-primary/10", path: "/hospital/beds" },
+    { label: "ICU Available", value: `${stats.availableIcu}/${stats.totalIcu}`, icon: Heart, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", path: "/hospital/beds" },
+    { label: "Doctors", value: stats.doctors, icon: Stethoscope, color: "text-emerald-600", bg: "from-emerald-500/5 to-emerald-500/10", path: "/hospital/doctors" },
+    { label: "Departments", value: stats.departments, icon: Building, color: "text-violet-500", bg: "from-violet-500/5 to-violet-500/10", path: "/hospital/departments" },
+    { label: "Ambulance Fleet", value: `${stats.ambulanceAvailable}/${stats.ambulanceFleet}`, icon: Ambulance, color: "text-blue-500", bg: "from-blue-500/5 to-blue-500/10", path: "/hospital/ambulance-fleet" },
   ];
 
   const quickLinks = [
@@ -121,7 +121,7 @@ export default function HospitalDashboard() {
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {kpiCards.map(c => (
-          <Card key={c.label} className={`p-4 bg-gradient-to-br ${c.bg} border-0`}>
+          <Card key={c.label} className={`p-4 bg-gradient-to-br ${c.bg} border-0 cursor-pointer hover:shadow-md transition-shadow`} onClick={() => navigate(c.path)}>
             <c.icon className={`w-5 h-5 ${c.color} mb-1`} />
             <p className="text-2xl font-bold text-foreground">{c.value}</p>
             <p className="text-xs text-muted-foreground">{c.label}</p>
@@ -130,7 +130,7 @@ export default function HospitalDashboard() {
       </div>
 
       {/* Revenue Summary */}
-      <Card className="p-5">
+      <Card className="p-5 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate("/hospital/earnings")}>
         <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
           <IndianRupee className="w-5 h-5 text-primary" /> Revenue Summary
         </h3>

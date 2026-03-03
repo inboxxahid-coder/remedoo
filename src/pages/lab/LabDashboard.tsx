@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { CalendarCheck, Clock, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function LabDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ total: 0, pending: 0, completed: 0 });
 
   useEffect(() => {
@@ -25,9 +27,9 @@ export default function LabDashboard() {
   }, []);
 
   const cards = [
-    { label: "Total Tests", value: stats.total, icon: CalendarCheck, color: "text-primary" },
-    { label: "Pending", value: stats.pending, icon: Clock, color: "text-warning" },
-    { label: "Completed", value: stats.completed, icon: CheckCircle, color: "text-success" },
+    { label: "Total Tests", value: stats.total, icon: CalendarCheck, color: "text-primary", path: "/lab/appointments" },
+    { label: "Pending", value: stats.pending, icon: Clock, color: "text-warning", path: "/lab/appointments" },
+    { label: "Completed", value: stats.completed, icon: CheckCircle, color: "text-success", path: "/lab/appointments" },
   ];
 
   return (
@@ -35,7 +37,7 @@ export default function LabDashboard() {
       <h1 className="text-2xl font-bold text-foreground mb-6">Lab Dashboard</h1>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {cards.map(c => (
-          <Card key={c.label} className="p-4">
+          <Card key={c.label} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(c.path)}>
             <c.icon className={`w-6 h-6 ${c.color} mb-2`} />
             <p className="text-2xl font-bold text-foreground">{c.value}</p>
             <p className="text-xs text-muted-foreground">{c.label}</p>
