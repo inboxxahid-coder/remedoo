@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 import { isUUID, validationError } from "../_shared/validate.ts";
+import { hashOtp } from "../_shared/otp-hash.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -53,7 +54,6 @@ Deno.serve(async (req) => {
 
     const { appointment_id } = body as Record<string, unknown>;
 
-    // Validate UUID format
     if (!isUUID(appointment_id)) {
       return validationError("appointment_id must be a valid UUID", corsHeaders);
     }
@@ -96,6 +96,7 @@ Deno.serve(async (req) => {
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = await hashOtp(otp);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     // Get user profile for contact info
@@ -124,7 +125,7 @@ Deno.serve(async (req) => {
       if (twilioSid && twilioToken && twilioPhone) {
         try {
           const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-          const body = new URLSearchParams({
+          const smsBody = new URLSearchParams({
             To: phone,
             From: twilioPhone,
             Body: `Your appointment cancellation OTP is: ${otp}. Valid for 5 minutes.`,
@@ -136,7 +137,7 @@ Deno.serve(async (req) => {
               Authorization: "Basic " + btoa(`${twilioSid}:${twilioToken}`),
               "Content-Type": "application/x-www-form-urlencoded",
             },
-            body,
+            body: smsBody,
           });
           channelsUsed.push("sms");
         } catch (e) {
@@ -153,7 +154,7 @@ Deno.serve(async (req) => {
       if (twilioSid && twilioToken && twilioWhatsapp) {
         try {
           const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-          const body = new URLSearchParams({
+          const waBody = new URLSearchParams({
             To: `whatsapp:${phone}`,
             From: `whatsapp:${twilioWhatsapp}`,
             Body: `Your appointment cancellation OTP is: ${otp}. Valid for 5 minutes.`,
@@ -165,7 +166,7 @@ Deno.serve(async (req) => {
               Authorization: "Basic " + btoa(`${twilioSid}:${twilioToken}`),
               "Content-Type": "application/x-www-form-urlencoded",
             },
-            body,
+            body: waBody,
           });
           channelsUsed.push("whatsapp");
         } catch (e) {
@@ -174,11 +175,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Store OTP
+    // Store hashed OTP
     await supabaseAdmin.from("cancellation_otps").insert({
       appointment_id,
       user_id: userId,
-      otp_code: otp,
+      otp_code: otpHash,
       channels_used: channelsUsed,
       expires_at: expiresAt,
     });

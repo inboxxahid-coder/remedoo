@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 import { isUUID, isString, validationError } from "../_shared/validate.ts";
+import { hashOtp } from "../_shared/otp-hash.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -46,7 +47,6 @@ Deno.serve(async (req) => {
 
     const { appointment_id, otp_code } = body as Record<string, unknown>;
 
-    // Validate inputs
     if (!isUUID(appointment_id)) {
       return validationError("appointment_id must be a valid UUID", corsHeaders);
     }
@@ -54,13 +54,16 @@ Deno.serve(async (req) => {
       return validationError("otp_code must be a 6-digit number", corsHeaders);
     }
 
-    // Find valid OTP
+    // Hash the user-provided OTP to compare against stored hash
+    const otpHash = await hashOtp(otp_code as string);
+
+    // Find valid OTP by comparing hashes
     const { data: otpRecord } = await supabaseAdmin
       .from("cancellation_otps")
       .select("*")
       .eq("appointment_id", appointment_id)
       .eq("user_id", userId)
-      .eq("otp_code", otp_code)
+      .eq("otp_code", otpHash)
       .eq("verified", false)
       .gte("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
