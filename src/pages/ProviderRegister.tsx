@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Heart, Mail, Lock, User, Eye, EyeOff, Stethoscope, Building2, FlaskConical, Store, Phone, MapPin, FileText, Upload, Camera, X } from "lucide-react";
+import LocationPicker from "@/components/provider/LocationPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,6 +91,8 @@ const ProviderRegister = () => {
   const [location, setLocation] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [bio, setBio] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
 
   // Document fields (all providers)
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
@@ -219,9 +222,10 @@ const ProviderRegister = () => {
     if (selectedType === "doctor") {
       providerData.specialization = specialization;
       providerData.bio = bio;
-    } else {
-      providerData.location = location;
     }
+    providerData.location = location;
+    if (latitude) providerData.latitude = Number(latitude);
+    if (longitude) providerData.longitude = Number(longitude);
 
     // 5. Insert provider record
     let providerError: any = null;
@@ -367,7 +371,7 @@ const ProviderRegister = () => {
                 </div>
               </div>
 
-              {selectedType === "doctor" ? (
+              {selectedType === "doctor" && (
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="specialization">Specialization</Label>
@@ -381,15 +385,17 @@ const ProviderRegister = () => {
                     <Textarea id="bio" placeholder="Brief description of your practice..." value={bio} onChange={(e) => setBio(e.target.value)} rows={3} />
                   </div>
                 </>
-              ) : (
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location / Address</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Input id="location" placeholder="City, Area" value={location} onChange={(e) => setLocation(e.target.value)} className="pl-10" required />
-                  </div>
-                </div>
               )}
+
+              {/* Location picker with GPS + Map for all provider types */}
+              <LocationPicker
+                latitude={latitude}
+                longitude={longitude}
+                locationText={location}
+                onLatitudeChange={setLatitude}
+                onLongitudeChange={setLongitude}
+                onLocationTextChange={setLocation}
+              />
 
               {/* Document Uploads Section */}
               <div className="border-t border-border pt-4 mt-4" />
