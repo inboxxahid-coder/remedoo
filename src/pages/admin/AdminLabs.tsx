@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminCrudTable, { ColumnDef } from "@/components/admin/AdminCrudTable";
+import AdminProviderAddForm from "@/components/admin/AdminProviderAddForm";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 const columns: ColumnDef[] = [
   { key: "name", label: "Name", editable: true },
@@ -13,6 +16,7 @@ const columns: ColumnDef[] = [
 export default function AdminLabs() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addOpen, setAddOpen] = useState(false);
 
   const fetch = async () => {
     setLoading(true);
@@ -24,14 +28,22 @@ export default function AdminLabs() {
   useEffect(() => { fetch(); }, []);
 
   return (
-    <AdminCrudTable
-      title="Labs"
-      data={data}
-      columns={columns}
-      loading={loading}
-      onAdd={async (item) => { const { error } = await supabase.from("labs").insert([item] as any); if (error) throw error; fetch(); }}
-      onUpdate={async (id, item) => { const { error } = await supabase.from("labs").update(item).eq("id", id); if (error) throw error; fetch(); }}
-      onDelete={async (id) => { const { error } = await supabase.from("labs").delete().eq("id", id); if (error) throw error; fetch(); }}
-    />
+    <>
+      <AdminCrudTable
+        title="Labs"
+        data={data}
+        columns={columns}
+        loading={loading}
+        customAddButton={
+          <Button onClick={() => setAddOpen(true)} size="sm" className="gap-2">
+            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add New</span><span className="sm:hidden">Add</span>
+          </Button>
+        }
+        onAdd={async () => {}}
+        onUpdate={async (id, item) => { const { error } = await supabase.from("labs").update(item).eq("id", id); if (error) throw error; fetch(); }}
+        onDelete={async (id) => { const { error } = await supabase.from("labs").delete().eq("id", id); if (error) throw error; fetch(); }}
+      />
+      <AdminProviderAddForm type="lab" open={addOpen} onOpenChange={setAddOpen} onSuccess={fetch} />
+    </>
   );
 }

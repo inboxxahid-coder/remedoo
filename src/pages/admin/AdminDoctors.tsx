@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminCrudTable, { ColumnDef } from "@/components/admin/AdminCrudTable";
+import AdminProviderAddForm from "@/components/admin/AdminProviderAddForm";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -14,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Trash2, ShieldAlert, Lock } from "lucide-react";
+import { Trash2, ShieldAlert, Lock, Plus } from "lucide-react";
 
 const columns: ColumnDef[] = [
   { key: "name", label: "Name", editable: true },
@@ -29,6 +30,7 @@ const columns: ColumnDef[] = [
 export default function AdminDoctors() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addOpen, setAddOpen] = useState(false);
 
   // Delete confirmation state
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
@@ -125,10 +127,17 @@ export default function AdminDoctors() {
         data={data}
         columns={columns}
         loading={loading}
-        onAdd={async (item) => { const { error } = await supabase.from("doctors").insert([item] as any); if (error) throw error; fetchData(); }}
+        customAddButton={
+          <Button onClick={() => setAddOpen(true)} size="sm" className="gap-2">
+            <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Add New</span><span className="sm:hidden">Add</span>
+          </Button>
+        }
+        onAdd={async () => {}}
         onUpdate={async (id, item) => { const { error } = await supabase.from("doctors").update(item).eq("id", id); if (error) throw error; fetchData(); }}
         onDelete={startDelete}
       />
+
+      <AdminProviderAddForm type="doctor" open={addOpen} onOpenChange={setAddOpen} onSuccess={fetchData} />
 
       {/* Secure Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) handleCancel(); }}>
