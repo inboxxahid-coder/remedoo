@@ -1,12 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Building2, FlaskConical, Store, Wallet } from "lucide-react";
+import { Home, Building2, FlaskConical, Store, ShoppingCart } from "lucide-react";
 
 const tabs = [
   { icon: Home, label: "Home", path: "/dashboard" },
   { icon: Building2, label: "Hospitals", path: "/hospitals" },
   { icon: FlaskConical, label: "Labs", path: "/labs" },
   { icon: Store, label: "Pharmacy", path: "/pharmacies" },
-  { icon: Wallet, label: "Wallet", path: "/wallet" },
+  { icon: ShoppingCart, label: "Cart", path: "/my-orders" },
 ];
 
 const BottomNav = () => {
