@@ -464,6 +464,59 @@ const Dashboard = () => {
                   </div>
                 )}
 
+                {/* ===== POPULAR MEDICINES ===== */}
+                {popularMedicines.length > 0 && (
+                  <div className="px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-bold text-foreground">Popular Medicines</h2>
+                        <button onClick={() => navigate("/pharmacies")} className="text-primary font-bold text-sm flex items-center">
+                          <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
+                        </button>
+                      </div>
+                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
+                        {popularMedicines.map((med, idx) => {
+                          const discountedPrice = med.discount_percent ? med.price * (1 - med.discount_percent / 100) : null;
+                          return (
+                            <motion.button
+                              key={med.id}
+                              initial={{ opacity: 0, y: 15 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.4 + idx * 0.06 }}
+                              onClick={() => navigate(`/pharmacy/${med.pharmacy_id}`)}
+                              className="flex-shrink-0 w-[140px] bg-card rounded-2xl border border-border p-3 text-center snap-start shadow-sm relative"
+                            >
+                              {med.discount_percent && med.discount_percent > 0 && (
+                                <span className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                                  {med.discount_percent}% OFF
+                                </span>
+                              )}
+                              <div className="w-12 h-12 rounded-xl bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] flex items-center justify-center mx-auto mb-2">
+                                {med.image_url ? (
+                                  <img src={med.image_url} alt={med.name} className="w-10 h-10 rounded-lg object-cover" loading="lazy" />
+                                ) : (
+                                  <Pill className="w-5 h-5 text-[hsl(152,55%,40%)]" />
+                                )}
+                              </div>
+                              <h4 className="font-bold text-xs truncate text-foreground">{med.name}</h4>
+                              <p className="text-[10px] text-muted-foreground truncate">{med.category}</p>
+                              <div className="flex items-center justify-center gap-1 mt-1.5">
+                                <span className="text-xs font-bold text-foreground">₹{discountedPrice ? discountedPrice.toFixed(0) : med.price}</span>
+                                {discountedPrice && (
+                                  <span className="text-[10px] text-muted-foreground line-through">₹{med.price}</span>
+                                )}
+                              </div>
+                              {med.pharmacy_name && (
+                                <p className="text-[9px] text-muted-foreground mt-1 truncate">{med.pharmacy_name}</p>
+                              )}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+
                 {/* ===== POPULAR HOSPITALS ===== */}
                 {popularHospitals.length > 0 && (
                   <div className="px-5">
