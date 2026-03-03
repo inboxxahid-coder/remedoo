@@ -103,10 +103,10 @@ export default function DoctorDashboard() {
   }
 
   const statCards = [
-    { label: "Today", value: stats.todayCount, icon: CalendarCheck, color: "text-primary", bg: "bg-primary/10" },
-    { label: "Upcoming", value: stats.upcomingCount, icon: Calendar, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Pending", value: stats.pending, icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { label: "Completed", value: stats.completed, icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { label: "Today", value: stats.todayCount, icon: CalendarCheck, color: "text-primary", bg: "bg-primary/10", path: "/doctor/appointments" },
+    { label: "Upcoming", value: stats.upcomingCount, icon: Calendar, color: "text-blue-500", bg: "bg-blue-500/10", path: "/doctor/appointments" },
+    { label: "Pending", value: stats.pending, icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10", path: "/doctor/appointments" },
+    { label: "Completed", value: stats.completed, icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10", path: "/doctor/appointments" },
   ];
 
   const quickNav = [
@@ -151,7 +151,7 @@ export default function DoctorDashboard() {
       {/* Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statCards.map(c => (
-          <Card key={c.label} className="p-4 hover:shadow-md transition-shadow">
+          <Card key={c.label} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(c.path)}>
             <div className={`w-10 h-10 rounded-xl ${c.bg} flex items-center justify-center mb-3`}>
               <c.icon className={`w-5 h-5 ${c.color}`} />
             </div>
@@ -163,7 +163,7 @@ export default function DoctorDashboard() {
 
       {/* Revenue Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-5 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+        <Card className="p-5 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate("/doctor/earnings")}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center">
               <IndianRupee className="w-6 h-6 text-primary" />
@@ -174,7 +174,7 @@ export default function DoctorDashboard() {
             </div>
           </div>
         </Card>
-        <Card className="p-5 bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 border-emerald-500/20">
+        <Card className="p-5 bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 border-emerald-500/20 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate("/doctor/earnings")}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-emerald-500" />

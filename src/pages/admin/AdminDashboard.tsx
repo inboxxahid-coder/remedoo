@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Stethoscope, Building2, ShoppingBag, CalendarCheck, Store, AlertTriangle, IndianRupee, FlaskConical, Clock } from "lucide-react";
 
@@ -8,9 +9,11 @@ interface StatCard {
   icon: React.ElementType;
   color: string;
   subtitle?: string;
+  path?: string;
 }
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<StatCard[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,16 +48,16 @@ export default function AdminDashboard() {
       const totalPending = (pendingDoctors.count ?? 0) + (pendingHospitals.count ?? 0) + (pendingLabs.count ?? 0) + (pendingPharmacies.count ?? 0);
 
       setStats([
-        { label: "Total Users", value: profiles.count ?? 0, icon: Users, color: "bg-primary/10 text-primary" },
-        { label: "Doctors", value: doctors.count ?? 0, icon: Stethoscope, color: "bg-emerald-500/10 text-emerald-600" },
-        { label: "Hospitals", value: hospitals.count ?? 0, icon: Building2, color: "bg-blue-500/10 text-blue-600" },
-        { label: "Labs", value: labs.count ?? 0, icon: FlaskConical, color: "bg-violet-500/10 text-violet-600" },
-        { label: "Pharmacies", value: pharmacies.count ?? 0, icon: Store, color: "bg-amber-500/10 text-amber-600" },
-        { label: "Appointments Today", value: todayAppts.count ?? 0, icon: CalendarCheck, color: "bg-primary/10 text-primary", subtitle: `${monthAppts.count ?? 0} this month` },
-        { label: "Total Orders", value: orders.count ?? 0, icon: ShoppingBag, color: "bg-rose-500/10 text-rose-600" },
-        { label: "Emergency Requests", value: emergencies.count ?? 0, icon: AlertTriangle, color: "bg-red-500/10 text-red-600" },
-        { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: IndianRupee, color: "bg-emerald-500/10 text-emerald-600" },
-        { label: "Pending Approvals", value: totalPending, icon: Clock, color: "bg-orange-500/10 text-orange-600", subtitle: `${pendingDoctors.count ?? 0}D / ${pendingHospitals.count ?? 0}H / ${pendingLabs.count ?? 0}L / ${pendingPharmacies.count ?? 0}P` },
+        { label: "Total Users", value: profiles.count ?? 0, icon: Users, color: "bg-primary/10 text-primary", path: "/admin/users" },
+        { label: "Doctors", value: doctors.count ?? 0, icon: Stethoscope, color: "bg-emerald-500/10 text-emerald-600", path: "/admin/doctors" },
+        { label: "Hospitals", value: hospitals.count ?? 0, icon: Building2, color: "bg-blue-500/10 text-blue-600", path: "/admin/hospitals" },
+        { label: "Labs", value: labs.count ?? 0, icon: FlaskConical, color: "bg-violet-500/10 text-violet-600", path: "/admin/labs" },
+        { label: "Pharmacies", value: pharmacies.count ?? 0, icon: Store, color: "bg-amber-500/10 text-amber-600", path: "/admin/pharmacies" },
+        { label: "Appointments Today", value: todayAppts.count ?? 0, icon: CalendarCheck, color: "bg-primary/10 text-primary", subtitle: `${monthAppts.count ?? 0} this month`, path: "/admin/appointments" },
+        { label: "Total Orders", value: orders.count ?? 0, icon: ShoppingBag, color: "bg-rose-500/10 text-rose-600", path: "/admin/orders" },
+        { label: "Emergency Requests", value: emergencies.count ?? 0, icon: AlertTriangle, color: "bg-red-500/10 text-red-600", path: "/admin/emergencies" },
+        { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: IndianRupee, color: "bg-emerald-500/10 text-emerald-600", path: "/admin/revenue" },
+        { label: "Pending Approvals", value: totalPending, icon: Clock, color: "bg-orange-500/10 text-orange-600", subtitle: `${pendingDoctors.count ?? 0}D / ${pendingHospitals.count ?? 0}H / ${pendingLabs.count ?? 0}L / ${pendingPharmacies.count ?? 0}P`, path: "/admin/approvals" },
       ]);
       setLoading(false);
     };
@@ -87,7 +90,11 @@ export default function AdminDashboard() {
       <h1 className="text-2xl font-bold text-foreground mb-6">Dashboard Overview</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div
+            key={stat.label}
+            className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => stat.path && navigate(stat.path)}
+          >
             <div className="flex items-center gap-4">
               <div className={`w-12 h-12 rounded-xl ${stat.color} flex items-center justify-center`}>
                 <stat.icon className="w-6 h-6" />
