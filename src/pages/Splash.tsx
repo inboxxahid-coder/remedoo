@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Shield, Activity } from "lucide-react";
+import remedooIcon from "@/assets/remedoo-icon.png";
 
 const Splash = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const Splash = () => {
     const t3 = setTimeout(() => {
       const hasOnboarded = localStorage.getItem("remedoo_onboarded");
       navigate(hasOnboarded ? "/login" : "/onboarding", { replace: true });
-    }, 2400);
+    }, 2800);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [navigate]);
 
@@ -66,23 +67,44 @@ const Splash = () => {
       </motion.div>
 
       {/* Logo & text */}
-      <div className="flex flex-col items-center gap-4 z-10">
+      <div className="flex flex-col items-center gap-5 z-10">
+        {/* Animated logo image */}
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: phase >= 0 ? 1 : 0, rotate: 0 }}
           transition={{ type: "spring", stiffness: 200, damping: 15, duration: 0.6 }}
-          className="w-20 h-20 rounded-2xl bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center border border-primary-foreground/30"
+          className="w-24 h-24 rounded-3xl bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl border border-white/40"
         >
-          <Heart className="w-10 h-10 text-primary-foreground" fill="currentColor" />
+          <motion.img
+            src={remedooIcon}
+            alt="Remedoo"
+            className="w-20 h-20 object-contain"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+          />
         </motion.div>
-        <motion.h1
+
+        {/* Animated brand name with letter-by-letter reveal */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: phase >= 1 ? 1 : 0, y: phase >= 1 ? 0 : 20 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl font-extrabold text-primary-foreground tracking-tight"
+          className="flex items-center"
         >
-          Remedoo
-        </motion.h1>
+          {"Remedoo".split("").map((letter, i) => (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: phase >= 1 ? 1 : 0, y: phase >= 1 ? 0 : 15 }}
+              transition={{ duration: 0.3, delay: 0.1 * i + 0.2 }}
+              className="text-4xl font-extrabold text-primary-foreground tracking-tight"
+            >
+              {letter}
+            </motion.span>
+          ))}
+        </motion.div>
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: phase >= 2 ? 1 : 0 }}
