@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Star, MapPin, Phone, Clock, Briefcase, Heart, IndianRupee, Calendar, Building2, MessageSquare } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Phone, Clock, Briefcase, Heart, IndianRupee, Calendar, Building2, MessageSquare, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -202,18 +202,28 @@ const DoctorDetail = () => {
               </p>
             )}
 
-            {/* Map */}
+            {/* Map & Directions */}
             {doctor.hospital_latitude && doctor.hospital_longitude && (
-              <div className="mt-3 rounded-xl overflow-hidden border border-border h-40">
-                <iframe
-                  title="Hospital Location"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${doctor.hospital_longitude - 0.01},${doctor.hospital_latitude - 0.01},${doctor.hospital_longitude + 0.01},${doctor.hospital_latitude + 0.01}&layer=mapnik&marker=${doctor.hospital_latitude},${doctor.hospital_longitude}`}
-                />
-              </div>
+              <>
+                <div className="mt-3 rounded-xl overflow-hidden border border-border h-40">
+                  <iframe
+                    title="Hospital Location"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${doctor.hospital_longitude - 0.01},${doctor.hospital_latitude - 0.01},${doctor.hospital_longitude + 0.01},${doctor.hospital_latitude + 0.01}&layer=mapnik&marker=${doctor.hospital_latitude},${doctor.hospital_longitude}`}
+                  />
+                </div>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.hospital_latitude},${doctor.hospital_longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 w-full h-9 rounded-xl text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/5 flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Navigation className="w-3.5 h-3.5" /> Get Directions
+                </a>
+              </>
             )}
           </motion.div>
         )}

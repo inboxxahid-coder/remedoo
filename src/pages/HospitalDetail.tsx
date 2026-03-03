@@ -259,6 +259,14 @@ const HospitalDetail = () => {
                 src={`https://www.openstreetmap.org/export/embed.html?bbox=${hospital.longitude - 0.01},${hospital.latitude - 0.01},${hospital.longitude + 0.01},${hospital.latitude + 0.01}&layer=mapnik&marker=${hospital.latitude},${hospital.longitude}`}
               />
             </div>
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 w-full h-9 rounded-xl text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/5 flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Navigation className="w-3.5 h-3.5" /> Get Directions
+            </a>
           </motion.div>
         )}
       </div>

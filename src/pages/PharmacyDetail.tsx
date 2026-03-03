@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package, Info } from "lucide-react";
+import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package, Info, Navigation } from "lucide-react";
 import MedicineDetailSheet from "@/components/patient/MedicineDetailSheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -122,6 +122,19 @@ const PharmacyDetail = () => {
           <Clock className="w-3 h-3" /><span>Delivery in 25-35 min</span>
           <span className="mx-1">•</span>
           <span>{medicines.length} items available</span>
+          {pharmacy.latitude && pharmacy.longitude && (
+            <>
+              <span className="mx-1">•</span>
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${pharmacy.latitude},${pharmacy.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-primary-foreground hover:text-primary-foreground/90 transition-colors"
+              >
+                <Navigation className="w-3 h-3" /> Directions
+              </a>
+            </>
+          )}
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
