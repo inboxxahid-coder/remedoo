@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -35,6 +36,12 @@ Deno.serve(async (req) => {
       });
     }
     const userId = claimsData.claims.sub as string;
+
+    // Rate limit: 3 OTP requests per hour per user
+    const allowed = await checkRateLimit(userId, "send-cancellation-otp", 3, 3600);
+    if (!allowed) {
+      return rateLimitResponse(corsHeaders);
+    }
 
     const { appointment_id } = await req.json();
     if (!appointment_id) {
@@ -82,7 +89,7 @@ Deno.serve(async (req) => {
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     // Get user profile for contact info
     const { data: profile } = await supabaseAdmin
@@ -97,10 +104,7 @@ Deno.serve(async (req) => {
 
     const channelsUsed: string[] = [];
 
-    // Send via enabled channels
     if (settings.email_enabled && email) {
-      // Use Supabase's built-in email (via edge function calling admin API)
-      // For now, we'll log. In production, integrate with an email service.
       console.log(`[OTP] Email to ${email}: Your cancellation OTP is ${otp}`);
       channelsUsed.push("email");
     }

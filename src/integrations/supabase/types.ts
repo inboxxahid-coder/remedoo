@@ -315,6 +315,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "appointments_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "appointments_hospital_id_fkey"
             columns: ["hospital_id"]
             isOneToOne: false
@@ -377,6 +384,13 @@ export type Database = {
             columns: ["doctor_id"]
             isOneToOne: false
             referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_logs_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors_public"
             referencedColumns: ["id"]
           },
         ]
@@ -505,6 +519,13 @@ export type Database = {
             columns: ["doctor_id"]
             isOneToOne: false
             referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultation_edit_requests_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors_public"
             referencedColumns: ["id"]
           },
         ]
@@ -657,6 +678,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "departments_head_doctor_id_fkey"
+            columns: ["head_doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "departments_hospital_id_fkey"
             columns: ["hospital_id"]
             isOneToOne: false
@@ -702,6 +730,13 @@ export type Database = {
             columns: ["doctor_id"]
             isOneToOne: false
             referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doctor_blocked_slots_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1940,6 +1975,13 @@ export type Database = {
             referencedRelation: "doctors"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "prescriptions_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -2089,6 +2131,30 @@ export type Database = {
           id?: string
           p256dh?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          endpoint: string
+          id: string
+          request_count: number
+          user_key: string
+          window_start: string
+        }
+        Insert: {
+          endpoint: string
+          id?: string
+          request_count?: number
+          user_key: string
+          window_start?: string
+        }
+        Update: {
+          endpoint?: string
+          id?: string
+          request_count?: number
+          user_key?: string
+          window_start?: string
         }
         Relationships: []
       }
@@ -2339,9 +2405,102 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      doctors_public: {
+        Row: {
+          account_status: string | null
+          approval_status: string | null
+          bio: string | null
+          consultation_duration: number | null
+          consultation_fee: number | null
+          created_at: string | null
+          department_id: string | null
+          emergency_available: boolean | null
+          experience_years: number | null
+          featured_sort_order: number | null
+          hospital_id: string | null
+          id: string | null
+          image_url: string | null
+          is_featured: boolean | null
+          max_appointments_per_day: number | null
+          name: string | null
+          rating: number | null
+          specialization: string | null
+          vacation_dates: string[] | null
+          working_hours: Json | null
+        }
+        Insert: {
+          account_status?: string | null
+          approval_status?: string | null
+          bio?: string | null
+          consultation_duration?: number | null
+          consultation_fee?: number | null
+          created_at?: string | null
+          department_id?: string | null
+          emergency_available?: boolean | null
+          experience_years?: number | null
+          featured_sort_order?: number | null
+          hospital_id?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_featured?: boolean | null
+          max_appointments_per_day?: number | null
+          name?: string | null
+          rating?: number | null
+          specialization?: string | null
+          vacation_dates?: string[] | null
+          working_hours?: Json | null
+        }
+        Update: {
+          account_status?: string | null
+          approval_status?: string | null
+          bio?: string | null
+          consultation_duration?: number | null
+          consultation_fee?: number | null
+          created_at?: string | null
+          department_id?: string | null
+          emergency_available?: boolean | null
+          experience_years?: number | null
+          featured_sort_order?: number | null
+          hospital_id?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_featured?: boolean | null
+          max_appointments_per_day?: number | null
+          name?: string | null
+          rating?: number | null
+          specialization?: string | null
+          vacation_dates?: string[] | null
+          working_hours?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctors_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doctors_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          _endpoint: string
+          _max_requests: number
+          _user_key: string
+          _window_seconds: number
+        }
+        Returns: boolean
+      }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
