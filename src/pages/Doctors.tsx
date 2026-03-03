@@ -93,6 +93,11 @@ const Doctors = () => {
               <Navigation className="w-3 h-3" />Nearby
             </span>
           )}
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Search by name or specialization..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card border-0 shadow-lg h-11 rounded-xl" />
+        </div>
       </div>
 
       <div className="px-5 mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -109,11 +114,6 @@ const Doctors = () => {
             {spec}
           </button>
         ))}
-      </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search by name or specialization..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card border-0 shadow-lg h-11 rounded-xl" />
-        </div>
       </div>
 
       <div className="px-5 mt-4 space-y-3">
