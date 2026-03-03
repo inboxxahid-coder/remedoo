@@ -134,7 +134,7 @@ export default function LabReports() {
             const cfg = statusConfig[report.status] || statusConfig.scheduled;
             const StatusIcon = cfg.icon;
             return (
-              <div key={report.id} className="bg-card rounded-2xl border border-border shadow-sm p-4">
+              <div key={report.id} onClick={() => navigate(`/lab-report/${report.id}`)} className="bg-card rounded-2xl border border-border shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-3">
                   <div className={`w-10 h-10 rounded-xl ${cfg.bg} flex items-center justify-center shrink-0`}>
                     <StatusIcon className={`w-5 h-5 ${cfg.color}`} />
@@ -173,7 +173,11 @@ export default function LabReports() {
                         size="sm"
                         variant="outline"
                         className="mt-3 gap-1.5 h-8 text-xs"
-                        onClick={() => window.open(report.report_url!, "_blank")}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const { data } = await supabase.storage.from("lab-reports").createSignedUrl(report.report_url!, 300);
+                          if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                        }}
                       >
                         <Download className="w-3.5 h-3.5" />
                         Download Report (v{report.report_version})

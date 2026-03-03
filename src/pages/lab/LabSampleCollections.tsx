@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  TestTube, MapPin, Clock, Phone, User, CheckCircle, Filter, Calendar
+  TestTube, MapPin, Clock, Phone, User, CheckCircle, Filter, Calendar, Upload, FileText
 } from "lucide-react";
 
 export default function LabSampleCollections() {
@@ -51,6 +51,44 @@ export default function LabSampleCollections() {
     setDialogOpen(false);
     setCollectorName("");
     setCollectorPhone("");
+  };
+
+  const [uploadingSampleId, setUploadingSampleId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadReport = async (sampleId: string, file: File) => {
+    const sample = samples.find(s => s.id === sampleId);
+    if (!sample) return;
+    
+    setUploadingSampleId(sampleId);
+    try {
+      const filePath = `${sample.patient_id}/${sampleId}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("lab-reports")
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("lab-reports")
+        .getPublicUrl(filePath);
+
+      // Store signed URL path for private bucket
+      const { error: updateError } = await supabase
+        .from("lab_sample_collections")
+        .update({ 
+          report_url: filePath,
+          report_version: (sample.report_version || 1) + (sample.report_url ? 1 : 0)
+        })
+        .eq("id", sampleId);
+      if (updateError) throw updateError;
+
+      toast.success("Report uploaded successfully");
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setUploadingSampleId(null);
+    }
   };
 
   const statusColor = (s: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -145,6 +183,42 @@ export default function LabSampleCollections() {
                   {s.status === "processing" && (
                     <Button size="sm" onClick={() => updateStatus(s.id, "completed")}>
                       Mark Complete
+                    </Button>
+                  )}
+                  {(s.status === "processing" || s.status === "completed") && (
+                    <>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        className="hidden"
+                        ref={fileInputRef}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file && uploadingSampleId) handleUploadReport(uploadingSampleId, file);
+                          e.target.value = "";
+                        }}
+                      />
+                      <Button
+                        size="sm"
+                        variant={s.report_url ? "outline" : "default"}
+                        disabled={uploadingSampleId === s.id}
+                        onClick={() => {
+                          setUploadingSampleId(s.id);
+                          fileInputRef.current?.click();
+                        }}
+                      >
+                        <Upload className="w-3.5 h-3.5 mr-1" />
+                        {uploadingSampleId === s.id ? "Uploading..." : s.report_url ? "Re-upload Report" : "Upload Report"}
+                      </Button>
+                    </>
+                  )}
+                  {s.report_url && (
+                    <Button size="sm" variant="ghost" onClick={async () => {
+                      const { data } = await supabase.storage.from("lab-reports").createSignedUrl(s.report_url, 300);
+                      if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                      else toast.error("Could not generate download link");
+                    }}>
+                      <FileText className="w-3.5 h-3.5 mr-1" /> View
                     </Button>
                   )}
                 </div>

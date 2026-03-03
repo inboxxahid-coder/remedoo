@@ -242,6 +242,22 @@ const MedicalHistory = () => {
                         <FileText className="w-3 h-3" /> Report pending upload
                       </p>
                     )}
+                    {/* View Details link */}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-xs text-primary mt-1 h-7 px-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (item.type === "lab_report" && item.id.startsWith("lab-")) {
+                          navigate(`/lab-report/${item.id.replace("lab-", "")}`);
+                        } else if (item.id.startsWith("apt-")) {
+                          navigate(`/appointment/${item.id.replace("apt-", "")}`);
+                        }
+                      }}
+                    >
+                      View Full Details →
+                    </Button>
                   </div>
                 )}
               </div>
