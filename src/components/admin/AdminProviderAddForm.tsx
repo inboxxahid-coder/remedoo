@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  Building2, Phone, MapPin, Stethoscope, FileText, Upload, X, Camera,
+  Building2, Phone, MapPin, Stethoscope, FileText, Upload, X, Camera, Mail, Lock,
 } from "lucide-react";
 
 type ProviderType = "doctor" | "hospital" | "lab" | "pharmacy";
@@ -79,6 +79,10 @@ interface AdminProviderAddFormProps {
 export default function AdminProviderAddForm({ type, open, onOpenChange, onSuccess }: AdminProviderAddFormProps) {
   const [loading, setLoading] = useState(false);
 
+  // Auth fields
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   // Provider fields
   const [providerName, setProviderName] = useState("");
   const [phone, setPhone] = useState("");
@@ -102,8 +106,9 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
   const [additionalDoc3, setAdditionalDoc3] = useState<File | null>(null);
 
   const resetForm = () => {
+    setEmail("");
+    setPassword("");
     setProviderName("");
-    setPhone("");
     setLocation("");
     setSpecialization("");
     setBio("");
@@ -137,8 +142,34 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
       toast.error("Name is required");
       return;
     }
+    if (!email.trim() || !password.trim()) {
+      toast.error("Email and password are required to create provider login");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
 
     setLoading(true);
+
+    // Create auth user via edge function
+    toast.info("Creating provider account...");
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+
+    const createUserRes = await supabase.functions.invoke("admin-create-user", {
+      body: { email: email.trim(), password },
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+
+    if (createUserRes.error || createUserRes.data?.error) {
+      toast.error(createUserRes.data?.error || createUserRes.error?.message || "Failed to create user account");
+      setLoading(false);
+      return;
+    }
+
+    const newUserId = createUserRes.data.user_id;
 
     // Upload all files in parallel
     const uploadPromises: Promise<{ key: string; url: string | null }>[] = [];
@@ -178,6 +209,7 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
       name: providerName.trim(),
       phone: phone.trim() || null,
       rating: rating ? Number(rating) : null,
+      user_id: newUserId,
     };
 
     // Add uploaded URLs
@@ -248,6 +280,46 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          {/* Login Credentials */}
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Lock className="w-4 h-4" /> Login Credentials
+          </h3>
+
+          <div className="space-y-2">
+            <Label htmlFor="admin-provider-email">Email <span className="text-destructive">*</span></Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="admin-provider-email"
+                type="email"
+                placeholder="provider@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="admin-provider-password">Password <span className="text-destructive">*</span></Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="admin-provider-password"
+                type="password"
+                placeholder="Min 6 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-10"
+                required
+                minLength={6}
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-4" />
+
           {/* Basic Details */}
           <h3 className="text-sm font-semibold text-foreground">{typeLabel} Details</h3>
 
