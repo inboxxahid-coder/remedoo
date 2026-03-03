@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { isUUID, validationError } from "../_shared/validate.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -43,12 +44,18 @@ Deno.serve(async (req) => {
       return rateLimitResponse(corsHeaders);
     }
 
-    const { appointment_id } = await req.json();
-    if (!appointment_id) {
-      return new Response(JSON.stringify({ error: "appointment_id required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return validationError("Invalid JSON body", corsHeaders);
+    }
+
+    const { appointment_id } = body as Record<string, unknown>;
+
+    // Validate UUID format
+    if (!isUUID(appointment_id)) {
+      return validationError("appointment_id must be a valid UUID", corsHeaders);
     }
 
     // Verify appointment belongs to user and is confirmed

@@ -1,6 +1,7 @@
 import { corsHeaders } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
+import { isUUID, isString, isSafePath, validationError } from "../_shared/validate.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -22,15 +23,12 @@ Deno.serve(async (req) => {
     const internalSecret = req.headers.get("x-internal-secret");
     const storedInternalSecret = Deno.env.get("INTERNAL_PUSH_SECRET");
 
-    // Check if this is a trusted internal call (from DB triggers via shared secret)
     const isInternalCall = storedInternalSecret && internalSecret === storedInternalSecret;
-    // Check if this is a service_role call
     const isServiceRole = token === serviceRoleKey;
 
     let authenticatedUserId: string | null = null;
 
     if (!isInternalCall && !isServiceRole) {
-      // Validate as authenticated user JWT
       const supabaseAuth = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -46,18 +44,37 @@ Deno.serve(async (req) => {
       }
       authenticatedUserId = claimsData.claims.sub as string;
 
-      // Rate limit: 100 push notifications per hour per user
       const allowed = await checkRateLimit(authenticatedUserId, "send-push-notification", 100, 3600);
       if (!allowed) {
         return rateLimitResponse(corsHeaders);
       }
     }
 
-    const { user_id: requestedUserId, title, message, path } = await req.json();
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return validationError("Invalid JSON body", corsHeaders);
+    }
 
-    // For regular users, enforce that they can only send notifications to themselves
+    const { user_id: requestedUserId, title, message, path } = body as Record<string, unknown>;
+
+    // Validate inputs
+    if (requestedUserId !== undefined && !isUUID(requestedUserId)) {
+      return validationError("user_id must be a valid UUID", corsHeaders);
+    }
+    if (!isString(title, 1, 200)) {
+      return validationError("title is required and must be 1-200 characters", corsHeaders);
+    }
+    if (message !== undefined && message !== null && !isString(message, 0, 1000)) {
+      return validationError("message must be under 1000 characters", corsHeaders);
+    }
+    if (path !== undefined && path !== null && !isSafePath(path)) {
+      return validationError("path must be a valid URL path", corsHeaders);
+    }
+
     const user_id = (isInternalCall || isServiceRole)
-      ? requestedUserId
+      ? requestedUserId as string
       : authenticatedUserId;
 
     if (!user_id || !title) {
@@ -72,7 +89,6 @@ Deno.serve(async (req) => {
       serviceRoleKey
     );
 
-    // Get user's push subscriptions
     const { data: subscriptions, error: subError } = await supabaseAdmin
       .from("push_subscriptions")
       .select("*")
@@ -95,11 +111,11 @@ Deno.serve(async (req) => {
     }
 
     const payload = JSON.stringify({
-      title,
-      body: message || "",
+      title: title as string,
+      body: (message as string) || "",
       icon: "/pwa-192x192.png",
       badge: "/pwa-192x192.png",
-      data: { path: path || "/" },
+      data: { path: (path as string) || "/" },
     });
 
     let sent = 0;
@@ -119,7 +135,6 @@ Deno.serve(async (req) => {
         if (response.ok || response.status === 201) {
           sent++;
         } else if (response.status === 410) {
-          // Subscription expired, clean up
           await supabaseAdmin
             .from("push_subscriptions")
             .delete()
