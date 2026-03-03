@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolocation";
+import MedicalLoader from "@/components/ui/MedicalLoader";
 
 const Hospitals = () => {
   const navigate = useNavigate();
@@ -125,7 +126,7 @@ const Hospitals = () => {
       </div>
       <div className="px-5 mt-4">
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading...</div>
+          <MedicalLoader text="Finding hospitals" />
         ) : (
           <Tabs defaultValue="all" className="space-y-3">
             <TabsList className="grid grid-cols-3 w-full">
