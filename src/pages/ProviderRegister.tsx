@@ -88,9 +88,6 @@ const ProviderRegister = () => {
   const [providerName, setProviderName] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
-  const [gpsLoading, setGpsLoading] = useState(false);
   const [specialization, setSpecialization] = useState("");
   const [bio, setBio] = useState("");
 
@@ -225,10 +222,6 @@ const ProviderRegister = () => {
     } else {
       providerData.location = location;
     }
-
-    // GPS coordinates for all provider types
-    if (latitude) providerData.latitude = Number(latitude);
-    if (longitude) providerData.longitude = Number(longitude);
 
     // 5. Insert provider record
     let providerError: any = null;
@@ -397,58 +390,6 @@ const ProviderRegister = () => {
                   </div>
                 </div>
               )}
-
-              {/* GPS Location */}
-              <div className="space-y-2">
-                <Label>GPS Location</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    step="any"
-                    placeholder="Latitude"
-                    value={latitude}
-                    onChange={(e) => setLatitude(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Input
-                    type="number"
-                    step="any"
-                    placeholder="Longitude"
-                    value={longitude}
-                    onChange={(e) => setLongitude(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="shrink-0"
-                    disabled={gpsLoading}
-                    onClick={() => {
-                      if (!navigator.geolocation) {
-                        toast.error("Geolocation not supported");
-                        return;
-                      }
-                      setGpsLoading(true);
-                      navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                          setLatitude(String(pos.coords.latitude));
-                          setLongitude(String(pos.coords.longitude));
-                          setGpsLoading(false);
-                          toast.success("GPS location captured");
-                        },
-                        (err) => {
-                          toast.error("Failed to get location: " + err.message);
-                          setGpsLoading(false);
-                        }
-                      );
-                    }}
-                  >
-                    <MapPin className={`w-4 h-4 ${gpsLoading ? "animate-pulse" : ""}`} />
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">Tap the pin icon to auto-detect or enter manually</p>
-              </div>
 
               {/* Document Uploads Section */}
               <div className="border-t border-border pt-4 mt-4" />

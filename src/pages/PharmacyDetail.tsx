@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package, Info, Navigation } from "lucide-react";
 import { withAuthGuard } from "@/hooks/useRequireAuth";
-import { resolveImageUrl } from "@/lib/storageUrl";
 import MedicineDetailSheet from "@/components/patient/MedicineDetailSheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ const PharmacyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [pharmacy, setPharmacy] = useState<Tables<"pharmacies"> | null>(null);
-  const [resolvedPharmacyImage, setResolvedPharmacyImage] = useState<string | null>(null);
   const [medicines, setMedicines] = useState<Tables<"medicines">[]>([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -34,10 +32,7 @@ const PharmacyDetail = () => {
         supabase.from("pharmacies").select("*").eq("id", id!).single(),
         supabase.from("medicines").select("*").eq("pharmacy_id", id!).eq("in_stock", true),
       ]);
-      if (pRes.data) {
-        setPharmacy(pRes.data);
-        resolveImageUrl(pRes.data.image_url).then(setResolvedPharmacyImage);
-      }
+      if (pRes.data) setPharmacy(pRes.data);
       if (mRes.data) setMedicines(mRes.data);
       setLoading(false);
     };
@@ -113,11 +108,8 @@ const PharmacyDetail = () => {
     <div className="min-h-screen bg-background pb-28">
       {/* Header */}
       <div className="gradient-primary px-5 pt-10 pb-6 rounded-b-[1.5rem]">
-          <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3 mb-3">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
-          {resolvedPharmacyImage && (
-            <img src={resolvedPharmacyImage} alt={pharmacy.name} className="w-10 h-10 rounded-xl object-cover border-2 border-primary-foreground/20 flex-shrink-0" />
-          )}
           <div className="flex-1 min-w-0">
             <h1 className="text-lg font-bold text-primary-foreground truncate">{pharmacy.name}</h1>
             {pharmacy.location && <p className="text-primary-foreground/70 text-xs flex items-center gap-1"><MapPin className="w-3 h-3" />{pharmacy.location}</p>}

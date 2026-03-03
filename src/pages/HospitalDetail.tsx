@@ -8,15 +8,12 @@ import BottomNav from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { withAuthGuard } from "@/hooks/useRequireAuth";
-import { resolveImageUrl } from "@/lib/storageUrl";
 
 const HospitalDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [hospital, setHospital] = useState<any>(null);
-  const [resolvedImageUrl, setResolvedImageUrl] = useState<string | null>(null);
   const [doctors, setDoctors] = useState<any[]>([]);
-  const [resolvedDoctorImages, setResolvedDoctorImages] = useState<Record<string, string>>({});
   const [departments, setDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -32,20 +29,8 @@ const HospitalDetail = () => {
         supabase.from("departments").select("*").eq("hospital_id", id).eq("is_active", true),
       ]);
 
-      if (hospRes.data) {
-        setHospital(hospRes.data);
-        resolveImageUrl(hospRes.data.image_url).then(setResolvedImageUrl);
-      }
-      if (docRes.data) {
-        setDoctors(docRes.data);
-        // Resolve doctor images
-        const imgMap: Record<string, string> = {};
-        await Promise.all(docRes.data.map(async (doc: any) => {
-          const url = await resolveImageUrl(doc.image_url);
-          if (url) imgMap[doc.id] = url;
-        }));
-        setResolvedDoctorImages(imgMap);
-      }
+      if (hospRes.data) setHospital(hospRes.data);
+      if (docRes.data) setDoctors(docRes.data);
       if (deptRes.data) setDepartments(deptRes.data);
 
       const { data: { session } } = await supabase.auth.getSession();
@@ -126,9 +111,9 @@ const HospitalDetail = () => {
         {/* Hospital Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl border border-border p-5 shadow-lg">
           <div className="flex gap-4">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-primary/15 flex items-center justify-center text-4xl flex-shrink-0 overflow-hidden">
-              {resolvedImageUrl ? (
-                <img src={resolvedImageUrl} alt={hospital.name} className="w-full h-full rounded-2xl object-cover" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-primary/15 flex items-center justify-center text-4xl flex-shrink-0">
+              {hospital.image_url ? (
+                <img src={hospital.image_url} alt={hospital.name} className="w-full h-full rounded-2xl object-cover" />
               ) : hospital.is_government ? "🏛️" : "🏥"}
             </div>
             <div className="flex-1 min-w-0">
@@ -219,9 +204,9 @@ const HospitalDetail = () => {
                   onClick={() => navigate(`/doctor/${doc.id}`)}
                   className="w-full flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/30 transition-colors text-left"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
-                    {resolvedDoctorImages[doc.id] ? (
-                      <img src={resolvedDoctorImages[doc.id]} alt={doc.name} className="w-full h-full rounded-xl object-cover" />
+                  <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-2xl flex-shrink-0">
+                    {doc.image_url ? (
+                      <img src={doc.image_url} alt={doc.name} className="w-full h-full rounded-xl object-cover" />
                     ) : "👨‍⚕️"}
                   </div>
                   <div className="flex-1 min-w-0">

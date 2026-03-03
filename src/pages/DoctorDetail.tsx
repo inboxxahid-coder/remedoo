@@ -10,13 +10,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import ReviewDialog from "@/components/patient/ReviewDialog";
 import { withAuthGuard } from "@/hooks/useRequireAuth";
-import { resolveImageUrl } from "@/lib/storageUrl";
 
 const DoctorDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [doctor, setDoctor] = useState<(Tables<"doctors"> & { hospital_name?: string; hospital_location?: string; hospital_latitude?: number | null; hospital_longitude?: number | null }) | null>(null);
-  const [resolvedImageUrl, setResolvedImageUrl] = useState<string | null>(null);
   const [reviews, setReviews] = useState<(Tables<"reviews"> & { user_name?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -35,15 +33,13 @@ const DoctorDetail = () => {
 
       if (docRes.data) {
         const d: any = docRes.data;
-        const doc = {
+        setDoctor({
           ...d,
           hospital_name: d.hospitals?.name,
           hospital_location: d.hospitals?.location,
           hospital_latitude: d.hospitals?.latitude,
           hospital_longitude: d.hospitals?.longitude,
-        };
-        setDoctor(doc);
-        resolveImageUrl(doc.image_url).then(setResolvedImageUrl);
+        });
       }
 
       if (reviewsRes.data) {
@@ -141,9 +137,9 @@ const DoctorDetail = () => {
           className="bg-card rounded-2xl border border-border p-5 shadow-lg"
         >
           <div className="flex gap-4">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-primary/15 flex items-center justify-center text-4xl flex-shrink-0 overflow-hidden">
-              {resolvedImageUrl ? (
-                <img src={resolvedImageUrl} alt={doctor.name} className="w-full h-full rounded-2xl object-cover" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-primary/15 flex items-center justify-center text-4xl flex-shrink-0">
+              {doctor.image_url ? (
+                <img src={doctor.image_url} alt={doctor.name} className="w-full h-full rounded-2xl object-cover" />
               ) : "👨‍⚕️"}
             </div>
             <div className="flex-1 min-w-0">
