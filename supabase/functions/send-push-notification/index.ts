@@ -7,6 +7,42 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Require authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const internalSecret = req.headers.get("x-internal-secret");
+    const storedInternalSecret = Deno.env.get("INTERNAL_PUSH_SECRET");
+
+    // Check if this is a trusted internal call (from DB triggers via shared secret)
+    const isInternalCall = storedInternalSecret && internalSecret === storedInternalSecret;
+    // Check if this is a service_role call
+    const isServiceRole = token === serviceRoleKey;
+
+    if (!isInternalCall && !isServiceRole) {
+      // Validate as authenticated user JWT
+      const supabaseAuth = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      const { data: claimsData, error: authError } = await supabaseAuth.auth.getClaims(token);
+      if (authError || !claimsData?.claims?.sub) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const { user_id, title, message, path } = await req.json();
 
     if (!user_id || !title) {
@@ -18,7 +54,7 @@ Deno.serve(async (req) => {
 
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      serviceRoleKey
     );
 
     // Get user's push subscriptions
@@ -56,9 +92,6 @@ Deno.serve(async (req) => {
 
     for (const sub of subscriptions) {
       try {
-        // Simple push via fetch to the push service endpoint
-        // For production, use web-push library. For now, we send the subscription
-        // details and let the service worker handle display.
         const response = await fetch(sub.endpoint, {
           method: "POST",
           headers: {

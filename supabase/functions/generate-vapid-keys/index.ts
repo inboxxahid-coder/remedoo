@@ -1,4 +1,5 @@
 import { corsHeaders } from "../_shared/cors.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -6,6 +7,30 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Require authenticated user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const supabaseAuth = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: claimsData, error: authError } = await supabaseAuth.auth.getClaims(token);
+    if (authError || !claimsData?.claims?.sub) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Generate ECDSA P-256 key pair for VAPID
     const keyPair = await crypto.subtle.generateKey(
       { name: "ECDSA", namedCurve: "P-256" },
