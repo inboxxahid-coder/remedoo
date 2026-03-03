@@ -690,48 +690,6 @@ const Dashboard = () => {
                 </div>
 
 
-                {/* ===== POPULAR MEDICINES ===== */}
-                {popularMedicines.length > 0 && (
-                  <div className="px-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                      <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-lg font-bold text-foreground">Popular Medicines</h2>
-                        <button onClick={() => navigate("/pharmacies")} className="text-sm text-primary font-semibold flex items-center gap-0.5">
-                          Browse <ChevronRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
-                        {popularMedicines.map((med, idx) => {
-                          const discounted = med.discount_percent && med.discount_percent > 0;
-                          const finalPrice = discounted ? med.price * (1 - (med.discount_percent || 0) / 100) : med.price;
-                          return (
-                            <motion.button
-                              key={med.id}
-                              initial={{ opacity: 0, y: 15 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.45 + idx * 0.06 }}
-                              onClick={() => navigate(`/pharmacies`)}
-                              className="flex-shrink-0 w-36 bg-card rounded-2xl border border-border p-3 text-left snap-start shadow-sm"
-                            >
-                              <div className="w-10 h-10 rounded-xl bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] flex items-center justify-center mb-2">
-                                <Pill className="w-5 h-5 text-[hsl(152,55%,40%)]" />
-                              </div>
-                              <h4 className="font-bold text-xs truncate text-foreground">{med.name}</h4>
-                              <p className="text-[10px] text-muted-foreground truncate">{med.pharmacy_name || med.category}</p>
-                              <div className="flex items-center gap-1 mt-2">
-                                <span className="text-xs font-bold text-foreground">₹{Math.round(finalPrice)}</span>
-                                {discounted && (
-                                  <span className="text-[10px] text-muted-foreground line-through">₹{med.price}</span>
-                                )}
-                              </div>
-                            </motion.button>
-                          );
-                        })}
-                      </div>
-                    </motion.div>
-                  </div>
-                )}
-
                 {/* ===== BROWSE SERVICES ===== */}
                 {services.length > 0 && (
                   <div className="px-5">
