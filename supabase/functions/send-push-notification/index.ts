@@ -1,5 +1,6 @@
 import { corsHeaders } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -44,6 +45,12 @@ Deno.serve(async (req) => {
         });
       }
       authenticatedUserId = claimsData.claims.sub as string;
+
+      // Rate limit: 100 push notifications per hour per user
+      const allowed = await checkRateLimit(authenticatedUserId, "send-push-notification", 100, 3600);
+      if (!allowed) {
+        return rateLimitResponse(corsHeaders);
+      }
     }
 
     const { user_id: requestedUserId, title, message, path } = await req.json();

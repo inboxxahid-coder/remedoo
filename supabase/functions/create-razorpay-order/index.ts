@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,15 +18,6 @@ Deno.serve(async (req) => {
     if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
       throw new Error("Razorpay credentials not configured");
     }
-
-    console.log("Razorpay Key ID debug:", {
-      length: RAZORPAY_KEY_ID.length,
-      prefix: RAZORPAY_KEY_ID.substring(0, 8),
-    });
-    console.log("Razorpay Key Secret debug:", {
-      length: RAZORPAY_KEY_SECRET.length,
-      prefix: RAZORPAY_KEY_SECRET.substring(0, 4),
-    });
 
     // Authenticate user
     const authHeader = req.headers.get("Authorization");
@@ -49,6 +41,14 @@ Deno.serve(async (req) => {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    const userId = claimsData.claims.sub as string;
+
+    // Rate limit: 10 order creation requests per 10 minutes per user
+    const allowed = await checkRateLimit(userId, "create-razorpay-order", 10, 600);
+    if (!allowed) {
+      return rateLimitResponse(corsHeaders);
     }
 
     const { order_id, amount } = await req.json();

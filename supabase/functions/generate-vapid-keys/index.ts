@@ -1,5 +1,6 @@
 import { corsHeaders } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, rateLimitResponse } from "../_shared/rate-limit.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -29,6 +30,14 @@ Deno.serve(async (req) => {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    const userId = claimsData.claims.sub as string;
+
+    // Rate limit: 5 VAPID key generations per day per user
+    const allowed = await checkRateLimit(userId, "generate-vapid-keys", 5, 86400);
+    if (!allowed) {
+      return rateLimitResponse(corsHeaders);
     }
 
     // Generate ECDSA P-256 key pair for VAPID
