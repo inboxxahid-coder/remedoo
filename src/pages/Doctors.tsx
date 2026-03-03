@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Star, Search, Heart, MapPin, Phone, Navigation } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,11 @@ import MedicalLoader from "@/components/ui/MedicalLoader";
 
 const Doctors = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const specFromUrl = searchParams.get("spec") || "All";
   const [doctors, setDoctors] = useState<(Tables<"doctors"> & { hospital_name?: string; hospital_latitude?: number | null; hospital_longitude?: number | null })[]>([]);
   const [search, setSearch] = useState("");
-  const [selectedSpec, setSelectedSpec] = useState<string>("All");
+  const [selectedSpec, setSelectedSpec] = useState<string>(specFromUrl);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);

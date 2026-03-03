@@ -143,7 +143,12 @@ const DoctorDetail = () => {
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold text-foreground">{doctor.name}</h2>
-              <p className="text-sm text-primary font-medium">{doctor.specialization}</p>
+              <p
+                className="text-sm text-primary font-medium cursor-pointer hover:underline"
+                onClick={() => doctor.specialization && navigate(`/doctors?spec=${encodeURIComponent(doctor.specialization)}`)}
+              >
+                {doctor.specialization}
+              </p>
               <div className="flex items-center gap-3 mt-2">
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 fill-warning text-warning" />
