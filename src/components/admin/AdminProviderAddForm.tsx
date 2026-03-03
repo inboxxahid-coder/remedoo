@@ -92,6 +92,11 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
   const [consultationFee, setConsultationFee] = useState("");
   const [rating, setRating] = useState("");
 
+  // GPS fields
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [gpsLoading, setGpsLoading] = useState(false);
+
   // Hospital-specific
   const [beds, setBeds] = useState("");
   const [icuAvailable, setIcuAvailable] = useState(false);
@@ -114,6 +119,8 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
     setBio("");
     setConsultationFee("");
     setRating("");
+    setLatitude("");
+    setLongitude("");
     setBeds("");
     setIcuAvailable(false);
     setLicenseFile(null);
@@ -221,6 +228,10 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
     if (additionalDocUrls.length > 0) {
       providerData.additional_docs_urls = additionalDocUrls;
     }
+
+    // GPS fields for all providers
+    if (latitude) providerData.latitude = Number(latitude);
+    if (longitude) providerData.longitude = Number(longitude);
 
     // Type-specific fields
     if (type === "doctor") {
@@ -406,6 +417,58 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
               </div>
             </div>
           )}
+
+          {/* GPS Location - for all provider types */}
+          <div className="space-y-2">
+            <Label>GPS Coordinates</Label>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                step="any"
+                placeholder="Latitude"
+                value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                type="number"
+                step="any"
+                placeholder="Longitude"
+                value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="shrink-0"
+                disabled={gpsLoading}
+                onClick={() => {
+                  if (!navigator.geolocation) {
+                    toast.error("Geolocation not supported");
+                    return;
+                  }
+                  setGpsLoading(true);
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                      setLatitude(String(pos.coords.latitude));
+                      setLongitude(String(pos.coords.longitude));
+                      setGpsLoading(false);
+                      toast.success("GPS location captured");
+                    },
+                    (err) => {
+                      toast.error("Failed to get location: " + err.message);
+                      setGpsLoading(false);
+                    }
+                  );
+                }}
+              >
+                <MapPin className={`w-4 h-4 ${gpsLoading ? "animate-pulse" : ""}`} />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Click the pin icon to auto-detect GPS or enter manually</p>
+          </div>
 
           {type === "hospital" && (
             <>
