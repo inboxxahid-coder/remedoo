@@ -14,6 +14,7 @@ import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import BottomNav from "@/components/BottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import remedooLogo from "@/assets/remedoo-logo.png";
+import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 
 const iconMap: Record<string, LucideIcon> = {
   Calendar, AlertTriangle, Pill, Heart, Bell, Star, Stethoscope, Building2,
@@ -243,15 +244,8 @@ const Dashboard = () => {
 
             {/* ===== WELCOME + SEARCH ===== */}
             <div className="px-5 pt-4 pb-3 bg-card border-b border-border">
-              <div className="flex items-center gap-3">
-                <h1 className="text-xl font-bold text-foreground whitespace-nowrap">Welcome, {displayName}!</h1>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center bg-muted rounded-full px-3.5 py-2 border border-border">
-                    <svg className="w-4 h-4 text-muted-foreground mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                    <span className="text-xs text-muted-foreground truncate">Search doctors, hospitals...</span>
-                  </div>
-                </div>
-              </div>
+              <h1 className="text-lg font-bold text-foreground mb-2">Welcome, {displayName}!</h1>
+              <UnifiedSearch />
             </div>
 
             {isLoading ? (
