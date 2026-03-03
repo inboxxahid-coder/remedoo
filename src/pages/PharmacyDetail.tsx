@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package } from "lucide-react";
+import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package, Info } from "lucide-react";
+import MedicineDetailSheet from "@/components/patient/MedicineDetailSheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ const PharmacyDetail = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [cart, setCart] = useState<Record<string, CartItem>>({});
   const [loading, setLoading] = useState(true);
+  const [selectedMedicine, setSelectedMedicine] = useState<Tables<"medicines"> | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -166,7 +168,8 @@ const PharmacyDetail = () => {
               return (
                 <div
                   key={m.id}
-                  className="bg-card rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group"
+                  onClick={() => setSelectedMedicine(m)}
+                  className="bg-card rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group cursor-pointer"
                 >
                   {/* Discount ribbon */}
                   {hasDiscount && (
@@ -243,6 +246,16 @@ const PharmacyDetail = () => {
           </div>
         )}
       </div>
+
+      {/* Medicine Detail Sheet */}
+      <MedicineDetailSheet
+        medicine={selectedMedicine}
+        open={!!selectedMedicine}
+        onClose={() => setSelectedMedicine(null)}
+        cartQty={selectedMedicine ? (cart[selectedMedicine.id]?.quantity || 0) : 0}
+        onAdd={addToCart}
+        onRemove={removeFromCart}
+      />
 
       {/* Floating cart bar */}
       {cartCount > 0 && (
