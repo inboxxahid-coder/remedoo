@@ -122,11 +122,11 @@ const PharmacyDetail = () => {
           <Clock className="w-3 h-3" /><span>Delivery in 25-35 min</span>
           <span className="mx-1">•</span>
           <span>{medicines.length} items available</span>
-          {pharmacy.latitude && pharmacy.longitude && (
+          {(pharmacy.latitude && pharmacy.longitude || pharmacy.location) && (
             <>
               <span className="mx-1">•</span>
               <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${pharmacy.latitude},${pharmacy.longitude}`}
+                href={`https://www.google.com/maps/dir/?api=1&destination=${pharmacy.latitude && pharmacy.longitude ? `${pharmacy.latitude},${pharmacy.longitude}` : encodeURIComponent(pharmacy.location || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-primary-foreground hover:text-primary-foreground/90 transition-colors"

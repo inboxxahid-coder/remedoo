@@ -203,20 +203,22 @@ const DoctorDetail = () => {
             )}
 
             {/* Map & Directions */}
-            {doctor.hospital_latitude && doctor.hospital_longitude && (
+            {(doctor.hospital_latitude && doctor.hospital_longitude || doctor.hospital_location) && (
               <>
-                <div className="mt-3 rounded-xl overflow-hidden border border-border h-40">
-                  <iframe
-                    title="Hospital Location"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    loading="lazy"
-                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${doctor.hospital_longitude - 0.01},${doctor.hospital_latitude - 0.01},${doctor.hospital_longitude + 0.01},${doctor.hospital_latitude + 0.01}&layer=mapnik&marker=${doctor.hospital_latitude},${doctor.hospital_longitude}`}
-                  />
-                </div>
+                {doctor.hospital_latitude && doctor.hospital_longitude && (
+                  <div className="mt-3 rounded-xl overflow-hidden border border-border h-40">
+                    <iframe
+                      title="Hospital Location"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      loading="lazy"
+                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${doctor.hospital_longitude - 0.01},${doctor.hospital_latitude - 0.01},${doctor.hospital_longitude + 0.01},${doctor.hospital_latitude + 0.01}&layer=mapnik&marker=${doctor.hospital_latitude},${doctor.hospital_longitude}`}
+                    />
+                  </div>
+                )}
                 <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.hospital_latitude},${doctor.hospital_longitude}`}
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.hospital_latitude && doctor.hospital_longitude ? `${doctor.hospital_latitude},${doctor.hospital_longitude}` : encodeURIComponent(doctor.hospital_location || '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-2 w-full h-9 rounded-xl text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/5 flex items-center justify-center gap-1.5 transition-colors"

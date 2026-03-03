@@ -244,23 +244,25 @@ const HospitalDetail = () => {
         )}
 
         {/* Map */}
-        {hospital.latitude && hospital.longitude && (
+        {(hospital.latitude && hospital.longitude || hospital.location) && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="bg-card rounded-2xl border border-border p-5 shadow-sm">
             <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <Navigation className="w-4 h-4 text-primary" /> Location
             </h3>
-            <div className="rounded-xl overflow-hidden border border-border h-44">
-              <iframe
-                title="Hospital Location"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=${hospital.longitude - 0.01},${hospital.latitude - 0.01},${hospital.longitude + 0.01},${hospital.latitude + 0.01}&layer=mapnik&marker=${hospital.latitude},${hospital.longitude}`}
-              />
-            </div>
+            {hospital.latitude && hospital.longitude && (
+              <div className="rounded-xl overflow-hidden border border-border h-44">
+                <iframe
+                  title="Hospital Location"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${hospital.longitude - 0.01},${hospital.latitude - 0.01},${hospital.longitude + 0.01},${hospital.latitude + 0.01}&layer=mapnik&marker=${hospital.latitude},${hospital.longitude}`}
+                />
+              </div>
+            )}
             <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`}
+              href={`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude && hospital.longitude ? `${hospital.latitude},${hospital.longitude}` : encodeURIComponent(hospital.location || '')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 w-full h-9 rounded-xl text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/5 flex items-center justify-center gap-1.5 transition-colors"

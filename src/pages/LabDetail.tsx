@@ -188,9 +188,9 @@ const LabDetail = () => {
             <Badge className="bg-primary-foreground/20 text-primary-foreground border-0 text-xs">
               <TestTube className="w-3 h-3 mr-1" />{tests.length} Tests Available
             </Badge>
-            {lab.latitude && lab.longitude && (
+            {(lab.latitude && lab.longitude || lab.location) && (
               <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${lab.latitude},${lab.longitude}`}
+                href={`https://www.google.com/maps/dir/?api=1&destination=${lab.latitude && lab.longitude ? `${lab.latitude},${lab.longitude}` : encodeURIComponent(lab.location || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs text-primary-foreground bg-primary-foreground/20 rounded-lg px-2 py-1 hover:bg-primary-foreground/30 transition-colors"
