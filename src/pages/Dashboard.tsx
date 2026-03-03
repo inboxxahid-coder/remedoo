@@ -570,6 +570,76 @@ const Dashboard = () => {
                   </div>
                 )}
 
+                {/* ===== FEATURED PACKAGES (before Quick Access) ===== */}
+                {featuredPackages.length > 0 && (
+                  <div className="px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.46 }}>
+                      <h2 className="text-lg font-bold mb-3 text-foreground">Featured Packages</h2>
+                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
+                        {featuredPackages.map((pkg: any, idx: number) => {
+                          const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
+                          const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
+                          const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
+                          return (
+                            <motion.button
+                              key={pkg.id}
+                              initial={{ opacity: 0, x: 20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.48 + idx * 0.06 }}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() => navigate("/labs")}
+                              className="flex-shrink-0 w-[200px] bg-gradient-to-br from-[hsl(205,80%,94%)] to-[hsl(205,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(205,30%,20%)] rounded-2xl p-4 text-left border border-border relative overflow-hidden shadow-sm snap-start"
+                            >
+                              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+                                <FlaskConical className="w-5 h-5 text-primary" />
+                              </div>
+                              <h4 className="font-bold text-sm text-foreground truncate">{pkg.name}</h4>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <span className="text-lg font-bold text-foreground">₹{pkg.package_price}</span>
+                                {hasDiscount && <span className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</span>}
+                              </div>
+                              {tests.length > 0 && <p className="text-[10px] text-muted-foreground mt-1">{tests.length}+ Tests</p>}
+                              {hasDiscount && (
+                                <span className="absolute top-2 right-2 text-[9px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded">{pkg.discount_percent}% OFF</span>
+                              )}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+
+                {/* ===== PHARMACY BENEFITS ===== */}
+                <div className="px-5">
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.47 }}>
+                    <h2 className="text-lg font-bold mb-3 text-foreground">Pharmacy Benefits</h2>
+                    <div className="bg-gradient-to-br from-[hsl(205,80%,94%)] to-[hsl(210,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(210,30%,20%)] rounded-2xl p-4 border border-border shadow-sm">
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { icon: Tag, label: "10% Discounts", color: "text-primary", bg: "bg-primary/10" },
+                          { icon: ShoppingBag, label: "Home Delivery", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
+                          { icon: Stethoscope, label: "Free Consultation", color: "text-[hsl(200,65%,48%)]", bg: "bg-[hsl(200,60%,92%)] dark:bg-[hsl(200,30%,18%)]" },
+                          { icon: Heart, label: "Secure Payment", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
+                        ].map((item, idx) => (
+                          <motion.div
+                            key={item.label}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.5 + idx * 0.05 }}
+                            className="bg-card rounded-xl p-3 flex items-center gap-2 shadow-sm border border-border"
+                          >
+                            <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center flex-shrink-0`}>
+                              <item.icon className={`w-4 h-4 ${item.color}`} />
+                            </div>
+                            <span className="text-xs font-semibold text-foreground leading-tight">{item.label}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+
                 {/* ===== QUICK ACCESS MORE (2x2 grid) ===== */}
                 <div className="px-5">
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
@@ -619,81 +689,6 @@ const Dashboard = () => {
                   </motion.div>
                 </div>
 
-                {/* ===== FEATURED PACKAGES ===== */}
-                {featuredPackages.length > 0 && (
-                  <div className="px-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                      <h2 className="text-lg font-bold mb-3 text-foreground">Featured Packages</h2>
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        {featuredPackages.slice(0, 2).map((pkg: any) => {
-                          const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
-                          const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
-                          const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
-                          return (
-                            <motion.button
-                              key={pkg.id}
-                              whileTap={{ scale: 0.97 }}
-                              onClick={() => navigate("/labs")}
-                              className="bg-gradient-to-br from-[hsl(205,80%,94%)] to-[hsl(205,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(205,30%,20%)] rounded-2xl p-3.5 text-left border border-border relative overflow-hidden shadow-sm"
-                            >
-                              {hasDiscount && (
-                                <span className="absolute top-2 right-2 text-[9px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded">Recommended</span>
-                              )}
-                              <h4 className="font-bold text-sm text-foreground pr-16 truncate">{pkg.name}</h4>
-                              <div className="flex items-center gap-1.5 mt-1.5">
-                                <span className="text-sm font-bold text-foreground">₹{pkg.package_price}</span>
-                                {hasDiscount && <span className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</span>}
-                              </div>
-                              {hasDiscount && (
-                                <span className="inline-block mt-1.5 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                                  {pkg.discount_percent}% OFF &gt;
-                                </span>
-                              )}
-                              {tests.length > 0 && <p className="text-[10px] text-muted-foreground mt-1">{tests.length}+ Tests</p>}
-                            </motion.button>
-                          );
-                        })}
-                      </div>
-                      {featuredPackages.length > 2 && (
-                        <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
-                          {featuredPackages.slice(2).map((pkg: any) => {
-                            const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
-                            const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
-                            const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
-                            return (
-                              <motion.button
-                                key={pkg.id}
-                                whileTap={{ scale: 0.97 }}
-                                onClick={() => navigate("/labs")}
-                                className="flex-shrink-0 w-[260px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start shadow-sm"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                    <FlaskConical className="w-6 h-6 text-primary" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-xs text-foreground truncate">{pkg.name}</h4>
-                                    {hasDiscount && <span className="text-[9px] text-primary font-medium">Recommended</span>}
-                                    {tests.length > 0 && <p className="text-[10px] text-muted-foreground">{tests.length}+ Tests</p>}
-                                  </div>
-                                  <div className="text-right flex-shrink-0">
-                                    <p className="text-sm font-bold text-foreground">₹{pkg.package_price}</p>
-                                    {hasDiscount && (
-                                      <>
-                                        <p className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</p>
-                                        <span className="text-[9px] font-semibold text-primary">{pkg.discount_percent}% OFF &gt;</span>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              </motion.button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </motion.div>
-                  </div>
-                )}
 
                 {/* ===== POPULAR MEDICINES ===== */}
                 {popularMedicines.length > 0 && (
