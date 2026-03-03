@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, type LucideIcon } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, Siren, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
@@ -59,6 +59,8 @@ const Dashboard = () => {
   const [prescriptionCount, setPrescriptionCount] = useState(0);
   const [labReportCount, setLabReportCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
+  const [popularHospitals, setPopularHospitals] = useState<any[]>([]);
+  const [featuredPackages, setFeaturedPackages] = useState<any[]>([]);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -66,13 +68,15 @@ const Dashboard = () => {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes] = await Promise.all([
+      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes] = await Promise.all([
         supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
         supabase.from("doctors").select("*, hospitals!left(is_government)").eq("is_featured", true).order("featured_sort_order").limit(10),
         supabase.from("ads").select("*").eq("active", true),
         supabase.from("medicines").select("*, pharmacies(name)").eq("is_featured", true).eq("in_stock", true).order("featured_sort_order").limit(10),
         supabase.from("dashboard_quick_actions").select("*").eq("active", true).order("sort_order"),
         supabase.from("dashboard_services").select("*").eq("active", true).order("sort_order"),
+        supabase.from("hospitals").select("id, name, location, rating, image_url, total_beds, is_government").eq("approval_status", "approved").order("rating", { ascending: false }).limit(5),
+        supabase.from("lab_test_packages").select("*, labs(name)").eq("is_active", true).order("created_at", { ascending: false }).limit(6),
       ]);
       if (slidesRes.data) setSlides(slidesRes.data);
       if (doctorsRes.data) {
@@ -95,6 +99,8 @@ const Dashboard = () => {
       }
       if (qaRes.data) setQuickActions(qaRes.data);
       if (svcRes.data) setServices(svcRes.data);
+      if (hospitalsRes.data) setPopularHospitals(hospitalsRes.data);
+      if (packagesRes.data) setFeaturedPackages(packagesRes.data.map((p: any) => ({ ...p, lab_name: p.labs?.name })));
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { setIsLoading(false); return; }
@@ -485,6 +491,166 @@ const Dashboard = () => {
                         );
                       })}
                     </div>
+                  </motion.div>
+                )}
+
+                {/* Popular Hospitals */}
+                {popularHospitals.length > 0 && (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-base font-bold text-foreground">Popular Hospitals</h2>
+                      <button onClick={() => navigate("/hospitals")} className="text-primary text-sm font-semibold flex items-center gap-0.5">
+                        <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
+                      </button>
+                    </div>
+                    <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
+                      {popularHospitals.map((hosp: any, idx: number) => (
+                        <motion.button
+                          key={hosp.id}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.45 + idx * 0.06 }}
+                          onClick={() => navigate(`/hospital/${hosp.id}`)}
+                          className="flex-shrink-0 w-[280px] bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl border border-border p-4 text-left snap-start hover:shadow-md transition-shadow relative overflow-hidden"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-bold text-sm text-foreground truncate">{hosp.name}</h4>
+                              <div className="flex items-center gap-1 mt-1">
+                                {Array.from({ length: Math.round(hosp.rating || 0) }).map((_, i) => (
+                                  <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                                ))}
+                              </div>
+                              {hosp.location && <p className="text-[10px] text-muted-foreground mt-1 truncate">📍 {hosp.location}</p>}
+                              <div className="flex items-center gap-2 mt-2">
+                                {hosp.is_government && <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">Govt</span>}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); navigate(`/hospital/${hosp.id}`); }}
+                                  className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg"
+                                >
+                                  View Details &gt;
+                                </button>
+                              </div>
+                            </div>
+                            <div className="w-16 h-16 rounded-xl bg-card/60 flex items-center justify-center flex-shrink-0 ml-2 overflow-hidden">
+                              {hosp.image_url ? (
+                                <img src={hosp.image_url} alt={hosp.name} className="w-16 h-16 rounded-xl object-cover" />
+                              ) : (
+                                <Building2 className="w-8 h-8 text-primary/40" />
+                              )}
+                            </div>
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Quick Access More */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-base font-bold text-foreground">Quick Access More</h2>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/doctors")}
+                      className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px]">
+                      <p className="text-white font-bold text-sm">Find Doctors</p>
+                      <p className="text-white/80 text-[10px] mt-0.5">400+ Available</p>
+                      <Stethoscope className="absolute bottom-2 right-2 w-10 h-10 text-white/20" />
+                    </motion.button>
+                    <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/emergency")}
+                      className="bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px] border border-border">
+                      <p className="text-foreground font-bold text-sm">Ambulance Service</p>
+                      <p className="text-muted-foreground text-[10px] mt-0.5">10 min Guaranteed</p>
+                      <Siren className="absolute bottom-2 right-2 w-10 h-10 text-muted-foreground/20" />
+                    </motion.button>
+                    <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/pharmacies")}
+                      className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px]">
+                      <p className="text-white font-bold text-sm">Medicine Delivery</p>
+                      <p className="text-white/80 text-[10px] mt-0.5">Fast Home Delivery</p>
+                      <Pill className="absolute bottom-2 right-2 w-10 h-10 text-white/20" />
+                    </motion.button>
+                    <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/labs")}
+                      className="bg-gradient-to-br from-violet-100 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl p-4 text-left relative overflow-hidden min-h-[100px] border border-border">
+                      <p className="text-foreground font-bold text-sm">Health Packages</p>
+                      <p className="text-muted-foreground text-[10px] mt-0.5">Full Body Checkups</p>
+                      <FlaskConical className="absolute bottom-2 right-2 w-10 h-10 text-muted-foreground/20" />
+                    </motion.button>
+                  </div>
+                </motion.div>
+
+                {/* Featured Packages */}
+                {featuredPackages.length > 0 && (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                    <h2 className="text-base font-bold mb-3 text-foreground">Featured Packages</h2>
+                    <div className="grid grid-cols-2 gap-2.5 mb-3">
+                      {featuredPackages.slice(0, 2).map((pkg: any) => {
+                        const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
+                        const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
+                        const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
+                        return (
+                          <motion.button
+                            key={pkg.id}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => navigate("/labs")}
+                            className="bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl p-3.5 text-left border border-border relative overflow-hidden"
+                          >
+                            {hasDiscount && (
+                              <span className="absolute top-2 right-2 text-[9px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded">Recommended</span>
+                            )}
+                            <h4 className="font-bold text-sm text-foreground pr-16 truncate">{pkg.name}</h4>
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              <span className="text-sm font-bold text-foreground">₹{pkg.package_price}</span>
+                              {hasDiscount && <span className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</span>}
+                            </div>
+                            {hasDiscount && (
+                              <span className="inline-block mt-1.5 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                                {pkg.discount_percent}% OFF &gt;
+                              </span>
+                            )}
+                            {tests.length > 0 && <p className="text-[10px] text-muted-foreground mt-1">{tests.length}+ Tests</p>}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                    {featuredPackages.length > 2 && (
+                      <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide snap-x">
+                        {featuredPackages.slice(2).map((pkg: any) => {
+                          const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
+                          const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
+                          const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
+                          return (
+                            <motion.button
+                              key={pkg.id}
+                              whileTap={{ scale: 0.97 }}
+                              onClick={() => navigate("/labs")}
+                              className="flex-shrink-0 w-[240px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start hover:shadow-md transition-shadow"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <FlaskConical className="w-5 h-5 text-primary" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-bold text-xs text-foreground truncate">{pkg.name}</h4>
+                                  {hasDiscount && <span className="text-[9px] text-primary font-medium">Recommended</span>}
+                                  {tests.length > 0 && <p className="text-[10px] text-muted-foreground">{tests.length}+ Tests</p>}
+                                </div>
+                                <div className="text-right flex-shrink-0">
+                                  <p className="text-sm font-bold text-foreground">₹{pkg.package_price}</p>
+                                  {hasDiscount && (
+                                    <>
+                                      <p className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</p>
+                                      <span className="text-[9px] font-semibold text-primary">{pkg.discount_percent}% OFF &gt;</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </motion.div>
                 )}
 
