@@ -1,8 +1,12 @@
-import { X, Pill, Plus, Minus, ShieldCheck, Factory, Calendar, Hash, Package, FileText, Tag } from "lucide-react";
+import { useState } from "react";
+import { X, Pill, Plus, Minus, ShieldCheck, Factory, Calendar, Hash, Package, FileText, Tag, ArrowRightLeft, Store, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import MedicineCompareSheet from "./MedicineCompareSheet";
+import ManufacturerMedicinesSheet from "./ManufacturerMedicinesSheet";
 
 interface Props {
   medicine: Tables<"medicines"> | null;
@@ -23,6 +27,10 @@ const getCategoryIcon = (category: string) => {
 };
 
 export default function MedicineDetailSheet({ medicine: m, open, onClose, cartQty, onAdd, onRemove }: Props) {
+  const navigate = useNavigate();
+  const [showCompare, setShowCompare] = useState(false);
+  const [showManufacturer, setShowManufacturer] = useState(false);
+
   if (!m) return null;
 
   const discountedPrice = m.price * (1 - (m.discount_percent || 0) / 100);
@@ -102,6 +110,31 @@ export default function MedicineDetailSheet({ medicine: m, open, onClose, cartQt
                 </Badge>
               </div>
 
+              {/* Clickable links */}
+              <div className="flex flex-wrap gap-2">
+                {m.manufacturer && (
+                  <button
+                    onClick={() => setShowManufacturer(true)}
+                    className="flex items-center gap-1.5 bg-accent/50 hover:bg-accent rounded-lg px-3 py-1.5 transition-colors"
+                  >
+                    <Factory className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs font-medium text-primary">{m.manufacturer}</span>
+                    <ExternalLink className="w-3 h-3 text-primary/50" />
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    onClose();
+                    navigate(`/pharmacy/${m.pharmacy_id}`);
+                  }}
+                  className="flex items-center gap-1.5 bg-accent/50 hover:bg-accent rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  <Store className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-medium text-primary">View Pharmacy</span>
+                  <ExternalLink className="w-3 h-3 text-primary/50" />
+                </button>
+              </div>
+
               {/* Description */}
               {m.description && (
                 <div className="bg-accent/40 rounded-xl p-3">
@@ -127,8 +160,18 @@ export default function MedicineDetailSheet({ medicine: m, open, onClose, cartQt
                 )}
               </div>
 
+              {/* Compare button */}
+              <Button
+                variant="outline"
+                onClick={() => setShowCompare(true)}
+                className="w-full h-10 rounded-2xl text-sm font-semibold border-primary/30 text-primary hover:bg-primary/5"
+              >
+                <ArrowRightLeft className="w-4 h-4 mr-1.5" />
+                Compare Prices at Other Pharmacies
+              </Button>
+
               {/* Add to cart */}
-              <div className="pt-2">
+              <div className="pt-1">
                 {cartQty > 0 ? (
                   <div className="flex items-center justify-between bg-primary/10 rounded-2xl p-2">
                     <button onClick={() => onRemove(m.id)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary/20 text-primary">
@@ -148,6 +191,12 @@ export default function MedicineDetailSheet({ medicine: m, open, onClose, cartQt
               </div>
             </div>
           </motion.div>
+
+          {/* Compare Sheet */}
+          <MedicineCompareSheet medicine={m} open={showCompare} onClose={() => setShowCompare(false)} />
+
+          {/* Manufacturer Sheet */}
+          <ManufacturerMedicinesSheet manufacturer={m.manufacturer} open={showManufacturer} onClose={() => setShowManufacturer(false)} />
         </>
       )}
     </AnimatePresence>

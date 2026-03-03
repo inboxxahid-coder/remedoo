@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Star, MapPin, Phone, Clock, Heart, TestTube,
   Beaker, Home, Utensils, BadgePercent, ChevronDown, ChevronUp,
-  Droplets, AlertCircle, CheckCircle2, Info, Calendar
+  Droplets, AlertCircle, CheckCircle2, Info, Calendar, ArrowRightLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
+import LabTestCompareSheet from "@/components/patient/LabTestCompareSheet";
 
 /* Derive human-friendly preparation instructions from test metadata */
 const getPreparationSteps = (test: Tables<"lab_tests">) => {
@@ -77,6 +78,7 @@ const LabDetail = () => {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [expandedTest, setExpandedTest] = useState<string | null>(null);
+  const [compareTest, setCompareTest] = useState<Tables<"lab_tests"> | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -215,7 +217,6 @@ const LabDetail = () => {
           ))}
         </div>
 
-        {/* Test Count */}
         <p className="text-xs text-muted-foreground">
           Showing {filteredTests.length} of {tests.length} tests
         </p>
@@ -298,7 +299,6 @@ const LabDetail = () => {
                 {/* Expanded Details */}
                 {isExpanded && (
                   <div className="border-t border-border px-4 pb-4 space-y-4">
-                    {/* Description */}
                     {test.description && (
                       <div className="pt-3">
                         <div className="flex items-center gap-2 mb-1.5">
@@ -309,7 +309,6 @@ const LabDetail = () => {
                       </div>
                     )}
 
-                    {/* How It Works */}
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <Beaker className="w-4 h-4 text-primary" />
@@ -325,7 +324,6 @@ const LabDetail = () => {
                       </div>
                     </div>
 
-                    {/* Before the Test */}
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <AlertCircle className="w-4 h-4 text-warning" />
@@ -343,7 +341,6 @@ const LabDetail = () => {
                       </div>
                     </div>
 
-                    {/* After the Test */}
                     <div>
                       <div className="flex items-center gap-2 mb-2">
                         <CheckCircle2 className="w-4 h-4 text-success" />
@@ -361,7 +358,19 @@ const LabDetail = () => {
                       </div>
                     </div>
 
-                    {/* Book Button */}
+                    {/* Compare + Book buttons */}
+                    <Button
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCompareTest(test);
+                      }}
+                      className="w-full h-9 rounded-xl text-xs font-semibold border-primary/30 text-primary hover:bg-primary/5"
+                    >
+                      <ArrowRightLeft className="w-3.5 h-3.5 mr-1.5" />
+                      Compare Price at Other Labs
+                    </Button>
+
                     <Button
                       className="w-full h-10 rounded-xl gradient-primary text-primary-foreground font-semibold text-sm"
                       onClick={() => navigate(`/book/lab/${id}?test=${test.id}`)}
@@ -376,6 +385,9 @@ const LabDetail = () => {
           })
         )}
       </div>
+
+      {/* Compare Sheet */}
+      <LabTestCompareSheet test={compareTest} open={!!compareTest} onClose={() => setCompareTest(null)} />
 
       <BottomNav />
     </div>
