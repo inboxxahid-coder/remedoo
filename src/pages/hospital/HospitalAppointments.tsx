@@ -24,7 +24,7 @@ export default function HospitalAppointments() {
     if (!hospital) { setLoading(false); return; }
 
     const [aptRes, deptRes] = await Promise.all([
-      supabase.from("appointments").select("*").eq("hospital_id", hospital.id).order("appointment_date", { ascending: false }),
+      supabase.from("appointments").select("*, doctors(name)").eq("hospital_id", hospital.id).order("appointment_date", { ascending: false }),
       supabase.from("departments").select("id, name").eq("hospital_id", hospital.id),
     ]);
     setAppointments(aptRes.data || []);
@@ -94,6 +94,7 @@ export default function HospitalAppointments() {
               <div>
                 <p className="font-semibold text-foreground">{apt.service_type}</p>
                 <p className="text-sm text-muted-foreground">{apt.appointment_date} at {apt.appointment_time}</p>
+                {(apt as any).doctors?.name && <p className="text-xs text-primary font-medium mt-0.5">Dr. {(apt as any).doctors.name}</p>}
                 {apt.department && <Badge variant="outline" className="mt-1">{apt.department}</Badge>}
               </div>
               <div className="flex items-center gap-2">

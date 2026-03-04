@@ -14,7 +14,7 @@ import { withAuthGuard } from "@/hooks/useRequireAuth";
 const DoctorDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [doctor, setDoctor] = useState<(Tables<"doctors"> & { hospital_name?: string; hospital_location?: string; hospital_latitude?: number | null; hospital_longitude?: number | null }) | null>(null);
+  const [doctor, setDoctor] = useState<(Tables<"doctors"> & { hospital_name?: string; hospital_location?: string; hospital_latitude?: number | null; hospital_longitude?: number | null; is_government_hospital?: boolean }) | null>(null);
   const [reviews, setReviews] = useState<(Tables<"reviews"> & { user_name?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -27,7 +27,7 @@ const DoctorDetail = () => {
       if (!id) return;
 
       const [docRes, reviewsRes] = await Promise.all([
-        supabase.from("doctors").select("*, hospitals(name, location, latitude, longitude)").eq("id", id).single(),
+        supabase.from("doctors").select("*, hospitals(name, location, latitude, longitude, is_government)").eq("id", id).single(),
         supabase.from("reviews").select("*").eq("provider_id", id).eq("provider_type", "doctor").order("created_at", { ascending: false }).limit(10),
       ]);
 
@@ -39,6 +39,7 @@ const DoctorDetail = () => {
           hospital_location: d.hospitals?.location,
           hospital_latitude: d.hospitals?.latitude,
           hospital_longitude: d.hospitals?.longitude,
+          is_government_hospital: d.hospitals?.is_government ?? false,
         });
       }
 
@@ -335,15 +336,17 @@ const DoctorDetail = () => {
         />
       )}
 
-      {/* Fixed Book Button */}
-      <div className="fixed bottom-20 left-0 right-0 px-5 z-50">
-        <Button
-          onClick={() => navigate(`/book/doctor/${id}`)}
-          className="w-full h-14 rounded-2xl gradient-primary text-primary-foreground font-bold text-base shadow-xl shadow-primary/25"
-        >
-          <Calendar className="w-5 h-5 mr-2" /> Book Appointment
-        </Button>
-      </div>
+      {/* Fixed Book Button — only for private hospital doctors */}
+      {!doctor.is_government_hospital && (
+        <div className="fixed bottom-20 left-0 right-0 px-5 z-50">
+          <Button
+            onClick={() => navigate(`/book/doctor/${id}`)}
+            className="w-full h-14 rounded-2xl gradient-primary text-primary-foreground font-bold text-base shadow-xl shadow-primary/25"
+          >
+            <Calendar className="w-5 h-5 mr-2" /> Book Appointment
+          </Button>
+        </div>
+      )}
 
       <BottomNav />
     </div>
