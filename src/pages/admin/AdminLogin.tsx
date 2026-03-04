@@ -88,12 +88,6 @@ export default function AdminLogin() {
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </Button>
-
-          <div className="mt-4 p-3 bg-muted rounded-lg text-xs text-muted-foreground space-y-1">
-            <p className="font-semibold text-foreground text-sm">Demo Admin</p>
-            <p><span className="font-medium">Email:</span> demo@remedoo.com</p>
-            <p><span className="font-medium">Password:</span> <code className="bg-background px-1.5 py-0.5 rounded text-foreground">demo1234</code></p>
-          </div>
         </form>
       </div>
     </div>

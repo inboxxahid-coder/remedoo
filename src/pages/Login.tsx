@@ -248,17 +248,6 @@ const Login = () => {
             Register as Provider
           </Link>
         </p>
-
-        <div className="mt-6 p-4 bg-muted rounded-xl border border-border text-xs text-muted-foreground space-y-1">
-          <p className="font-semibold text-foreground text-sm mb-2">Demo Accounts</p>
-          <p><span className="font-medium">User:</span> user@remedoo.com</p>
-          <p><span className="font-medium">Admin:</span> demo@remedoo.com → <Link to="/admin/login" className="text-primary underline">Admin Login</Link></p>
-          <p><span className="font-medium">Doctor:</span> doctor@remedoo.com</p>
-          <p><span className="font-medium">Hospital:</span> hospital@remedoo.com</p>
-          <p><span className="font-medium">Lab:</span> lab@remedoo.com</p>
-          <p><span className="font-medium">Pharmacy:</span> pharmacy@remedoo.com</p>
-          <p className="pt-1 font-medium">Password for all: <code className="bg-background px-1.5 py-0.5 rounded text-foreground">demo1234</code></p>
-        </div>
       </div>
     </div>
   );
