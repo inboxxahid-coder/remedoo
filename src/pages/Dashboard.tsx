@@ -812,15 +812,16 @@ const Dashboard = () => {
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      {quickAccessItems.map((item: any) => {
+                      {quickAccessItems.map((item: any, idx: number) => {
                         const QAIcon = getIcon(item.icon_name);
-                        const isLight = item.text_color === "text-white";
                         return (
                           <motion.button
                             key={item.id}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => navigate(item.path)}
-                            className={`bg-gradient-to-br ${item.gradient} rounded-2xl p-4 text-left relative overflow-hidden ${isLight ? "shadow-md" : "border border-border shadow-sm"}`}
+                            className={`${accessColors[idx % accessColors.length]} rounded-2xl p-4 text-left relative overflow-hidden shadow-md`}
+                            style={{ minHeight: 130 }}
+                          >
                             style={{ minHeight: 130 }}
                           >
                             <p className={`${item.text_color} font-bold text-base`}>{item.title}</p>
