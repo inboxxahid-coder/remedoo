@@ -125,7 +125,7 @@ const Dashboard = () => {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes, pharmacyOffersRes] = await Promise.all([
+      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes, pharmacyOffersRes, infoCardsRes, quickAccessRes] = await Promise.all([
         supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
         supabase.from("doctors").select("*, hospitals!left(is_government)").eq("is_featured", true).order("featured_sort_order").limit(10),
         supabase.from("ads").select("*").eq("active", true),
@@ -135,6 +135,8 @@ const Dashboard = () => {
         supabase.from("hospitals").select("id, name, location, rating, image_url, total_beds, is_government").eq("approval_status", "approved").order("rating", { ascending: false }).limit(5),
         supabase.from("lab_test_packages").select("*, labs(name)").eq("is_active", true).order("created_at", { ascending: false }).limit(6),
         supabase.from("pharmacies").select("id, name, location, rating, image_url").eq("approval_status", "approved").order("rating", { ascending: false }).limit(6),
+        supabase.from("dashboard_info_cards").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_quick_access").select("*").eq("active", true).order("sort_order"),
       ]);
       if (slidesRes.data) setSlides(slidesRes.data);
       if (doctorsRes.data) {
