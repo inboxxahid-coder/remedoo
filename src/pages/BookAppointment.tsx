@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, CreditCard, Banknote, TestTube, Check, Beaker, Home } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, CreditCard, Banknote, TestTube, Check, Beaker, Home, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
@@ -31,6 +32,10 @@ const BookAppointment = () => {
   const [selectedTests, setSelectedTests] = useState<Set<string>>(new Set());
   const [wantHomeCollection, setWantHomeCollection] = useState(false);
 
+  // Hospital doctor selection
+  const [hospitalDoctors, setHospitalDoctors] = useState<any[]>([]);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
+
   useEffect(() => {
     const loadProvider = async () => {
       if (!type || !id) return;
@@ -41,6 +46,16 @@ const BookAppointment = () => {
       if (type === "doctor") {
         const { data: docData } = await supabase.from("doctors").select("consultation_fee").eq("id", id).single();
         if (docData?.consultation_fee) setConsultationFee(docData.consultation_fee);
+      }
+
+      if (type === "hospital") {
+        const { data: docs } = await supabase
+          .from("doctors")
+          .select("id, name, specialization, consultation_fee")
+          .eq("hospital_id", id)
+          .eq("approval_status", "approved")
+          .order("name");
+        if (docs) setHospitalDoctors(docs);
       }
 
       if (type === "lab") {
@@ -133,7 +148,10 @@ const BookAppointment = () => {
           payment_status: "pending",
         };
         if (type === "doctor") record.doctor_id = id;
-        else if (type === "hospital") record.hospital_id = id;
+        else if (type === "hospital") {
+          record.hospital_id = id;
+          if (selectedDoctorId) record.doctor_id = selectedDoctorId;
+        }
         else if (type === "lab") record.lab_id = id;
         else if (type === "pharmacy") record.pharmacy_id = id;
 
@@ -216,7 +234,10 @@ const BookAppointment = () => {
       payment_status: "pending",
     };
     if (type === "doctor") record.doctor_id = id;
-    else if (type === "hospital") record.hospital_id = id;
+    else if (type === "hospital") {
+      record.hospital_id = id;
+      if (selectedDoctorId) record.doctor_id = selectedDoctorId;
+    }
     else if (type === "lab") record.lab_id = id;
     else if (type === "pharmacy") record.pharmacy_id = id;
 
@@ -253,6 +274,32 @@ const BookAppointment = () => {
                 <p className="text-xs font-semibold text-foreground">· ₹{consultationFee}</p>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Doctor Selection for Hospital Booking */}
+        {type === "hospital" && hospitalDoctors.length > 0 && (
+          <div className="bg-card rounded-2xl border border-border p-4 mb-4 shadow-sm space-y-2">
+            <Label className="flex items-center gap-2 text-base">
+              <Stethoscope className="w-4 h-4 text-primary" /> Select Doctor (optional)
+            </Label>
+            <Select value={selectedDoctorId} onValueChange={(v) => {
+              setSelectedDoctorId(v);
+              const doc = hospitalDoctors.find(d => d.id === v);
+              if (doc?.consultation_fee) setConsultationFee(doc.consultation_fee);
+              else setConsultationFee(null);
+            }}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose a doctor..." />
+              </SelectTrigger>
+              <SelectContent>
+                {hospitalDoctors.map(doc => (
+                  <SelectItem key={doc.id} value={doc.id}>
+                    {doc.name} — {doc.specialization || "General"} {doc.consultation_fee ? `(₹${doc.consultation_fee})` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
 
