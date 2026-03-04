@@ -822,14 +822,12 @@ const Dashboard = () => {
                             className={`${accessColors[idx % accessColors.length]} rounded-2xl p-4 text-left relative overflow-hidden shadow-md`}
                             style={{ minHeight: 130 }}
                           >
-                            style={{ minHeight: 130 }}
-                          >
-                            <p className={`${item.text_color} font-bold text-base`}>{item.title}</p>
-                            <p className={`${isLight ? "text-white/80" : "text-muted-foreground"} text-xs mt-0.5`}>{item.subtitle}</p>
+                            <p className="text-white font-bold text-base">{item.title}</p>
+                            <p className="text-white/80 text-xs mt-0.5">{item.subtitle}</p>
                             {item.extra_text && (
-                              <p className={`${isLight ? "text-white/80" : "text-muted-foreground"} text-xs font-semibold mt-2`}>{item.extra_text}</p>
+                              <p className="text-white/80 text-xs font-semibold mt-2">{item.extra_text}</p>
                             )}
-                            <QAIcon className={`absolute bottom-3 right-3 w-12 h-12 ${isLight ? "text-white/15" : "text-muted-foreground/15"}`} />
+                            <QAIcon className="absolute bottom-3 right-3 w-12 h-12 text-white/15" />
                           </motion.button>
                         );
                       })}
