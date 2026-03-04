@@ -6,6 +6,18 @@ import { motion, AnimatePresence } from "framer-motion";
 const logoIcons = ["💊", "🩺", "🏥", "❤️", "💉", "🧬", "🧪"];
 const logoLetters = "Remedoo".split("");
 
+const randomColorPool = [
+  "bg-[hsl(215,70%,50%)]", "bg-[hsl(152,55%,40%)]", "bg-[hsl(0,70%,52%)]",
+  "bg-[hsl(330,65%,50%)]", "bg-[hsl(262,60%,52%)]", "bg-[hsl(30,80%,50%)]",
+  "bg-[hsl(190,70%,42%)]", "bg-[hsl(350,60%,48%)]", "bg-[hsl(170,60%,38%)]",
+  "bg-[hsl(45,85%,48%)]", "bg-[hsl(280,55%,50%)]", "bg-[hsl(200,65%,45%)]",
+];
+
+const pickRandomColors = (count: number) => {
+  const shuffled = [...randomColorPool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+};
+
 const AnimatedLogo = () => {
   const [morphed, setMorphed] = useState(false);
   useEffect(() => {
