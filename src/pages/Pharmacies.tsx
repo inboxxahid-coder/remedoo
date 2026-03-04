@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, Heart, MapPin, Clock, ShoppingBag, Navigation } from "lucide-react";
+import { ArrowLeft, Star, Search, Heart, MapPin, Clock, ShoppingBag, Navigation, BadgeCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -105,7 +105,7 @@ const Pharmacies = () => {
                 <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-xl flex-shrink-0">💊</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
-                    <h3 className="font-semibold text-foreground text-[11px] leading-tight truncate">{p.name}</h3>
+                    <h3 className="font-semibold text-foreground text-[11px] leading-tight truncate flex items-center gap-1">{p.name}{p.approval_status === "approved" && <BadgeCheck className="w-3.5 h-3.5 text-green-500 shrink-0" />}</h3>
                     <button onClick={(e) => toggleFavorite(e, p.id)} className="ml-1 flex-shrink-0">
                       <Heart className={`w-3.5 h-3.5 ${favorites.has(p.id) ? "fill-emergency text-emergency" : "text-muted-foreground"}`} />
                     </button>

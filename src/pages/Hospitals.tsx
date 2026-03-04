@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, Heart, MapPin, Bed, ShieldCheck, CalendarPlus, Building2, Landmark, Navigation } from "lucide-react";
+import { ArrowLeft, Star, Search, Heart, MapPin, Bed, ShieldCheck, CalendarPlus, Building2, Landmark, Navigation, BadgeCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -72,7 +72,7 @@ const Hospitals = () => {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-foreground truncate">{h.name}</h3>
+              <h3 className="font-semibold text-foreground truncate flex items-center gap-1">{h.name}{h.approval_status === "approved" && <BadgeCheck className="w-4 h-4 text-red-500 shrink-0" />}</h3>
               {h.is_government && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full mt-0.5">
                   <Landmark className="w-2.5 h-2.5" />GOVT

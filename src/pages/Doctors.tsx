@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Star, Search, Heart, MapPin, Phone, Navigation } from "lucide-react";
+import { ArrowLeft, Star, Search, Heart, MapPin, Phone, Navigation, BadgeCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -132,7 +132,7 @@ const Doctors = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-foreground truncate cursor-pointer hover:text-primary" onClick={() => navigate(`/doctor/${doc.id}`)}>{doc.name}</h3>
+                      <h3 className="font-semibold text-foreground truncate cursor-pointer hover:text-primary flex items-center gap-1" onClick={() => navigate(`/doctor/${doc.id}`)}>{doc.name}{doc.approval_status === "approved" && <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />}</h3>
                       <p className="text-sm text-primary font-medium">{doc.specialization}</p>
                     </div>
                     <button onClick={() => toggleFavorite(doc.id)}>

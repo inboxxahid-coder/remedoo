@@ -13,7 +13,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logAuditAction } from "@/lib/auditLog";
-import { Upload, Save, ShieldCheck, Lock, X, FileText } from "lucide-react";
+import { Upload, Save, BadgeCheck, Lock, X, FileText } from "lucide-react";
 
 interface FileUploadBoxProps {
   id: string;
@@ -193,9 +193,9 @@ export default function DoctorProfile() {
 
       {/* Approval Status */}
       <div className="flex items-center gap-2">
-        <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-        <Badge variant={profile.approval_status === "approved" ? "default" : "secondary"}>
-          {profile.approval_status}
+        {profile.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-blue-500" />}
+        <Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500" : ""}>
+          {profile.approval_status === "approved" ? "Verified Doctor" : profile.approval_status}
         </Badge>
       </div>
 
