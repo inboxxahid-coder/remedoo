@@ -822,9 +822,6 @@ const Dashboard = () => {
                   </motion.div>
                 </div>
                 )}
-                    </div>
-                  </motion.div>
-                </div>
 
 
                 {/* ===== BROWSE SERVICES ===== */}
