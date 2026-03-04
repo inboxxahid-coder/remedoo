@@ -161,6 +161,8 @@ const Dashboard = () => {
       if (svcRes.data) setServices(svcRes.data);
       if (hospitalsRes.data) setPopularHospitals(hospitalsRes.data);
       if (packagesRes.data) setFeaturedPackages(packagesRes.data.map((p: any) => ({ ...p, lab_name: p.labs?.name })));
+      if (infoCardsRes.data) setInfoCards(infoCardsRes.data);
+      if (quickAccessRes.data) setQuickAccessItems(quickAccessRes.data);
 
       // Fetch pharmacy offers (medicines with discounts) for each pharmacy
       if (pharmacyOffersRes.data && pharmacyOffersRes.data.length > 0) {
