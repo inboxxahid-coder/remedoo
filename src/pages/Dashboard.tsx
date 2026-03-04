@@ -411,7 +411,7 @@ const Dashboard = () => {
                 {/* ===== QUICK ACTION CARDS (4 squares) ===== */}
                 <div className="px-5">
                   <div className="grid grid-cols-4 gap-3">
-                  {(quickActions.length > 0 ? quickActions : [
+                  {(quickActions.length > 0 ? quickActions.slice(0, 4) : [
                       { label: "Book\nAppointment", icon_name: "Calendar", gradient: "bg-[hsl(215,70%,50%)]", path: "/doctors" },
                       { label: "Order\nMedicine", icon_name: "ClipboardList", gradient: "bg-[hsl(152,55%,40%)]", path: "/pharmacies" },
                       { label: "Emergency", icon_name: "AlertTriangle", gradient: "bg-[hsl(0,70%,52%)]", path: "/emergency" },
