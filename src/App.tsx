@@ -33,7 +33,7 @@ const Favorites = lazy(() => import("./pages/Favorites"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Emergency = lazy(() => import("./pages/Emergency"));
-const Wallet = lazy(() => import("./pages/Wallet"));
+
 const Analytics = lazy(() => import("./pages/Analytics"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const MedicalHistory = lazy(() => import("./pages/MedicalHistory"));
@@ -199,7 +199,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/emergency" element={<Emergency />} />
-            <Route path="/wallet" element={<Wallet />} />
+            
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/medical-history" element={<MedicalHistory />} />

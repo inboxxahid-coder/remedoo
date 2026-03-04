@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, Wallet, FileText, Microscope, Ambulance, MapPin, type LucideIcon } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, FileText, Microscope, Ambulance, MapPin, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const logoIcons = ["💊", "🩺", "🏥", "❤️", "💉", "🧬", "🧪"];
@@ -108,7 +108,7 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [pullDistance, setPullDistance] = useState(0);
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
-  const [walletBalance, setWalletBalance] = useState(0);
+  
   const [prescriptionCount, setPrescriptionCount] = useState(0);
   const [labReportCount, setLabReportCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
@@ -183,13 +183,12 @@ const Dashboard = () => {
       const today = new Date().toISOString().split("T")[0];
       const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
 
-      const [notifRes, apptRes, orderRes, activeRes, upcomingRes, walletRes, prescRes, labRepRes, favRes] = await Promise.all([
+      const [notifRes, apptRes, orderRes, activeRes, upcomingRes, prescRes, labRepRes, favRes] = await Promise.all([
         supabase.from("notifications").select("*", { count: "exact", head: true }).eq("user_id", userId).eq("read", false),
         supabase.from("appointments").select("*", { count: "exact", head: true }).eq("patient_id", userId).gte("appointment_date", today).in("status", ["pending", "confirmed"]),
         supabase.from("orders").select("*", { count: "exact", head: true }).eq("user_id", userId).gte("created_at", thirtyDaysAgo),
         supabase.from("orders").select("*", { count: "exact", head: true }).eq("user_id", userId).in("status", ["placed", "confirmed", "out_for_delivery"]),
         supabase.from("appointments").select("id, appointment_date, appointment_time, status, doctor_id, doctors(name, specialization, image_url)").eq("patient_id", userId).gte("appointment_date", today).in("status", ["pending", "confirmed"]).order("appointment_date").limit(2),
-        supabase.from("payments").select("amount, type").eq("user_id", userId),
         supabase.from("appointments").select("id", { count: "exact", head: true }).eq("patient_id", userId).not("prescription_url", "is", null),
         supabase.from("lab_sample_collections").select("id", { count: "exact", head: true }).eq("patient_id", userId).not("report_url", "is", null),
         supabase.from("favorites").select("id", { count: "exact", head: true }).eq("user_id", userId),
@@ -200,9 +199,6 @@ const Dashboard = () => {
       setActiveOrders(activeRes.count ?? 0);
       setUpcomingAppointments(upcomingRes.data || []);
 
-      const payments = walletRes.data || [];
-      const balance = payments.reduce((sum, p) => sum + (p.type === "credit" ? Number(p.amount) : -Number(p.amount)), 0);
-      setWalletBalance(Math.max(0, balance));
       setPrescriptionCount(prescRes.count ?? 0);
       setLabReportCount(labRepRes.count ?? 0);
       setFavoritesCount(favRes.count ?? 0);
@@ -464,9 +460,8 @@ const Dashboard = () => {
                 {/* ===== INFO CARDS ROW ===== */}
                 <div className="px-5">
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                    <div className="grid grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-3 gap-2.5">
                       {[
-                        { label: "Wallet Balance", value: `₹${walletBalance.toLocaleString()}`, icon: Wallet, iconBg: "bg-[hsl(38,80%,92%)]", iconColor: "text-[hsl(38,80%,45%)]", path: "/wallet" },
                         { label: "My Prescriptions", value: `${prescriptionCount} Saved`, icon: FileText, iconBg: "bg-[hsl(215,60%,92%)]", iconColor: "text-primary", path: "/medical-history" },
                         { label: "Lab Reports", value: `${labReportCount} Reports`, icon: Microscope, iconBg: "bg-[hsl(200,65%,90%)]", iconColor: "text-[hsl(200,65%,40%)]", path: "/lab-reports" },
                         { label: "Favorites", value: `${favoritesCount} Saved`, icon: Heart, iconBg: "bg-[hsl(0,70%,92%)]", iconColor: "text-[hsl(0,70%,50%)]", path: "/favorites" },
