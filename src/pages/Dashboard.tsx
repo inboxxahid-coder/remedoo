@@ -408,7 +408,7 @@ const Dashboard = () => {
                           transition={{ delay: 0.1 + idx * 0.05 }}
                           whileTap={{ scale: 0.93 }}
                           onClick={() => navigate(action.path)}
-                          className={`${action.gradient} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
+                          className={`${actionColors[idx % actionColors.length]} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
                         >
                           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                             <ActionIcon className="w-5 h-5 text-white" strokeWidth={2} />
