@@ -62,7 +62,7 @@ export function AppSidebar() {
               {quickActions.map((item) => (
                 <button
                   key={item.title}
-                  onClick={() => navigate(item.url)}
+                  onClick={() => handleNavigate(item.url)}
                   className={`group relative overflow-hidden flex flex-col items-center gap-2 py-3 px-2 rounded-2xl bg-gradient-to-br ${item.gradient} text-primary-foreground shadow-lg hover:shadow-2xl hover:scale-[1.06] active:scale-95 transition-all duration-300 cursor-pointer`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -88,7 +88,7 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <button
-                      onClick={() => navigate(item.url)}
+                      onClick={() => handleNavigate(item.url)}
                       className={`relative flex items-center gap-3 w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
                         isActive
                           ? "bg-gradient-to-r from-sidebar-accent to-sidebar-accent/60 text-sidebar-primary shadow-lg border border-sidebar-primary/20"
