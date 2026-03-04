@@ -6,6 +6,18 @@ import { motion, AnimatePresence } from "framer-motion";
 const logoIcons = ["💊", "🩺", "🏥", "❤️", "💉", "🧬", "🧪"];
 const logoLetters = "Remedoo".split("");
 
+const randomColorPool = [
+  "bg-[hsl(215,70%,50%)]", "bg-[hsl(152,55%,40%)]", "bg-[hsl(0,70%,52%)]",
+  "bg-[hsl(330,65%,50%)]", "bg-[hsl(262,60%,52%)]", "bg-[hsl(30,80%,50%)]",
+  "bg-[hsl(190,70%,42%)]", "bg-[hsl(350,60%,48%)]", "bg-[hsl(170,60%,38%)]",
+  "bg-[hsl(45,85%,48%)]", "bg-[hsl(280,55%,50%)]", "bg-[hsl(200,65%,45%)]",
+];
+
+const pickRandomColors = (count: number) => {
+  const shuffled = [...randomColorPool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+};
+
 const AnimatedLogo = () => {
   const [morphed, setMorphed] = useState(false);
   useEffect(() => {
@@ -118,6 +130,8 @@ const Dashboard = () => {
   const [pharmacyOffers, setPharmacyOffers] = useState<any[]>([]);
   const [infoCards, setInfoCards] = useState<any[]>([]);
   const [quickAccessItems, setQuickAccessItems] = useState<any[]>([]);
+  const actionColors = useMemo(() => pickRandomColors(4), []);
+  const accessColors = useMemo(() => pickRandomColors(8), []);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -394,7 +408,7 @@ const Dashboard = () => {
                           transition={{ delay: 0.1 + idx * 0.05 }}
                           whileTap={{ scale: 0.93 }}
                           onClick={() => navigate(action.path)}
-                          className={`${action.gradient} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
+                          className={`${actionColors[idx % actionColors.length]} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
                         >
                           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                             <ActionIcon className="w-5 h-5 text-white" strokeWidth={2} />
@@ -798,23 +812,22 @@ const Dashboard = () => {
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      {quickAccessItems.map((item: any) => {
+                      {quickAccessItems.map((item: any, idx: number) => {
                         const QAIcon = getIcon(item.icon_name);
-                        const isLight = item.text_color === "text-white";
                         return (
                           <motion.button
                             key={item.id}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => navigate(item.path)}
-                            className={`bg-gradient-to-br ${item.gradient} rounded-2xl p-4 text-left relative overflow-hidden ${isLight ? "shadow-md" : "border border-border shadow-sm"}`}
+                            className={`${accessColors[idx % accessColors.length]} rounded-2xl p-4 text-left relative overflow-hidden shadow-md`}
                             style={{ minHeight: 130 }}
                           >
-                            <p className={`${item.text_color} font-bold text-base`}>{item.title}</p>
-                            <p className={`${isLight ? "text-white/80" : "text-muted-foreground"} text-xs mt-0.5`}>{item.subtitle}</p>
+                            <p className="text-white font-bold text-base">{item.title}</p>
+                            <p className="text-white/80 text-xs mt-0.5">{item.subtitle}</p>
                             {item.extra_text && (
-                              <p className={`${isLight ? "text-white/80" : "text-muted-foreground"} text-xs font-semibold mt-2`}>{item.extra_text}</p>
+                              <p className="text-white/80 text-xs font-semibold mt-2">{item.extra_text}</p>
                             )}
-                            <QAIcon className={`absolute bottom-3 right-3 w-12 h-12 ${isLight ? "text-white/15" : "text-muted-foreground/15"}`} />
+                            <QAIcon className="absolute bottom-3 right-3 w-12 h-12 text-white/15" />
                           </motion.button>
                         );
                       })}
