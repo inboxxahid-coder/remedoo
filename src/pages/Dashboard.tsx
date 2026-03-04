@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const logoIcons = ["💊", "🩺", "🏥", "❤️", "💉", "🧬", "🧪"];
 const logoLetters = "Remedoo".split("");
+let logoAnimatedOnce = false;
 
 const randomColorPool = [
   "bg-[hsl(215,70%,50%)]", "bg-[hsl(152,55%,40%)]", "bg-[hsl(0,70%,52%)]",
