@@ -379,11 +379,11 @@ const Dashboard = () => {
                 {/* ===== QUICK ACTION CARDS (4 squares) ===== */}
                 <div className="px-5">
                   <div className="grid grid-cols-4 gap-3">
-                    {(quickActions.length > 0 ? quickActions : [
-                      { label: "Book\nAppointment", icon_name: "Calendar", gradient: "from-[hsl(215,70%,50%)] to-[hsl(215,65%,40%)]", path: "/doctors" },
-                      { label: "Order\nMedicine", icon_name: "ClipboardList", gradient: "from-[hsl(152,55%,40%)] to-[hsl(152,50%,32%)]", path: "/pharmacies" },
-                      { label: "Lab\nTests", icon_name: "FlaskConical", gradient: "from-[hsl(200,65%,48%)] to-[hsl(200,60%,38%)]", path: "/labs" },
-                      { label: "Emergency", icon_name: "AlertTriangle", gradient: "from-[hsl(0,70%,52%)] to-[hsl(0,65%,42%)]", path: "/emergency" },
+                  {(quickActions.length > 0 ? quickActions : [
+                      { label: "Book\nAppointment", icon_name: "Calendar", gradient: "bg-[hsl(215,70%,50%)]", path: "/doctors" },
+                      { label: "Order\nMedicine", icon_name: "ClipboardList", gradient: "bg-[hsl(152,55%,40%)]", path: "/pharmacies" },
+                      { label: "Emergency", icon_name: "AlertTriangle", gradient: "bg-[hsl(0,70%,52%)]", path: "/emergency" },
+                      { label: "Favorites", icon_name: "Heart", gradient: "bg-[hsl(330,65%,50%)]", path: "/favorites" },
                     ]).map((action: any, idx: number) => {
                       const ActionIcon = getIcon(action.icon_name);
                       return (
@@ -394,7 +394,7 @@ const Dashboard = () => {
                           transition={{ delay: 0.1 + idx * 0.05 }}
                           whileTap={{ scale: 0.93 }}
                           onClick={() => navigate(action.path)}
-                          className={`bg-gradient-to-br ${action.gradient} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
+                          className={`${action.gradient} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
                         >
                           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
                             <ActionIcon className="w-5 h-5 text-white" strokeWidth={2} />
