@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   Building2, Phone, MapPin, Stethoscope, FileText, Upload, X, Save, Clock, Users, Star, Calendar,
 } from "lucide-react";
+import AdminEmailChangeRow from "./AdminEmailChangeRow";
 
 interface FileUploadBoxProps {
   id: string;
@@ -54,6 +55,7 @@ interface AdminDoctorEditFormProps {
 
 export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSuccess }: AdminDoctorEditFormProps) {
   const [loading, setLoading] = useState(false);
+  const [providerEmail, setProviderEmail] = useState("");
 
   // All doctor fields
   const [name, setName] = useState("");
@@ -100,6 +102,12 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
       setGstFile(null);
       setCertificateFile(null);
       setPhotoFile(null);
+      setProviderEmail("");
+      // Fetch email from profiles
+      if (doctor.user_id) {
+        supabase.from("profiles").select("email").eq("user_id", doctor.user_id).maybeSingle()
+          .then(({ data }) => { if (data?.email) setProviderEmail(data.email); });
+      }
     }
   }, [doctor, open]);
 
@@ -177,6 +185,13 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
+          {/* Account Email */}
+          <AdminEmailChangeRow
+            userId={doctor.user_id}
+            currentEmail={providerEmail}
+            onEmailChanged={(email) => setProviderEmail(email)}
+          />
+
           {/* Basic Details */}
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Stethoscope className="w-4 h-4" /> Basic Information
