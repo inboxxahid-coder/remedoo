@@ -130,6 +130,8 @@ const Dashboard = () => {
   const [pharmacyOffers, setPharmacyOffers] = useState<any[]>([]);
   const [infoCards, setInfoCards] = useState<any[]>([]);
   const [quickAccessItems, setQuickAccessItems] = useState<any[]>([]);
+  const actionColors = useMemo(() => pickRandomColors(4), []);
+  const accessColors = useMemo(() => pickRandomColors(8), []);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
