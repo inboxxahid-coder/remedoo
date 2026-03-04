@@ -1,4 +1,4 @@
-import { Calendar, AlertTriangle, Pill, Heart, Home, User, Settings, MapPin, ShoppingBag, Wallet, ChevronLeft } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Home, User, Settings, MapPin, ShoppingBag, ChevronLeft } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -17,7 +17,6 @@ const quickActions = [
   { title: "Order Medicines", url: "/pharmacies", gradient: "from-success to-success/80", emoji: "💊" },
   { title: "Favorites", url: "/favorites", gradient: "from-warning to-warning/80", emoji: "❤️" },
   { title: "My Orders", url: "/my-orders", gradient: "from-primary to-success/80", emoji: "🛍️" },
-  { title: "Wallet", url: "/wallet", gradient: "from-primary/90 to-primary/60", emoji: "💰" },
 ];
 
 const navigation = [
