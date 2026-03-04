@@ -72,6 +72,7 @@ const iconMap: Record<string, LucideIcon> = {
   Calendar, AlertTriangle, Pill, Heart, Bell, Star, Stethoscope, Building2,
   FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList,
   IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, RefreshCw,
+  FileText, Microscope, Ambulance, MapPin,
 };
 const getIcon = (name: string): LucideIcon => iconMap[name] || Heart;
 
@@ -115,6 +116,8 @@ const Dashboard = () => {
   const [popularHospitals, setPopularHospitals] = useState<any[]>([]);
   const [featuredPackages, setFeaturedPackages] = useState<any[]>([]);
   const [pharmacyOffers, setPharmacyOffers] = useState<any[]>([]);
+  const [infoCards, setInfoCards] = useState<any[]>([]);
+  const [quickAccessItems, setQuickAccessItems] = useState<any[]>([]);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
