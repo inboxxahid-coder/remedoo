@@ -2176,13 +2176,17 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
           created_at: string
           dark_mode: boolean | null
           email: string | null
           full_name: string | null
+          gender: string | null
           id: string
           language: string | null
+          latitude: number | null
+          longitude: number | null
           notification_preferences: Json | null
           phone: string | null
           status: string
@@ -2190,13 +2194,17 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
           created_at?: string
           dark_mode?: boolean | null
           email?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           language?: string | null
+          latitude?: number | null
+          longitude?: number | null
           notification_preferences?: Json | null
           phone?: string | null
           status?: string
@@ -2204,13 +2212,17 @@ export type Database = {
           user_id: string
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
           created_at?: string
           dark_mode?: boolean | null
           email?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           language?: string | null
+          latitude?: number | null
+          longitude?: number | null
           notification_preferences?: Json | null
           phone?: string | null
           status?: string
