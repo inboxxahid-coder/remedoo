@@ -1,0 +1,1 @@
+UPDATE dashboard_quick_actions SET label = E'My\nFavorites' WHERE path = '/favorites';
