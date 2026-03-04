@@ -601,6 +601,84 @@ export type Database = {
         }
         Relationships: []
       }
+      dashboard_info_cards: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          icon_bg: string | null
+          icon_color: string | null
+          icon_name: string
+          id: string
+          label: string
+          path: string
+          sort_order: number | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          icon_bg?: string | null
+          icon_color?: string | null
+          icon_name?: string
+          id?: string
+          label: string
+          path?: string
+          sort_order?: number | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          icon_bg?: string | null
+          icon_color?: string | null
+          icon_name?: string
+          id?: string
+          label?: string
+          path?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      dashboard_quick_access: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          extra_text: string | null
+          gradient: string | null
+          icon_name: string
+          id: string
+          path: string
+          sort_order: number | null
+          subtitle: string | null
+          text_color: string | null
+          title: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          extra_text?: string | null
+          gradient?: string | null
+          icon_name?: string
+          id?: string
+          path?: string
+          sort_order?: number | null
+          subtitle?: string | null
+          text_color?: string | null
+          title: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          extra_text?: string | null
+          gradient?: string | null
+          icon_name?: string
+          id?: string
+          path?: string
+          sort_order?: number | null
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       dashboard_quick_actions: {
         Row: {
           active: boolean | null

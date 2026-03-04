@@ -72,6 +72,8 @@ const AdminServices = lazy(() => import("./pages/admin/AdminServices"));
 const AdminHealthTips = lazy(() => import("./pages/admin/AdminHealthTips"));
 const AdminFeaturedDoctors = lazy(() => import("./pages/admin/AdminFeaturedDoctors"));
 const AdminFeaturedMedicines = lazy(() => import("./pages/admin/AdminFeaturedMedicines"));
+const AdminInfoCards = lazy(() => import("./pages/admin/AdminInfoCards"));
+const AdminQuickAccess = lazy(() => import("./pages/admin/AdminQuickAccess"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -238,6 +240,8 @@ const App = () => {
               <Route path="health-tips" element={<AdminHealthTips />} />
               <Route path="featured-doctors" element={<AdminFeaturedDoctors />} />
               <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
+              <Route path="info-cards" element={<AdminInfoCards />} />
+              <Route path="quick-access" element={<AdminQuickAccess />} />
             </Route>
 
             {/* Doctor routes */}
