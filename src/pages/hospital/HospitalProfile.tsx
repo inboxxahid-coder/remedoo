@@ -102,7 +102,7 @@ export default function HospitalProfile() {
   return (
     <div className="max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Hospital Profile</h1>
-      <div className="flex items-center gap-2">{profile.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-red-500" />}<Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-red-500 hover:bg-red-600 text-white border-red-500" : ""}>{profile.approval_status === "approved" ? "Verified Hospital" : profile.approval_status}</Badge></div>
+      <div className="flex items-center gap-2">{profile.approval_status === "approved" && <><BadgeCheck className="w-5 h-5 text-red-500" /><span className="text-sm font-semibold text-red-500">Verified</span></>}<Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-red-500 hover:bg-red-600 text-white border-red-500" : ""}>{profile.approval_status === "approved" ? "Verified Hospital" : profile.approval_status}</Badge></div>
 
       {/* Photo */}
       <Card className="p-5">

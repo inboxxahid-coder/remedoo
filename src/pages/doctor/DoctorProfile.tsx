@@ -193,7 +193,12 @@ export default function DoctorProfile() {
 
       {/* Approval Status */}
       <div className="flex items-center gap-2">
-        {profile.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-blue-500" />}
+        {profile.approval_status === "approved" && (
+          <>
+            <BadgeCheck className="w-5 h-5 text-blue-500" />
+            <span className="text-sm font-semibold text-blue-500">Verified</span>
+          </>
+        )}
         <Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500" : ""}>
           {profile.approval_status === "approved" ? "Verified Doctor" : profile.approval_status}
         </Badge>
