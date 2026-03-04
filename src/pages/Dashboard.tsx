@@ -20,11 +20,28 @@ const pickRandomColors = (count: number) => {
 };
 
 const AnimatedLogo = () => {
-  const [morphed, setMorphed] = useState(false);
+  const skipAnimation = logoAnimatedOnce;
+  const [morphed, setMorphed] = useState(skipAnimation);
   useEffect(() => {
-    const t = setTimeout(() => setMorphed(true), 600);
+    if (skipAnimation) return;
+    const t = setTimeout(() => {
+      setMorphed(true);
+      logoAnimatedOnce = true;
+    }, 600);
     return () => clearTimeout(t);
-  }, []);
+  }, [skipAnimation]);
+
+  if (skipAnimation) {
+    return (
+      <div className="flex items-center gap-0">
+        {logoLetters.map((letter, i) => (
+          <div key={i} className="relative w-[0.85rem] h-7 flex items-center justify-center">
+            <span className="absolute text-xl font-extrabold text-primary-foreground">{letter}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-0">
