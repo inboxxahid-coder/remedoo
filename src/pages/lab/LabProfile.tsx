@@ -96,7 +96,7 @@ export default function LabProfile() {
   return (
     <div className="max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Lab Profile</h1>
-      <div className="flex items-center gap-2">{profile.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-yellow-500" />}<Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500" : ""}>{profile.approval_status === "approved" ? "Verified Lab" : profile.approval_status}</Badge></div>
+      <div className="flex items-center gap-2">{profile.approval_status === "approved" && <><BadgeCheck className="w-5 h-5 text-yellow-500" /><span className="text-sm font-semibold text-yellow-500">Verified</span></>}<Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500" : ""}>{profile.approval_status === "approved" ? "Verified Lab" : profile.approval_status}</Badge></div>
 
       <Card className="p-5">
         <Label className="text-sm font-semibold mb-3 block">Lab Photo</Label>

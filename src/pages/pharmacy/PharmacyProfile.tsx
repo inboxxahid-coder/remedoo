@@ -96,7 +96,7 @@ export default function PharmacyProfile() {
   return (
     <div className="max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Pharmacy Profile</h1>
-      <div className="flex items-center gap-2">{profile.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-green-500" />}<Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-green-500 hover:bg-green-600 text-white border-green-500" : ""}>{profile.approval_status === "approved" ? "Verified Pharmacy" : profile.approval_status}</Badge></div>
+      <div className="flex items-center gap-2">{profile.approval_status === "approved" && <><BadgeCheck className="w-5 h-5 text-green-500" /><span className="text-sm font-semibold text-green-500">Verified</span></>}<Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-green-500 hover:bg-green-600 text-white border-green-500" : ""}>{profile.approval_status === "approved" ? "Verified Pharmacy" : profile.approval_status}</Badge></div>
 
       <Card className="p-5">
         <Label className="text-sm font-semibold mb-3 block">Pharmacy Photo</Label>
