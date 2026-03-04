@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Star, MapPin, Phone, Clock, Briefcase, Heart, IndianRupee, Calendar, Building2, MessageSquare, Navigation } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Phone, Clock, Briefcase, Heart, IndianRupee, Calendar, Building2, MessageSquare, Navigation, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -144,7 +144,7 @@ const DoctorDetail = () => {
               ) : "👨‍⚕️"}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-foreground">{doctor.name}</h2>
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5">{doctor.name}{doctor.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-blue-500 shrink-0" />}</h2>
               <p
                 className="text-sm text-primary font-medium cursor-pointer hover:underline"
                 onClick={() => doctor.specialization && navigate(`/doctors?spec=${encodeURIComponent(doctor.specialization)}`)}

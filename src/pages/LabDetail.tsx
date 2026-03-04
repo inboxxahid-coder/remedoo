@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Star, MapPin, Phone, Clock, Heart, TestTube,
   Beaker, Home, Utensils, BadgePercent, ChevronDown, ChevronUp,
-  Droplets, AlertCircle, CheckCircle2, Info, Calendar, ArrowRightLeft, Navigation
+  Droplets, AlertCircle, CheckCircle2, Info, Calendar, ArrowRightLeft, Navigation, BadgeCheck
 } from "lucide-react";
 import { withAuthGuard } from "@/hooks/useRequireAuth";
 import { Button } from "@/components/ui/button";
@@ -161,7 +161,7 @@ const LabDetail = () => {
             <button onClick={() => navigate(-1)} className="text-primary-foreground">
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-xl font-bold text-primary-foreground truncate">{lab.name}</h1>
+            <h1 className="text-xl font-bold text-primary-foreground truncate flex items-center gap-1.5">{lab.name}{lab.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-yellow-400 shrink-0" />}</h1>
           </div>
           <button onClick={toggleFavorite}>
             <Heart className={`w-6 h-6 ${isFavorite ? "fill-red-400 text-red-400" : "text-primary-foreground/70"}`} />

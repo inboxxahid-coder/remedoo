@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package, Info, Navigation } from "lucide-react";
+import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package, Info, Navigation, BadgeCheck } from "lucide-react";
 import { withAuthGuard } from "@/hooks/useRequireAuth";
 import MedicineDetailSheet from "@/components/patient/MedicineDetailSheet";
 import { Input } from "@/components/ui/input";
@@ -111,7 +111,7 @@ const PharmacyDetail = () => {
         <div className="flex items-center gap-3 mb-3">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold text-primary-foreground truncate">{pharmacy.name}</h1>
+            <h1 className="text-lg font-bold text-primary-foreground truncate flex items-center gap-1.5">{pharmacy.name}{pharmacy.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-green-400 shrink-0" />}</h1>
             {pharmacy.location && <p className="text-primary-foreground/70 text-xs flex items-center gap-1"><MapPin className="w-3 h-3" />{pharmacy.location}</p>}
           </div>
           <div className="flex items-center gap-1 bg-primary-foreground/20 rounded-lg px-2 py-1">

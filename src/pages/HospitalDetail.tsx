@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Star, MapPin, Phone, Clock, Bed, Heart, Calendar, ShieldCheck, Landmark, Navigation, Building2, Users } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Phone, Clock, Bed, Heart, Calendar, ShieldCheck, Landmark, Navigation, Building2, Users, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -117,7 +117,7 @@ const HospitalDetail = () => {
               ) : hospital.is_government ? "🏛️" : "🏥"}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-foreground">{hospital.name}</h2>
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5">{hospital.name}{hospital.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-red-500 shrink-0" />}</h2>
               {hospital.is_government && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
                   <Landmark className="w-2.5 h-2.5" />GOVT
