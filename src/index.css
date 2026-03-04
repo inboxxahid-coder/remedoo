@@ -1,5 +1,4 @@
-/* Fonts loaded via preconnect in index.html + link below for non-blocking load */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+/* Fonts loaded via preload in index.html for non-blocking load */
 
 @tailwind base;
 @tailwind components;

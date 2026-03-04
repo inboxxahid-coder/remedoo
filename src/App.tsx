@@ -128,7 +128,16 @@ const LabEarnings = lazy(() => import("./pages/lab/LabEarnings"));
 const LabSampleCollections = lazy(() => import("./pages/lab/LabSampleCollections"));
 const SupportTickets = lazy(() => import("./pages/SupportTickets"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const PageLoader = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">

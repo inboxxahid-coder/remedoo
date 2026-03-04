@@ -505,7 +505,7 @@ const Dashboard = () => {
                 {/* ===== POPULAR DOCTORS ===== */}
                 {topDoctors.length > 0 && (
                   <div className="px-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+                    <div>
                       <div className="flex items-center justify-between mb-3">
                         <h2 className="text-lg font-bold text-foreground">Popular Doctors</h2>
                         <button onClick={() => navigate("/doctors")} className="text-primary font-bold text-sm flex items-center">
@@ -548,14 +548,14 @@ const Dashboard = () => {
                         <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
                         <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 )}
 
                 {/* ===== POPULAR MEDICINES ===== */}
                 {popularMedicines.length > 0 && (
                   <div className="px-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }}>
+                    <div>
                       <div className="flex items-center justify-between mb-3">
                         <h2 className="text-lg font-bold text-foreground">Popular Medicines</h2>
                         <button onClick={() => navigate("/pharmacies")} className="text-primary font-bold text-sm flex items-center">
@@ -601,14 +601,14 @@ const Dashboard = () => {
                           );
                         })}
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 )}
 
                 {/* ===== POPULAR HOSPITALS ===== */}
                 {popularHospitals.length > 0 && (
                   <div className="px-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }}>
+                    <div>
                       <div className="flex items-center justify-between mb-3">
                         <h2 className="text-lg font-bold text-foreground">Popular Hospitals</h2>
                         <button onClick={() => navigate("/hospitals")} className="text-primary font-bold text-sm flex items-center">
@@ -654,14 +654,14 @@ const Dashboard = () => {
                           </motion.button>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 )}
 
                 {/* ===== FEATURED PACKAGES (before Quick Access) ===== */}
                 {featuredPackages.length > 0 && (
                   <div className="px-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.46 }}>
+                    <div>
                       <h2 className="text-lg font-bold mb-3 text-foreground">Featured Packages</h2>
                       <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
                         {featuredPackages.map((pkg: any, idx: number) => {
@@ -694,13 +694,13 @@ const Dashboard = () => {
                           );
                         })}
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 )}
 
                 {/* ===== PHARMACY BENEFITS ===== */}
                 <div className="px-5">
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.47 }}>
+                  <div>
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-lg font-bold text-foreground">Pharmacy Benefits</h2>
                       <button onClick={() => navigate("/pharmacies")} className="text-primary font-bold text-sm flex items-center">
@@ -786,13 +786,13 @@ const Dashboard = () => {
                         </div>
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 </div>
 
                 {/* ===== QUICK ACCESS MORE (2x2 grid) ===== */}
                 {quickAccessItems.length > 0 && (
                 <div className="px-5">
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
+                  <div>
                     <div className="flex items-center gap-1 mb-3">
                       <h2 className="text-lg font-bold text-foreground">Quick Access More</h2>
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -819,7 +819,7 @@ const Dashboard = () => {
                         );
                       })}
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
                 )}
 
@@ -827,7 +827,7 @@ const Dashboard = () => {
                 {/* ===== BROWSE SERVICES ===== */}
                 {services.length > 0 && (
                   <div className="px-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+                    <div>
                       <h2 className="text-lg font-bold mb-3 text-foreground">Browse Services</h2>
                       <div className="grid grid-cols-2 gap-3">
                         {services.map((svc: any) => {
@@ -848,7 +848,7 @@ const Dashboard = () => {
                           );
                         })}
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 )}
 
@@ -865,7 +865,7 @@ const Dashboard = () => {
                 {/* ===== ADS ===== */}
                 {ads.length > 0 && (
                   <div className="px-5">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                    <div>
                       <div className="space-y-3">
                         {ads.map((ad) => (
                           <motion.a
@@ -886,7 +886,7 @@ const Dashboard = () => {
                           </motion.a>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
                 )}
               </div>
