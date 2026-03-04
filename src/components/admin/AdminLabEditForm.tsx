@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Building2, Phone, MapPin, FileText, Upload, X, Save, Star, FlaskConical } from "lucide-react";
+import AdminEmailChangeRow from "./AdminEmailChangeRow";
 
 interface FileUploadBoxProps {
   id: string; label: string; file: File | null; existingUrl?: string | null;
@@ -32,6 +33,7 @@ interface Props {
 
 export default function AdminLabEditForm({ lab, open, onOpenChange, onSuccess }: Props) {
   const [loading, setLoading] = useState(false);
+  const [providerEmail, setProviderEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
@@ -50,6 +52,11 @@ export default function AdminLabEditForm({ lab, open, onOpenChange, onSuccess }:
       setRating(String(lab.rating ?? "")); setLatitude(String(lab.latitude ?? "")); setLongitude(String(lab.longitude ?? ""));
       setApprovalStatus(lab.approval_status || "approved"); setAdminNote(lab.admin_note || "");
       setLicenseFile(null); setGstFile(null); setPhotoFile(null);
+      setProviderEmail("");
+      if (lab.user_id) {
+        supabase.from("profiles").select("email").eq("user_id", lab.user_id).maybeSingle()
+          .then(({ data }) => { if (data?.email) setProviderEmail(data.email); });
+      }
     }
   }, [lab, open]);
 
@@ -88,6 +95,11 @@ export default function AdminLabEditForm({ lab, open, onOpenChange, onSuccess }:
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto mx-4">
         <DialogHeader><DialogTitle>Edit Lab — {lab.name}</DialogTitle></DialogHeader>
         <div className="space-y-4 mt-2">
+          <AdminEmailChangeRow
+            userId={lab.user_id}
+            currentEmail={providerEmail}
+            onEmailChanged={(email) => setProviderEmail(email)}
+          />
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2"><FlaskConical className="w-4 h-4" /> Basic Information</h3>
           <div className="space-y-2"><Label>Lab Name <span className="text-destructive">*</span></Label><div className="relative"><Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input value={name} onChange={(e) => setName(e.target.value)} className="pl-10" /></div></div>
           <div className="space-y-2"><Label>Phone</Label><div className="relative"><Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input value={phone} onChange={(e) => setPhone(e.target.value)} className="pl-10" /></div></div>
