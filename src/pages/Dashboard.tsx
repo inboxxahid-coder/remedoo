@@ -460,11 +460,12 @@ const Dashboard = () => {
                 {/* ===== INFO CARDS ROW ===== */}
                 <div className="px-5">
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                    <div className="grid grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-4 gap-2.5">
                       {[
                         { label: "My Prescriptions", value: `${prescriptionCount} Saved`, icon: FileText, iconBg: "bg-[hsl(215,60%,92%)]", iconColor: "text-primary", path: "/medical-history" },
                         { label: "Lab Reports", value: `${labReportCount} Reports`, icon: Microscope, iconBg: "bg-[hsl(200,65%,90%)]", iconColor: "text-[hsl(200,65%,40%)]", path: "/lab-reports" },
                         { label: "My Orders", value: `${recentOrders} Orders`, icon: ShoppingBag, iconBg: "bg-[hsl(145,50%,90%)]", iconColor: "text-[hsl(145,50%,35%)]", path: "/my-orders" },
+                        { label: "Favorites", value: `${favoritesCount} Saved`, icon: Heart, iconBg: "bg-[hsl(0,70%,92%)]", iconColor: "text-[hsl(0,70%,50%)]", path: "/favorites" },
                       ].map((card) => (
                         <motion.button
                           key={card.label}
