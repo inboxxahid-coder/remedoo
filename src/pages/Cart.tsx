@@ -31,6 +31,23 @@ const Cart = () => {
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Auto-fetch saved address from profile
+  useEffect(() => {
+    const fetchProfileAddress = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("address" as any)
+        .eq("user_id", session.user.id)
+        .single();
+      if (data && (data as any).address) {
+        setAddress((data as any).address);
+      }
+    };
+    fetchProfileAddress();
+  }, []);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Load Razorpay script
