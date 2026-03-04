@@ -277,14 +277,14 @@ const Dashboard = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full overflow-x-hidden">
         <AppSidebar />
         <div
           ref={scrollRef}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-[hsl(210,20%,97%)] dark:bg-background"
+          className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto overflow-x-hidden bg-[hsl(210,20%,97%)] dark:bg-background"
           style={{ overscrollBehavior: "contain" }}
         >
           {/* Pull-to-refresh */}
@@ -305,7 +305,7 @@ const Dashboard = () => {
             )}
           </AnimatePresence>
 
-          <div className="pb-24">
+          <div className="pb-24 overflow-x-hidden">
             {/* ===== TOP BAR ===== */}
             <div className="sticky top-0 z-40 bg-primary">
               <div className="flex items-center justify-between px-4 h-14">
@@ -335,7 +335,7 @@ const Dashboard = () => {
 
             {/* ===== WELCOME + SEARCH ===== */}
             <div className="px-5 pt-4 pb-4 bg-primary rounded-b-3xl">
-              <h1 className="text-lg font-bold text-white mb-2">Welcome, {displayName}!</h1>
+              <h1 className="text-lg font-bold text-white mb-2 truncate">Welcome, {displayName}!</h1>
               <UnifiedSearch />
             </div>
 
@@ -348,11 +348,11 @@ const Dashboard = () => {
                 <Skeleton className="w-full h-24 rounded-2xl" />
               </div>
             ) : (
-              <div className="space-y-5 pt-4">
+              <div className="space-y-5 pt-4 w-full max-w-full">
 
                 {/* ===== HERO BANNER ===== */}
                 <div className="px-5">
-                  <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+                   <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory max-w-full">
                     {(slides.length > 0 ? slides : [
                       { id: "default", title: "Stay Healthy with Remedoo", description: "Book appointments, order medicines & more", url: null, type: "image", target_link: null } as any
                     ]).map((slide: any, idx: number) => {
@@ -364,7 +364,7 @@ const Dashboard = () => {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.1 }}
                           onClick={() => slide.target_link && navigate(slide.target_link)}
-                          className="flex-shrink-0 w-full max-w-full rounded-2xl overflow-hidden relative snap-start cursor-pointer bg-gradient-to-r from-[hsl(205,80%,92%)] to-[hsl(205,70%,96%)] dark:from-[hsl(205,40%,18%)] dark:to-[hsl(205,30%,22%)]"
+                          className="flex-shrink-0 w-[calc(100vw-2.5rem)] max-w-full rounded-2xl overflow-hidden relative snap-start cursor-pointer bg-gradient-to-r from-[hsl(205,80%,92%)] to-[hsl(205,70%,96%)] dark:from-[hsl(205,40%,18%)] dark:to-[hsl(205,30%,22%)]"
                           style={{ minHeight: 170 }}
                         >
                           {hasImage ? (
@@ -424,7 +424,7 @@ const Dashboard = () => {
                 <div className="px-5">
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
                     <div className="flex items-center justify-between mb-3">
-                      <h2 className="text-lg font-bold text-foreground">Your Upcoming Appointments</h2>
+                      <h2 className="text-lg font-bold text-foreground truncate">Your Upcoming Appointments</h2>
                       {upcomingAppts > 0 && (
                         <button onClick={() => navigate("/appointments")} className="text-muted-foreground hover:text-primary">
                           <ChevronRight className="w-5 h-5" />
@@ -637,7 +637,7 @@ const Dashboard = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.45 + idx * 0.06 }}
                             onClick={() => navigate(`/hospital/${hosp.id}`)}
-                            className="flex-shrink-0 w-[300px] bg-gradient-to-r from-[hsl(205,80%,94%)] to-[hsl(205,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(205,30%,20%)] rounded-2xl border border-border p-4 text-left snap-start shadow-sm relative overflow-hidden"
+                            className="flex-shrink-0 w-[280px] max-w-[85vw] bg-gradient-to-r from-[hsl(205,80%,94%)] to-[hsl(205,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(205,30%,20%)] rounded-2xl border border-border p-4 text-left snap-start shadow-sm relative overflow-hidden"
                             style={{ minHeight: 150 }}
                           >
                             <div className="relative z-10">
