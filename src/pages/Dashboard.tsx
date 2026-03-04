@@ -379,27 +379,30 @@ const Dashboard = () => {
                 {/* ===== QUICK ACTION CARDS (4 squares) ===== */}
                 <div className="px-5">
                   <div className="grid grid-cols-4 gap-3">
-                    {[
-                      { label: "Book\nAppointment", icon: Calendar, bg: "bg-[hsl(215,70%,50%)]", path: "/doctors" },
-                      { label: "Order\nMedicine", icon: ClipboardList, bg: "bg-[hsl(152,55%,40%)]", path: "/pharmacies" },
-                      { label: "Lab\nTests", icon: FlaskConical, bg: "bg-[hsl(200,65%,48%)]", path: "/labs" },
-                      { label: "Emergency", icon: AlertTriangle, bg: "bg-[hsl(0,70%,52%)]", path: "/emergency" },
-                    ].map((action, idx) => (
-                      <motion.button
-                        key={action.label}
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 + idx * 0.05 }}
-                        whileTap={{ scale: 0.93 }}
-                        onClick={() => navigate(action.path)}
-                        className={`${action.bg} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                          <action.icon className="w-5 h-5 text-white" strokeWidth={2} />
-                        </div>
-                        <span className="text-[10px] text-white font-bold text-center leading-tight whitespace-pre-line">{action.label}</span>
-                      </motion.button>
-                    ))}
+                    {(quickActions.length > 0 ? quickActions : [
+                      { label: "Book\nAppointment", icon_name: "Calendar", gradient: "from-[hsl(215,70%,50%)] to-[hsl(215,65%,40%)]", path: "/doctors" },
+                      { label: "Order\nMedicine", icon_name: "ClipboardList", gradient: "from-[hsl(152,55%,40%)] to-[hsl(152,50%,32%)]", path: "/pharmacies" },
+                      { label: "Lab\nTests", icon_name: "FlaskConical", gradient: "from-[hsl(200,65%,48%)] to-[hsl(200,60%,38%)]", path: "/labs" },
+                      { label: "Emergency", icon_name: "AlertTriangle", gradient: "from-[hsl(0,70%,52%)] to-[hsl(0,65%,42%)]", path: "/emergency" },
+                    ]).map((action: any, idx: number) => {
+                      const ActionIcon = getIcon(action.icon_name);
+                      return (
+                        <motion.button
+                          key={action.label}
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 + idx * 0.05 }}
+                          whileTap={{ scale: 0.93 }}
+                          onClick={() => navigate(action.path)}
+                          className={`bg-gradient-to-br ${action.gradient} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                            <ActionIcon className="w-5 h-5 text-white" strokeWidth={2} />
+                          </div>
+                          <span className="text-[10px] text-white font-bold text-center leading-tight whitespace-pre-line">{action.label}</span>
+                        </motion.button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -465,31 +468,39 @@ const Dashboard = () => {
                 </div>
 
                 {/* ===== INFO CARDS ROW ===== */}
+                {infoCards.length > 0 && (
                 <div className="px-5">
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                    <div className="grid grid-cols-4 gap-2.5">
-                      {[
-                        { label: "My Prescriptions", value: `${prescriptionCount} Saved`, icon: FileText, iconBg: "bg-[hsl(215,60%,92%)]", iconColor: "text-primary", path: "/medical-history" },
-                        { label: "Lab Reports", value: `${labReportCount} Reports`, icon: Microscope, iconBg: "bg-[hsl(200,65%,90%)]", iconColor: "text-[hsl(200,65%,40%)]", path: "/lab-reports" },
-                        { label: "My Orders", value: `${recentOrders} Orders`, icon: ShoppingBag, iconBg: "bg-[hsl(145,50%,90%)]", iconColor: "text-[hsl(145,50%,35%)]", path: "/my-orders" },
-                        { label: "Favorites", value: `${favoritesCount} Saved`, icon: Heart, iconBg: "bg-[hsl(0,70%,92%)]", iconColor: "text-[hsl(0,70%,50%)]", path: "/favorites" },
-                      ].map((card) => (
-                        <motion.button
-                          key={card.label}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => navigate(card.path)}
-                          className="bg-card rounded-2xl border border-border p-3 flex flex-col items-center gap-1.5 text-center shadow-sm"
-                        >
-                          <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center`}>
-                            <card.icon className={`w-5 h-5 ${card.iconColor}`} strokeWidth={1.8} />
-                          </div>
-                          <span className="text-[9px] font-semibold text-foreground leading-tight">{card.label}</span>
-                          <span className="text-[10px] font-bold text-foreground">{card.value}</span>
-                        </motion.button>
-                      ))}
+                    <div className={`grid grid-cols-${Math.min(infoCards.length, 4)} gap-2.5`}>
+                      {infoCards.map((card: any) => {
+                        const CardIcon = getIcon(card.icon_name);
+                        // Compute dynamic value based on path
+                        const valueMap: Record<string, string> = {
+                          "/medical-history": `${prescriptionCount} Saved`,
+                          "/lab-reports": `${labReportCount} Reports`,
+                          "/my-orders": `${recentOrders} Orders`,
+                          "/favorites": `${favoritesCount} Saved`,
+                        };
+                        const displayValue = valueMap[card.path] || "";
+                        return (
+                          <motion.button
+                            key={card.id}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => navigate(card.path)}
+                            className="bg-card rounded-2xl border border-border p-3 flex flex-col items-center gap-1.5 text-center shadow-sm"
+                          >
+                            <div className={`w-10 h-10 rounded-xl ${card.icon_bg} flex items-center justify-center`}>
+                              <CardIcon className={`w-5 h-5 ${card.icon_color}`} strokeWidth={1.8} />
+                            </div>
+                            <span className="text-[9px] font-semibold text-foreground leading-tight">{card.label}</span>
+                            <span className="text-[10px] font-bold text-foreground">{displayValue}</span>
+                          </motion.button>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 </div>
+                )}
 
                 {/* ===== POPULAR DOCTORS ===== */}
                 {topDoctors.length > 0 && (
@@ -779,6 +790,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* ===== QUICK ACCESS MORE (2x2 grid) ===== */}
+                {quickAccessItems.length > 0 && (
                 <div className="px-5">
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48 }}>
                     <div className="flex items-center gap-1 mb-3">
@@ -786,43 +798,30 @@ const Dashboard = () => {
                       <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      {/* Find Doctors */}
-                      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/doctors")}
-                        className="bg-gradient-to-br from-[hsl(215,70%,50%)] to-[hsl(215,65%,40%)] rounded-2xl p-4 text-left relative overflow-hidden shadow-md"
-                        style={{ minHeight: 130 }}>
-                        <p className="text-white font-bold text-base">Find Doctors</p>
-                        <p className="text-white/80 text-xs mt-0.5">400+ Available</p>
-                        <Stethoscope className="absolute bottom-3 right-3 w-12 h-12 text-white/15" />
-                      </motion.button>
-
-                      {/* Ambulance Service */}
-                      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/emergency")}
-                        className="bg-gradient-to-br from-muted to-[hsl(205,30%,94%)] dark:from-[hsl(210,20%,16%)] dark:to-[hsl(205,20%,14%)] rounded-2xl p-4 text-left relative overflow-hidden border border-border shadow-sm"
-                        style={{ minHeight: 130 }}>
-                        <p className="text-foreground font-bold text-base">Ambulance Service</p>
-                        <p className="text-muted-foreground text-xs mt-0.5">10 min Guaranteed</p>
-                        <p className="text-muted-foreground text-xs mt-0.5">₹200</p>
-                        <Ambulance className="absolute bottom-3 right-3 w-12 h-12 text-muted-foreground/15" />
-                      </motion.button>
-
-                      {/* Medicine Delivery */}
-                      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/pharmacies")}
-                        className="bg-gradient-to-br from-[hsl(152,55%,40%)] to-[hsl(152,50%,32%)] rounded-2xl p-4 text-left relative overflow-hidden shadow-md"
-                        style={{ minHeight: 130 }}>
-                        <p className="text-white font-bold text-base">Medicine Delivery</p>
-                        <p className="text-white/80 text-xs mt-0.5">Fast Home Delivery</p>
-                        <Pill className="absolute bottom-3 right-3 w-12 h-12 text-white/15" />
-                      </motion.button>
-
-                      {/* Health Packages */}
-                      <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/labs")}
-                        className="bg-gradient-to-br from-[hsl(270,40%,92%)] to-[hsl(280,35%,88%)] dark:from-[hsl(270,30%,18%)] dark:to-[hsl(280,25%,15%)] rounded-2xl p-4 text-left relative overflow-hidden border border-border shadow-sm"
-                        style={{ minHeight: 130 }}>
-                        <p className="text-foreground font-bold text-base">Health Packages</p>
-                        <p className="text-muted-foreground text-xs mt-0.5">Full Body Checkups</p>
-                        <p className="text-muted-foreground text-xs font-semibold mt-2">Starting From ₹999</p>
-                        <FlaskConical className="absolute bottom-3 right-3 w-12 h-12 text-muted-foreground/15" />
-                      </motion.button>
+                      {quickAccessItems.map((item: any) => {
+                        const QAIcon = getIcon(item.icon_name);
+                        const isLight = item.text_color === "text-white";
+                        return (
+                          <motion.button
+                            key={item.id}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => navigate(item.path)}
+                            className={`bg-gradient-to-br ${item.gradient} rounded-2xl p-4 text-left relative overflow-hidden ${isLight ? "shadow-md" : "border border-border shadow-sm"}`}
+                            style={{ minHeight: 130 }}
+                          >
+                            <p className={`${item.text_color} font-bold text-base`}>{item.title}</p>
+                            <p className={`${isLight ? "text-white/80" : "text-muted-foreground"} text-xs mt-0.5`}>{item.subtitle}</p>
+                            {item.extra_text && (
+                              <p className={`${isLight ? "text-white/80" : "text-muted-foreground"} text-xs font-semibold mt-2`}>{item.extra_text}</p>
+                            )}
+                            <QAIcon className={`absolute bottom-3 right-3 w-12 h-12 ${isLight ? "text-white/15" : "text-muted-foreground/15"}`} />
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                </div>
+                )}
                     </div>
                   </motion.div>
                 </div>
