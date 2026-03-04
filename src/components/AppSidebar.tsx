@@ -28,10 +28,15 @@ const navigation = [
 ];
 
 export function AppSidebar() {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, setOpenMobile } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+
+  const handleNavigate = (url: string) => {
+    setOpenMobile(false);
+    setTimeout(() => navigate(url), 150);
+  };
 
   return (
     <Sidebar collapsible="offcanvas">
