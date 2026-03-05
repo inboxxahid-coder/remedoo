@@ -24,7 +24,12 @@ const Login = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        toast.error(error.message);
+        const msg = error.message.toLowerCase();
+        if (msg.includes("invalid") || msg.includes("credentials")) {
+          toast.error("Invalid email or password. Please check and try again.");
+        } else {
+          toast.error(error.message);
+        }
         setLoading(false);
         return;
       }
