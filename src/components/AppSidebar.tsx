@@ -35,7 +35,10 @@ export function AppSidebar() {
 
   const handleNavigate = (url: string) => {
     setOpenMobile(false);
-    navigate(url);
+    // Defer navigation to next frame so sidebar close animation isn't blocked by Suspense
+    requestAnimationFrame(() => {
+      navigate(url);
+    });
   };
 
   return (
