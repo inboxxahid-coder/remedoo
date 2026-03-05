@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
+import MaintenanceModePage from "@/pages/MaintenanceMode";
 
 // Lazy-loaded pages — each becomes a separate chunk
 const Splash = lazy(() => import("./pages/Splash"));
@@ -149,6 +151,187 @@ const PageLoader = () => (
   </div>
 );
 
+const AppRoutes = () => {
+  const { isMaintenanceMode, loading: maintenanceLoading } = useMaintenanceMode();
+
+  if (maintenanceLoading) return <PageLoader />;
+
+  // If maintenance mode is on, only allow admin routes
+  if (isMaintenanceMode) {
+    return (
+      <Routes>
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="doctors" element={<AdminDoctors />} />
+          <Route path="hospitals" element={<AdminHospitals />} />
+          <Route path="labs" element={<AdminLabs />} />
+          <Route path="pharmacies" element={<AdminPharmacies />} />
+          <Route path="medicines" element={<AdminMedicines />} />
+          <Route path="approvals" element={<AdminApprovals />} />
+          <Route path="appointments" element={<AdminAppointments />} />
+          <Route path="emergencies" element={<AdminEmergencies />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="slider" element={<AdminSlider />} />
+          <Route path="ads" element={<AdminAds />} />
+          <Route path="edit-requests" element={<AdminEditRequests />} />
+          <Route path="otp-settings" element={<AdminOtpSettings />} />
+          <Route path="commission" element={<AdminCommissionConfig />} />
+          <Route path="revenue" element={<AdminRevenueDashboard />} />
+          <Route path="payouts" element={<AdminPayouts />} />
+          <Route path="support-tickets" element={<AdminSupportTickets />} />
+          <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
+          <Route path="quick-actions" element={<AdminQuickActions />} />
+          <Route path="services" element={<AdminServices />} />
+          <Route path="health-tips" element={<AdminHealthTips />} />
+          <Route path="featured-doctors" element={<AdminFeaturedDoctors />} />
+          <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
+          <Route path="info-cards" element={<AdminInfoCards />} />
+          <Route path="quick-access" element={<AdminQuickAccess />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="team" element={<AdminTeam />} />
+        </Route>
+        <Route path="*" element={<MaintenanceModePage />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <Routes>
+      {/* Patient routes */}
+      <Route path="/" element={<Splash />} />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/provider-register" element={<ProviderRegister />} />
+      <Route path="/pending-approval" element={<PendingApproval />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/doctors" element={<Doctors />} />
+      <Route path="/doctor/:id" element={<DoctorDetail />} />
+      <Route path="/hospitals" element={<Hospitals />} />
+      <Route path="/hospital/:id" element={<HospitalDetail />} />
+      <Route path="/labs" element={<Labs />} />
+      <Route path="/lab/:id" element={<LabDetail />} />
+      <Route path="/pharmacies" element={<Pharmacies />} />
+      <Route path="/pharmacy/:id" element={<PharmacyDetail />} />
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/order/:id" element={<OrderTracking />} />
+      <Route path="/my-orders" element={<MyOrders />} />
+      <Route path="/appointments" element={<Appointments />} />
+      <Route path="/book/:type/:id" element={<BookAppointment />} />
+      <Route path="/favorites" element={<Favorites />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/emergency" element={<Emergency />} />
+      
+      <Route path="/analytics" element={<Analytics />} />
+      <Route path="/notifications" element={<Notifications />} />
+      <Route path="/medical-history" element={<MedicalHistory />} />
+      <Route path="/lab-reports" element={<LabReports />} />
+      <Route path="/appointment/:id" element={<AppointmentDetail />} />
+      <Route path="/lab-report/:id" element={<LabReportDetail />} />
+      <Route path="/payment-failure" element={<PaymentFailure />} />
+      <Route path="/refunds" element={<RefundTracking />} />
+      <Route path="/support-tickets" element={<SupportTickets />} />
+
+      {/* Admin routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="doctors" element={<AdminDoctors />} />
+        <Route path="hospitals" element={<AdminHospitals />} />
+        <Route path="labs" element={<AdminLabs />} />
+        <Route path="pharmacies" element={<AdminPharmacies />} />
+        <Route path="medicines" element={<AdminMedicines />} />
+        <Route path="approvals" element={<AdminApprovals />} />
+        <Route path="appointments" element={<AdminAppointments />} />
+        <Route path="emergencies" element={<AdminEmergencies />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="slider" element={<AdminSlider />} />
+        <Route path="ads" element={<AdminAds />} />
+        <Route path="edit-requests" element={<AdminEditRequests />} />
+        <Route path="otp-settings" element={<AdminOtpSettings />} />
+        <Route path="commission" element={<AdminCommissionConfig />} />
+        <Route path="revenue" element={<AdminRevenueDashboard />} />
+        <Route path="payouts" element={<AdminPayouts />} />
+        <Route path="support-tickets" element={<AdminSupportTickets />} />
+        <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
+        <Route path="quick-actions" element={<AdminQuickActions />} />
+        <Route path="services" element={<AdminServices />} />
+        <Route path="health-tips" element={<AdminHealthTips />} />
+        <Route path="featured-doctors" element={<AdminFeaturedDoctors />} />
+        <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
+        <Route path="info-cards" element={<AdminInfoCards />} />
+        <Route path="quick-access" element={<AdminQuickAccess />} />
+        <Route path="settings" element={<AdminSettings />} />
+        <Route path="team" element={<AdminTeam />} />
+      </Route>
+
+      {/* Doctor routes */}
+      <Route path="/doctor" element={<DoctorLayout />}>
+        <Route index element={<DoctorDashboard />} />
+        <Route path="appointments" element={<DoctorAppointments />} />
+        <Route path="appointments/:appointmentId" element={<DoctorAppointmentDetail />} />
+        <Route path="schedule" element={<DoctorSchedule />} />
+        <Route path="earnings" element={<DoctorEarnings />} />
+        <Route path="emergencies" element={<DoctorEmergencies />} />
+        <Route path="notifications" element={<DoctorNotifications />} />
+        <Route path="profile" element={<DoctorProfile />} />
+        <Route path="audit-logs" element={<DoctorAuditLogs />} />
+        <Route path="reviews" element={<DoctorReviews />} />
+        <Route path="settings" element={<DoctorSettings />} />
+      </Route>
+
+      {/* Hospital routes */}
+      <Route path="/hospital" element={<HospitalLayout />}>
+        <Route index element={<HospitalDashboard />} />
+        <Route path="appointments" element={<HospitalAppointments />} />
+        <Route path="beds" element={<HospitalBeds />} />
+        <Route path="emergencies" element={<HospitalEmergencies />} />
+        <Route path="doctors" element={<HospitalDoctorManagement />} />
+        <Route path="departments" element={<HospitalDepartments />} />
+        <Route path="ots" element={<HospitalOTs />} />
+        <Route path="equipment" element={<HospitalEquipment />} />
+        <Route path="earnings" element={<HospitalEarnings />} />
+        <Route path="analytics" element={<HospitalAnalytics />} />
+        <Route path="ambulance-config" element={<HospitalAmbulanceConfig />} />
+        <Route path="ambulance-fleet" element={<HospitalAmbulanceFleet />} />
+        <Route path="ambulance-trips" element={<HospitalAmbulanceTrips />} />
+        <Route path="audit-logs" element={<HospitalAuditLogs />} />
+        <Route path="profile" element={<HospitalProfile />} />
+        <Route path="settings" element={<HospitalSettings />} />
+      </Route>
+
+      {/* Pharmacy routes */}
+      <Route path="/pharmacy-panel" element={<PharmacyLayout />}>
+        <Route index element={<PharmacyDashboard />} />
+        <Route path="orders" element={<PharmacyOrders />} />
+        <Route path="medicines" element={<PharmacyMedicines />} />
+        <Route path="earnings" element={<PharmacyEarnings />} />
+        <Route path="profile" element={<PharmacyProfile />} />
+        <Route path="settings" element={<PharmacySettings />} />
+      </Route>
+
+      {/* Lab routes */}
+      <Route path="/lab" element={<LabLayout />}>
+        <Route index element={<LabDashboard />} />
+        <Route path="appointments" element={<LabAppointments />} />
+        <Route path="tests" element={<LabTests />} />
+        <Route path="samples" element={<LabSampleCollections />} />
+        <Route path="earnings" element={<LabEarnings />} />
+        <Route path="profile" element={<LabProfile />} />
+        <Route path="settings" element={<LabSettings />} />
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
 const App = () => {
   useEffect(() => {
     const handler = (event: PromiseRejectionEvent) => {
@@ -186,137 +369,7 @@ const App = () => {
       <Sonner />
       <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Patient routes */}
-            <Route path="/" element={<Splash />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/provider-register" element={<ProviderRegister />} />
-            <Route path="/pending-approval" element={<PendingApproval />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/doctors" element={<Doctors />} />
-            <Route path="/doctor/:id" element={<DoctorDetail />} />
-            <Route path="/hospitals" element={<Hospitals />} />
-            <Route path="/hospital/:id" element={<HospitalDetail />} />
-            <Route path="/labs" element={<Labs />} />
-            <Route path="/lab/:id" element={<LabDetail />} />
-            <Route path="/pharmacies" element={<Pharmacies />} />
-            <Route path="/pharmacy/:id" element={<PharmacyDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/order/:id" element={<OrderTracking />} />
-            <Route path="/my-orders" element={<MyOrders />} />
-            <Route path="/appointments" element={<Appointments />} />
-            <Route path="/book/:type/:id" element={<BookAppointment />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/emergency" element={<Emergency />} />
-            
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/medical-history" element={<MedicalHistory />} />
-            <Route path="/lab-reports" element={<LabReports />} />
-            <Route path="/appointment/:id" element={<AppointmentDetail />} />
-            <Route path="/lab-report/:id" element={<LabReportDetail />} />
-            <Route path="/payment-failure" element={<PaymentFailure />} />
-            <Route path="/refunds" element={<RefundTracking />} />
-            <Route path="/support-tickets" element={<SupportTickets />} />
-
-            {/* Admin routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="doctors" element={<AdminDoctors />} />
-              <Route path="hospitals" element={<AdminHospitals />} />
-              <Route path="labs" element={<AdminLabs />} />
-              <Route path="pharmacies" element={<AdminPharmacies />} />
-              <Route path="medicines" element={<AdminMedicines />} />
-              <Route path="approvals" element={<AdminApprovals />} />
-              <Route path="appointments" element={<AdminAppointments />} />
-              <Route path="emergencies" element={<AdminEmergencies />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="slider" element={<AdminSlider />} />
-              <Route path="ads" element={<AdminAds />} />
-              <Route path="edit-requests" element={<AdminEditRequests />} />
-              <Route path="otp-settings" element={<AdminOtpSettings />} />
-              <Route path="commission" element={<AdminCommissionConfig />} />
-              <Route path="revenue" element={<AdminRevenueDashboard />} />
-              <Route path="payouts" element={<AdminPayouts />} />
-              <Route path="support-tickets" element={<AdminSupportTickets />} />
-              <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
-              <Route path="quick-actions" element={<AdminQuickActions />} />
-              <Route path="services" element={<AdminServices />} />
-              <Route path="health-tips" element={<AdminHealthTips />} />
-              <Route path="featured-doctors" element={<AdminFeaturedDoctors />} />
-              <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
-              <Route path="info-cards" element={<AdminInfoCards />} />
-              <Route path="quick-access" element={<AdminQuickAccess />} />
-              <Route path="settings" element={<AdminSettings />} />
-              <Route path="team" element={<AdminTeam />} />
-            </Route>
-
-            {/* Doctor routes */}
-            <Route path="/doctor" element={<DoctorLayout />}>
-              <Route index element={<DoctorDashboard />} />
-              <Route path="appointments" element={<DoctorAppointments />} />
-              <Route path="appointments/:appointmentId" element={<DoctorAppointmentDetail />} />
-              <Route path="schedule" element={<DoctorSchedule />} />
-              <Route path="earnings" element={<DoctorEarnings />} />
-              <Route path="emergencies" element={<DoctorEmergencies />} />
-              <Route path="notifications" element={<DoctorNotifications />} />
-              <Route path="profile" element={<DoctorProfile />} />
-              <Route path="audit-logs" element={<DoctorAuditLogs />} />
-              <Route path="reviews" element={<DoctorReviews />} />
-              <Route path="settings" element={<DoctorSettings />} />
-            </Route>
-
-            {/* Hospital routes */}
-            <Route path="/hospital" element={<HospitalLayout />}>
-              <Route index element={<HospitalDashboard />} />
-              <Route path="appointments" element={<HospitalAppointments />} />
-              <Route path="beds" element={<HospitalBeds />} />
-              <Route path="emergencies" element={<HospitalEmergencies />} />
-              <Route path="doctors" element={<HospitalDoctorManagement />} />
-              <Route path="departments" element={<HospitalDepartments />} />
-              <Route path="ots" element={<HospitalOTs />} />
-              <Route path="equipment" element={<HospitalEquipment />} />
-              <Route path="earnings" element={<HospitalEarnings />} />
-              <Route path="analytics" element={<HospitalAnalytics />} />
-              <Route path="ambulance-config" element={<HospitalAmbulanceConfig />} />
-              <Route path="ambulance-fleet" element={<HospitalAmbulanceFleet />} />
-              <Route path="ambulance-trips" element={<HospitalAmbulanceTrips />} />
-              <Route path="audit-logs" element={<HospitalAuditLogs />} />
-              <Route path="profile" element={<HospitalProfile />} />
-              <Route path="settings" element={<HospitalSettings />} />
-            </Route>
-
-            {/* Pharmacy routes */}
-            <Route path="/pharmacy-panel" element={<PharmacyLayout />}>
-              <Route index element={<PharmacyDashboard />} />
-              <Route path="orders" element={<PharmacyOrders />} />
-              <Route path="medicines" element={<PharmacyMedicines />} />
-              <Route path="earnings" element={<PharmacyEarnings />} />
-              <Route path="profile" element={<PharmacyProfile />} />
-              <Route path="settings" element={<PharmacySettings />} />
-            </Route>
-
-            {/* Lab routes */}
-            <Route path="/lab" element={<LabLayout />}>
-              <Route index element={<LabDashboard />} />
-              <Route path="appointments" element={<LabAppointments />} />
-              <Route path="tests" element={<LabTests />} />
-              <Route path="samples" element={<LabSampleCollections />} />
-              <Route path="earnings" element={<LabEarnings />} />
-              <Route path="profile" element={<LabProfile />} />
-              <Route path="settings" element={<LabSettings />} />
-            </Route>
-
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>
