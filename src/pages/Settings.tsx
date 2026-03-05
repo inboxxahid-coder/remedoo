@@ -12,6 +12,8 @@ import type { Tables } from "@/integrations/supabase/types";
 import BottomNav from "@/components/BottomNav";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
+import avatarMale from "@/assets/avatar-male.png";
+import avatarFemale from "@/assets/avatar-female.png";
 
 type NotifPrefs = { email: boolean; push: boolean };
 
@@ -129,11 +131,19 @@ const Settings = () => {
           className="w-full flex items-center gap-4 bg-card rounded-2xl border border-border shadow-sm p-4 text-left hover:bg-muted/50 transition-colors"
         >
           <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden shrink-0">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-6 h-6 text-primary" />
-            )}
+            {(() => {
+              const avatarUrl = profile?.avatar_url;
+              const gender = (profile as any)?.gender;
+              const isDefault = !avatarUrl || avatarUrl === avatarMale || avatarUrl === avatarFemale;
+              const displayAvatar = isDefault
+                ? (gender === "male" ? avatarMale : gender === "female" ? avatarFemale : avatarUrl)
+                : avatarUrl;
+              return displayAvatar ? (
+                <img src={displayAvatar} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-6 h-6 text-primary" />
+              );
+            })()}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-base font-semibold text-foreground truncate">
