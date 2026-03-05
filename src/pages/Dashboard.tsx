@@ -150,14 +150,16 @@ const Dashboard = () => {
 
   useRealtimeNotifications();
 
+  const activeBanners = promoBanners.length > 0 ? promoBanners : PROMO_BANNERS_FALLBACK;
   useEffect(() => {
-    const t = setInterval(() => setPromoIdx(p => (p + 1) % PROMO_BANNERS.length), 3500);
+    if (activeBanners.length === 0) return;
+    const t = setInterval(() => setPromoIdx(p => (p + 1) % activeBanners.length), 3500);
     return () => clearInterval(t);
-  }, []);
+  }, [activeBanners.length]);
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes, pharmacyOffersRes, infoCardsRes, quickAccessRes] = await Promise.all([
+      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes, pharmacyOffersRes, infoCardsRes, quickAccessRes, promoBannersRes, catActionsRes] = await Promise.all([
         supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
         supabase.from("doctors").select("*, hospitals!left(is_government)").eq("is_featured", true).order("featured_sort_order").limit(10),
         supabase.from("ads").select("*").eq("active", true),
@@ -169,6 +171,8 @@ const Dashboard = () => {
         supabase.from("pharmacies").select("id, name, location, rating, image_url").eq("approval_status", "approved").order("rating", { ascending: false }).limit(6),
         supabase.from("dashboard_info_cards").select("*").eq("active", true).order("sort_order"),
         supabase.from("dashboard_quick_access").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_promo_banners").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_category_actions").select("*").eq("active", true).order("sort_order"),
       ]);
       if (slidesRes.data) setSlides(slidesRes.data);
       if (doctorsRes.data) {
@@ -290,19 +294,17 @@ const Dashboard = () => {
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient";
 
-  const categoryActions = useMemo(() => {
-    const defaults = [
-      { label: "Doctors", icon_name: "Stethoscope", path: "/doctors", emoji: "🩺", bg: "bg-[hsl(205,80%,92%)] dark:bg-[hsl(205,40%,18%)]", color: "text-[hsl(205,65%,45%)]" },
-      { label: "Hospitals", icon_name: "Building2", path: "/hospitals", emoji: "🏥", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]", color: "text-[hsl(152,55%,40%)]" },
-      { label: "Labs", icon_name: "FlaskConical", path: "/labs", emoji: "🧪", bg: "bg-[hsl(262,50%,93%)] dark:bg-[hsl(262,30%,18%)]", color: "text-[hsl(262,60%,52%)]" },
-      { label: "Pharmacy", icon_name: "Store", path: "/pharmacies", emoji: "💊", bg: "bg-[hsl(30,80%,92%)] dark:bg-[hsl(30,40%,18%)]", color: "text-[hsl(30,80%,50%)]" },
-      { label: "Emergency", icon_name: "Ambulance", path: "/emergency", emoji: "🚑", bg: "bg-destructive/10", color: "text-destructive" },
-      { label: "Favorites", icon_name: "Heart", path: "/favorites", emoji: "❤️", bg: "bg-[hsl(330,60%,93%)] dark:bg-[hsl(330,30%,18%)]", color: "text-[hsl(330,65%,50%)]" },
-      { label: "Orders", icon_name: "ShoppingBag", path: "/my-orders", emoji: "📦", bg: "bg-[hsl(45,80%,92%)] dark:bg-[hsl(45,30%,18%)]", color: "text-[hsl(45,85%,40%)]" },
-      { label: "Reports", icon_name: "FileText", path: "/lab-reports", emoji: "📋", bg: "bg-[hsl(190,60%,92%)] dark:bg-[hsl(190,30%,18%)]", color: "text-[hsl(190,70%,42%)]" },
-    ];
-    return defaults;
-  }, []);
+  const CATEGORY_DEFAULTS = [
+    { label: "Doctors", icon_name: "Stethoscope", path: "/doctors", emoji: "🩺", bg_color: "bg-[hsl(205,80%,92%)] dark:bg-[hsl(205,40%,18%)]", text_color: "text-[hsl(205,65%,45%)]" },
+    { label: "Hospitals", icon_name: "Building2", path: "/hospitals", emoji: "🏥", bg_color: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]", text_color: "text-[hsl(152,55%,40%)]" },
+    { label: "Labs", icon_name: "FlaskConical", path: "/labs", emoji: "🧪", bg_color: "bg-[hsl(262,50%,93%)] dark:bg-[hsl(262,30%,18%)]", text_color: "text-[hsl(262,60%,52%)]" },
+    { label: "Pharmacy", icon_name: "Store", path: "/pharmacies", emoji: "💊", bg_color: "bg-[hsl(30,80%,92%)] dark:bg-[hsl(30,40%,18%)]", text_color: "text-[hsl(30,80%,50%)]" },
+    { label: "Emergency", icon_name: "Ambulance", path: "/emergency", emoji: "🚑", bg_color: "bg-destructive/10", text_color: "text-destructive" },
+    { label: "Favorites", icon_name: "Heart", path: "/favorites", emoji: "❤️", bg_color: "bg-[hsl(330,60%,93%)] dark:bg-[hsl(330,30%,18%)]", text_color: "text-[hsl(330,65%,50%)]" },
+    { label: "Orders", icon_name: "ShoppingBag", path: "/my-orders", emoji: "📦", bg_color: "bg-[hsl(45,80%,92%)] dark:bg-[hsl(45,30%,18%)]", text_color: "text-[hsl(45,85%,40%)]" },
+    { label: "Reports", icon_name: "FileText", path: "/lab-reports", emoji: "📋", bg_color: "bg-[hsl(190,60%,92%)] dark:bg-[hsl(190,30%,18%)]", text_color: "text-[hsl(190,70%,42%)]" },
+  ];
+  const activeCategoryActions = categoryActions.length > 0 ? categoryActions : CATEGORY_DEFAULTS;
 
   return (
     <SidebarProvider>
