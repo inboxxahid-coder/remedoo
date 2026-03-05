@@ -151,7 +151,54 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => {
+const AppRoutes = () => {
+  const { isMaintenanceMode, loading: maintenanceLoading } = useMaintenanceMode();
+
+  if (maintenanceLoading) return <PageLoader />;
+
+  // If maintenance mode is on, only allow admin routes
+  if (isMaintenanceMode) {
+    return (
+      <Routes>
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="doctors" element={<AdminDoctors />} />
+          <Route path="hospitals" element={<AdminHospitals />} />
+          <Route path="labs" element={<AdminLabs />} />
+          <Route path="pharmacies" element={<AdminPharmacies />} />
+          <Route path="medicines" element={<AdminMedicines />} />
+          <Route path="approvals" element={<AdminApprovals />} />
+          <Route path="appointments" element={<AdminAppointments />} />
+          <Route path="emergencies" element={<AdminEmergencies />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="slider" element={<AdminSlider />} />
+          <Route path="ads" element={<AdminAds />} />
+          <Route path="edit-requests" element={<AdminEditRequests />} />
+          <Route path="otp-settings" element={<AdminOtpSettings />} />
+          <Route path="commission" element={<AdminCommissionConfig />} />
+          <Route path="revenue" element={<AdminRevenueDashboard />} />
+          <Route path="payouts" element={<AdminPayouts />} />
+          <Route path="support-tickets" element={<AdminSupportTickets />} />
+          <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
+          <Route path="quick-actions" element={<AdminQuickActions />} />
+          <Route path="services" element={<AdminServices />} />
+          <Route path="health-tips" element={<AdminHealthTips />} />
+          <Route path="featured-doctors" element={<AdminFeaturedDoctors />} />
+          <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
+          <Route path="info-cards" element={<AdminInfoCards />} />
+          <Route path="quick-access" element={<AdminQuickAccess />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="team" element={<AdminTeam />} />
+        </Route>
+        <Route path="*" element={<MaintenanceModePage />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <Routes>
   useEffect(() => {
     const handler = (event: PromiseRejectionEvent) => {
       console.error("Unhandled rejection:", event.reason);
