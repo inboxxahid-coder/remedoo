@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Save, BadgeCheck, Lock, Upload, X, FileText } from "lucide-react";
+import { getLabImage } from "@/lib/providerDefaults";
 
 interface FileUploadBoxProps {
   id: string; label: string; file: File | null; existingUrl?: string | null;
@@ -95,14 +96,23 @@ export default function LabProfile() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Lab Profile</h1>
-      <div className="flex items-center gap-2">{profile.approval_status === "approved" && <><BadgeCheck className="w-5 h-5 text-yellow-500" /><span className="text-sm font-semibold text-yellow-500">Verified</span></>}<Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500" : ""}>{profile.approval_status === "approved" ? "Verified Lab" : profile.approval_status}</Badge></div>
-
+      {/* Hero Section */}
       <Card className="p-5">
-        <Label className="text-sm font-semibold mb-3 block">Lab Photo</Label>
         <div className="flex items-center gap-4">
-          {profile.image_url ? <img src={profile.image_url} alt="Lab" className="w-20 h-20 rounded-2xl object-cover" /> : <div className="w-20 h-20 rounded-2xl bg-accent flex items-center justify-center text-3xl">🔬</div>}
-          <div className="flex-1"><FileUploadBox id="lab-photo" label="" file={photoFile} onFileChange={setPhotoFile} accept=".jpg,.jpeg,.png,.webp" hint="Upload new photo" /></div>
+          <img src={getLabImage(profile.image_url)} alt={profile.name || "Lab"} className="w-20 h-20 rounded-2xl object-cover border-2 border-primary/20" />
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold text-foreground truncate">{profile.name || "Unnamed Lab"}</h1>
+            <p className="text-sm text-muted-foreground">{profile.location || "Location not set"}</p>
+            <div className="flex items-center gap-2 mt-1.5">
+              {profile.approval_status === "approved" && <BadgeCheck className="w-4 h-4 text-yellow-500" />}
+              <Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500 text-xs" : "text-xs"}>
+                {profile.approval_status === "approved" ? "Verified Lab" : profile.approval_status}
+              </Badge>
+            </div>
+          </div>
+        </div>
+        <div className="mt-3">
+          <FileUploadBox id="lab-photo" label="" file={photoFile} onFileChange={setPhotoFile} accept=".jpg,.jpeg,.png,.webp" hint="Upload new photo" />
         </div>
       </Card>
 
