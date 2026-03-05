@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { Textarea } from "@/components/ui/textarea";
 import avatarMale from "@/assets/avatar-male.png";
 import avatarFemale from "@/assets/avatar-female.png";
+import avatarOther from "@/assets/avatar-other.png";
 
 type NotifPrefs = { email: boolean; push: boolean };
 
@@ -134,9 +135,9 @@ const Settings = () => {
             {(() => {
               const avatarUrl = profile?.avatar_url;
               const gender = (profile as any)?.gender;
-              const isDefault = !avatarUrl || avatarUrl === avatarMale || avatarUrl === avatarFemale;
-              const displayAvatar = isDefault
-                ? (gender === "male" ? avatarMale : gender === "female" ? avatarFemale : avatarUrl)
+               const isDefault = !avatarUrl || avatarUrl === avatarMale || avatarUrl === avatarFemale || avatarUrl === avatarOther;
+               const displayAvatar = isDefault
+                 ? (gender === "male" ? avatarMale : gender === "female" ? avatarFemale : gender === "other" ? avatarOther : avatarUrl)
                 : avatarUrl;
               return displayAvatar ? (
                 <img src={displayAvatar} alt="Avatar" className="w-full h-full object-cover" />

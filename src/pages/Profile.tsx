@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import avatarMale from "@/assets/avatar-male.png";
 import avatarFemale from "@/assets/avatar-female.png";
+import avatarOther from "@/assets/avatar-other.png";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -59,10 +60,11 @@ const Profile = () => {
   const getDefaultAvatar = (gender: string) => {
     if (gender === "male") return avatarMale;
     if (gender === "female") return avatarFemale;
+    if (gender === "other") return avatarOther;
     return null;
   };
 
-  const isDefaultAvatar = !avatarUrl || avatarUrl === avatarMale || avatarUrl === avatarFemale;
+  const isDefaultAvatar = !avatarUrl || avatarUrl === avatarMale || avatarUrl === avatarFemale || avatarUrl === avatarOther;
   const displayAvatar = isDefaultAvatar ? getDefaultAvatar(form.gender) || avatarUrl : avatarUrl;
 
   const handleGenderChange = async (value: string) => {
