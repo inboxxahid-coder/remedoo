@@ -89,6 +89,7 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
   const [location, setLocation] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [bio, setBio] = useState("");
+  const [gender, setGender] = useState("");
   const [consultationFee, setConsultationFee] = useState("");
   const [rating, setRating] = useState("");
 
@@ -117,6 +118,7 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
     setLocation("");
     setSpecialization("");
     setBio("");
+    setGender("");
     setConsultationFee("");
     setRating("");
     setLatitude("");
@@ -238,6 +240,7 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
       providerData.specialization = specialization.trim() || null;
       providerData.bio = bio.trim() || null;
       providerData.consultation_fee = consultationFee ? Number(consultationFee) : null;
+      if (gender) providerData.gender = gender;
     } else {
       providerData.location = location.trim() || null;
     }
