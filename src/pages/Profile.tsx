@@ -261,7 +261,11 @@ const Profile = () => {
               </div>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="other" id="other" />
-                <Label htmlFor="other" className="text-sm cursor-pointer">Other</Label>
+                <Label htmlFor="other" className="flex items-center gap-2 cursor-pointer">
+                  <img src={avatarOther} alt="Other" className="w-8 h-8 rounded-full" />
+                  <span className="text-sm">Other</span>
+                </Label>
+              </div>
               </div>
             </RadioGroup>
           </div>
