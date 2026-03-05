@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2, Pencil, KeyRound, Mail
+  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2, Pencil, KeyRound, Mail, Lock
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import AdminPermissionsDialog from "@/components/admin/AdminPermissionsDialog";
 
 const DESIGNATIONS = [
   "Super Admin",
@@ -60,6 +61,9 @@ export default function AdminTeam() {
   // Change password state
   const [passwordMember, setPasswordMember] = useState<AdminMember | null>(null);
   const [newPassword, setNewPassword] = useState("");
+
+  // Permissions state
+  const [permsMember, setPermsMember] = useState<AdminMember | null>(null);
 
   // Add form state
   const [form, setForm] = useState({
@@ -303,6 +307,11 @@ export default function AdminTeam() {
             <DropdownMenuItem onClick={() => openPasswordChange(m)}>
               <KeyRound className="w-4 h-4 mr-2" /> Change Password
             </DropdownMenuItem>
+            {m.designation !== "Super Admin" && (
+              <DropdownMenuItem onClick={() => setPermsMember(m)}>
+                <Lock className="w-4 h-4 mr-2" /> Assign Permissions
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             {m.designation !== "Super Admin" && (
               <>
@@ -582,6 +591,12 @@ export default function AdminTeam() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Assign Permissions Dialog */}
+      <AdminPermissionsDialog
+        member={permsMember}
+        onClose={() => setPermsMember(null)}
+      />
     </div>
   );
 }
