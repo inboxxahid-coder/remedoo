@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
+import MaintenanceModePage from "@/pages/MaintenanceMode";
 
 // Lazy-loaded pages — each becomes a separate chunk
 const Splash = lazy(() => import("./pages/Splash"));
