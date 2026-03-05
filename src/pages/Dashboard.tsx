@@ -312,7 +312,7 @@ const Dashboard = () => {
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 h-screen overflow-x-hidden bg-muted/30 dark:bg-background">
           {/* ===== FIXED HEADER — outside scroll ===== */}
-          <div className="shrink-0 z-40 bg-primary">
+          <div className="shrink-0 z-40 bg-primary safe-top">
             <div className="flex items-center justify-between px-4 h-14">
               <AnimatedMenuButton />
               <AnimatedLogo />

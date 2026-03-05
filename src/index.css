@@ -135,4 +135,18 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top, 0px), 12px);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Universal sticky page header for patient screens */
+  .page-header {
+    @apply sticky top-0 z-30;
+    padding-top: max(env(safe-area-inset-top, 0px), 12px);
+  }
 }
