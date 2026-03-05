@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, FileText, Microscope, Ambulance, MapPin, Clock, Percent, Zap, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -110,11 +110,11 @@ const AnimatedMenuButton = () => {
   );
 };
 
-const PROMO_BANNERS = [
-  { title: "Flat 30% OFF", sub: "on first doctor consultation", gradient: "from-[hsl(262,60%,52%)] to-[hsl(280,55%,45%)]", emoji: "🩺" },
-  { title: "Free Delivery", sub: "on medicine orders above ₹199", gradient: "from-[hsl(152,55%,40%)] to-[hsl(170,60%,38%)]", emoji: "💊" },
-  { title: "Health Packages", sub: "starting at ₹299 only", gradient: "from-[hsl(200,65%,45%)] to-[hsl(215,70%,50%)]", emoji: "🧪" },
-  { title: "Emergency SOS", sub: "ambulance in under 10 mins", gradient: "from-[hsl(0,70%,52%)] to-[hsl(350,60%,48%)]", emoji: "🚑" },
+const PROMO_BANNERS_FALLBACK = [
+  { title: "Flat 30% OFF", subtitle: "on first doctor consultation", gradient: "from-[hsl(262,60%,52%)] to-[hsl(280,55%,45%)]", emoji: "🩺" },
+  { title: "Free Delivery", subtitle: "on medicine orders above ₹199", gradient: "from-[hsl(152,55%,40%)] to-[hsl(170,60%,38%)]", emoji: "💊" },
+  { title: "Health Packages", subtitle: "starting at ₹299 only", gradient: "from-[hsl(200,65%,45%)] to-[hsl(215,70%,50%)]", emoji: "🧪" },
+  { title: "Emergency SOS", subtitle: "ambulance in under 10 mins", gradient: "from-[hsl(0,70%,52%)] to-[hsl(350,60%,48%)]", emoji: "🚑" },
 ];
 
 const Dashboard = () => {
@@ -143,19 +143,23 @@ const Dashboard = () => {
   const [infoCards, setInfoCards] = useState<any[]>([]);
   const [quickAccessItems, setQuickAccessItems] = useState<any[]>([]);
   const [promoIdx, setPromoIdx] = useState(0);
+  const [promoBanners, setPromoBanners] = useState<any[]>([]);
+  const [categoryActions, setCategoryActions] = useState<any[]>([]);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useRealtimeNotifications();
 
+  const activeBanners = promoBanners.length > 0 ? promoBanners : PROMO_BANNERS_FALLBACK;
   useEffect(() => {
-    const t = setInterval(() => setPromoIdx(p => (p + 1) % PROMO_BANNERS.length), 3500);
+    if (activeBanners.length === 0) return;
+    const t = setInterval(() => setPromoIdx(p => (p + 1) % activeBanners.length), 3500);
     return () => clearInterval(t);
-  }, []);
+  }, [activeBanners.length]);
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes, pharmacyOffersRes, infoCardsRes, quickAccessRes] = await Promise.all([
+      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes, pharmacyOffersRes, infoCardsRes, quickAccessRes, promoBannersRes, catActionsRes] = await Promise.all([
         supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
         supabase.from("doctors").select("*, hospitals!left(is_government)").eq("is_featured", true).order("featured_sort_order").limit(10),
         supabase.from("ads").select("*").eq("active", true),
@@ -167,6 +171,8 @@ const Dashboard = () => {
         supabase.from("pharmacies").select("id, name, location, rating, image_url").eq("approval_status", "approved").order("rating", { ascending: false }).limit(6),
         supabase.from("dashboard_info_cards").select("*").eq("active", true).order("sort_order"),
         supabase.from("dashboard_quick_access").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_promo_banners").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_category_actions").select("*").eq("active", true).order("sort_order"),
       ]);
       if (slidesRes.data) setSlides(slidesRes.data);
       if (doctorsRes.data) {
@@ -288,19 +294,17 @@ const Dashboard = () => {
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient";
 
-  const categoryActions = useMemo(() => {
-    const defaults = [
-      { label: "Doctors", icon_name: "Stethoscope", path: "/doctors", emoji: "🩺", bg: "bg-[hsl(205,80%,92%)] dark:bg-[hsl(205,40%,18%)]", color: "text-[hsl(205,65%,45%)]" },
-      { label: "Hospitals", icon_name: "Building2", path: "/hospitals", emoji: "🏥", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]", color: "text-[hsl(152,55%,40%)]" },
-      { label: "Labs", icon_name: "FlaskConical", path: "/labs", emoji: "🧪", bg: "bg-[hsl(262,50%,93%)] dark:bg-[hsl(262,30%,18%)]", color: "text-[hsl(262,60%,52%)]" },
-      { label: "Pharmacy", icon_name: "Store", path: "/pharmacies", emoji: "💊", bg: "bg-[hsl(30,80%,92%)] dark:bg-[hsl(30,40%,18%)]", color: "text-[hsl(30,80%,50%)]" },
-      { label: "Emergency", icon_name: "Ambulance", path: "/emergency", emoji: "🚑", bg: "bg-destructive/10", color: "text-destructive" },
-      { label: "Favorites", icon_name: "Heart", path: "/favorites", emoji: "❤️", bg: "bg-[hsl(330,60%,93%)] dark:bg-[hsl(330,30%,18%)]", color: "text-[hsl(330,65%,50%)]" },
-      { label: "Orders", icon_name: "ShoppingBag", path: "/my-orders", emoji: "📦", bg: "bg-[hsl(45,80%,92%)] dark:bg-[hsl(45,30%,18%)]", color: "text-[hsl(45,85%,40%)]" },
-      { label: "Reports", icon_name: "FileText", path: "/lab-reports", emoji: "📋", bg: "bg-[hsl(190,60%,92%)] dark:bg-[hsl(190,30%,18%)]", color: "text-[hsl(190,70%,42%)]" },
-    ];
-    return defaults;
-  }, []);
+  const CATEGORY_DEFAULTS = [
+    { label: "Doctors", icon_name: "Stethoscope", path: "/doctors", emoji: "🩺", bg_color: "bg-[hsl(205,80%,92%)] dark:bg-[hsl(205,40%,18%)]", text_color: "text-[hsl(205,65%,45%)]" },
+    { label: "Hospitals", icon_name: "Building2", path: "/hospitals", emoji: "🏥", bg_color: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]", text_color: "text-[hsl(152,55%,40%)]" },
+    { label: "Labs", icon_name: "FlaskConical", path: "/labs", emoji: "🧪", bg_color: "bg-[hsl(262,50%,93%)] dark:bg-[hsl(262,30%,18%)]", text_color: "text-[hsl(262,60%,52%)]" },
+    { label: "Pharmacy", icon_name: "Store", path: "/pharmacies", emoji: "💊", bg_color: "bg-[hsl(30,80%,92%)] dark:bg-[hsl(30,40%,18%)]", text_color: "text-[hsl(30,80%,50%)]" },
+    { label: "Emergency", icon_name: "Ambulance", path: "/emergency", emoji: "🚑", bg_color: "bg-destructive/10", text_color: "text-destructive" },
+    { label: "Favorites", icon_name: "Heart", path: "/favorites", emoji: "❤️", bg_color: "bg-[hsl(330,60%,93%)] dark:bg-[hsl(330,30%,18%)]", text_color: "text-[hsl(330,65%,50%)]" },
+    { label: "Orders", icon_name: "ShoppingBag", path: "/my-orders", emoji: "📦", bg_color: "bg-[hsl(45,80%,92%)] dark:bg-[hsl(45,30%,18%)]", text_color: "text-[hsl(45,85%,40%)]" },
+    { label: "Reports", icon_name: "FileText", path: "/lab-reports", emoji: "📋", bg_color: "bg-[hsl(190,60%,92%)] dark:bg-[hsl(190,30%,18%)]", text_color: "text-[hsl(190,70%,42%)]" },
+  ];
+  const activeCategoryActions = categoryActions.length > 0 ? categoryActions : CATEGORY_DEFAULTS;
 
   return (
     <SidebarProvider>
@@ -385,7 +389,7 @@ const Dashboard = () => {
                 {/* ===== CATEGORY GRID (Swiggy-style round icons) ===== */}
                 <div className="px-4">
                   <div className="grid grid-cols-4 gap-x-3 gap-y-4">
-                    {categoryActions.map((cat, idx) => {
+                    {activeCategoryActions.map((cat, idx) => {
                       const CatIcon = getIcon(cat.icon_name);
                       return (
                         <motion.button
@@ -397,8 +401,8 @@ const Dashboard = () => {
                           onClick={() => navigate(cat.path)}
                           className="flex flex-col items-center gap-1.5"
                         >
-                          <div className={`w-14 h-14 rounded-2xl ${cat.bg} flex items-center justify-center shadow-sm`}>
-                            <CatIcon className={`w-6 h-6 ${cat.color}`} strokeWidth={1.8} />
+                          <div className={`w-14 h-14 rounded-2xl ${cat.bg_color || cat.bg} flex items-center justify-center shadow-sm`}>
+                            <CatIcon className={`w-6 h-6 ${cat.text_color || cat.color}`} strokeWidth={1.8} />
                           </div>
                           <span className="text-[11px] font-semibold text-foreground text-center leading-tight">{cat.label}</span>
                         </motion.button>
@@ -417,19 +421,19 @@ const Dashboard = () => {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -60 }}
                         transition={{ duration: 0.4 }}
-                        className={`absolute inset-0 bg-gradient-to-r ${PROMO_BANNERS[promoIdx].gradient} rounded-2xl p-5 flex items-center justify-between`}
+                        className={`absolute inset-0 bg-gradient-to-r ${activeBanners[promoIdx % activeBanners.length]?.gradient} rounded-2xl p-5 flex items-center justify-between`}
                       >
                         <div>
-                          <p className="text-white font-extrabold text-xl">{PROMO_BANNERS[promoIdx].title}</p>
-                          <p className="text-white/80 text-sm mt-1">{PROMO_BANNERS[promoIdx].sub}</p>
+                          <p className="text-white font-extrabold text-xl">{activeBanners[promoIdx % activeBanners.length]?.title}</p>
+                          <p className="text-white/80 text-sm mt-1">{activeBanners[promoIdx % activeBanners.length]?.subtitle || activeBanners[promoIdx % activeBanners.length]?.sub}</p>
                         </div>
-                        <span className="text-5xl opacity-80">{PROMO_BANNERS[promoIdx].emoji}</span>
+                        <span className="text-5xl opacity-80">{activeBanners[promoIdx % activeBanners.length]?.emoji}</span>
                       </motion.div>
                     </AnimatePresence>
                     {/* Dots */}
                     <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {PROMO_BANNERS.map((_, i) => (
-                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === promoIdx ? "w-5 bg-white" : "w-1.5 bg-white/40"}`} />
+                      {activeBanners.map((_, i) => (
+                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === promoIdx % activeBanners.length ? "w-5 bg-white" : "w-1.5 bg-white/40"}`} />
                       ))}
                     </div>
                   </div>

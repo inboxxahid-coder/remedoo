@@ -633,6 +633,45 @@ export type Database = {
           },
         ]
       }
+      dashboard_category_actions: {
+        Row: {
+          active: boolean | null
+          bg_color: string | null
+          created_at: string | null
+          emoji: string | null
+          icon_name: string
+          id: string
+          label: string
+          path: string
+          sort_order: number | null
+          text_color: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          bg_color?: string | null
+          created_at?: string | null
+          emoji?: string | null
+          icon_name?: string
+          id?: string
+          label: string
+          path?: string
+          sort_order?: number | null
+          text_color?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          bg_color?: string | null
+          created_at?: string | null
+          emoji?: string | null
+          icon_name?: string
+          id?: string
+          label?: string
+          path?: string
+          sort_order?: number | null
+          text_color?: string | null
+        }
+        Relationships: []
+      }
       dashboard_health_tips: {
         Row: {
           active: boolean | null
@@ -702,6 +741,42 @@ export type Database = {
           label?: string
           path?: string
           sort_order?: number | null
+        }
+        Relationships: []
+      }
+      dashboard_promo_banners: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          emoji: string | null
+          gradient: string | null
+          id: string
+          sort_order: number | null
+          subtitle: string | null
+          target_link: string | null
+          title: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          emoji?: string | null
+          gradient?: string | null
+          id?: string
+          sort_order?: number | null
+          subtitle?: string | null
+          target_link?: string | null
+          title: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          emoji?: string | null
+          gradient?: string | null
+          id?: string
+          sort_order?: number | null
+          subtitle?: string | null
+          target_link?: string | null
+          title?: string
         }
         Relationships: []
       }

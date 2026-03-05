@@ -76,6 +76,8 @@ const AdminFeaturedDoctors = lazy(() => import("./pages/admin/AdminFeaturedDocto
 const AdminFeaturedMedicines = lazy(() => import("./pages/admin/AdminFeaturedMedicines"));
 const AdminInfoCards = lazy(() => import("./pages/admin/AdminInfoCards"));
 const AdminQuickAccess = lazy(() => import("./pages/admin/AdminQuickAccess"));
+const AdminPromoBanners = lazy(() => import("./pages/admin/AdminPromoBanners"));
+const AdminCategoryActions = lazy(() => import("./pages/admin/AdminCategoryActions"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminTeam = lazy(() => import("./pages/admin/AdminTeam"));
 
@@ -203,6 +205,8 @@ const AppRoutes = () => {
           <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
           <Route path="info-cards" element={<AdminInfoCards />} />
           <Route path="quick-access" element={<AdminQuickAccess />} />
+          <Route path="promo-banners" element={<AdminPromoBanners />} />
+          <Route path="category-actions" element={<AdminCategoryActions />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="team" element={<AdminTeam />} />
         </Route>
@@ -281,6 +285,8 @@ const AppRoutes = () => {
         <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
         <Route path="info-cards" element={<AdminInfoCards />} />
         <Route path="quick-access" element={<AdminQuickAccess />} />
+        <Route path="promo-banners" element={<AdminPromoBanners />} />
+        <Route path="category-actions" element={<AdminCategoryActions />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="team" element={<AdminTeam />} />
       </Route>

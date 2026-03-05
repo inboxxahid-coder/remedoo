@@ -64,6 +64,8 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Ads", path: "/admin/ads", icon: Megaphone },
       { label: "Medicines", path: "/admin/medicines", icon: Pill },
       { label: "Featured Medicines", path: "/admin/featured-medicines", icon: Star },
+      { label: "Promo Banners", path: "/admin/promo-banners", icon: Megaphone },
+      { label: "Category Actions", path: "/admin/category-actions", icon: Grid3X3 },
     ],
   },
   {

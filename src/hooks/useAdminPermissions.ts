@@ -26,6 +26,8 @@ export const ALL_ADMIN_PAGES = [
   { path: "/admin/ads", label: "Ads", group: "Dashboard Content" },
   { path: "/admin/medicines", label: "Medicines", group: "Dashboard Content" },
   { path: "/admin/featured-medicines", label: "Featured Medicines", group: "Dashboard Content" },
+  { path: "/admin/promo-banners", label: "Promo Banners", group: "Dashboard Content" },
+  { path: "/admin/category-actions", label: "Category Actions", group: "Dashboard Content" },
   { path: "/admin/revenue", label: "Platform Revenue", group: "Finance & Settings" },
   { path: "/admin/payouts", label: "Payouts", group: "Finance & Settings" },
   { path: "/admin/commission", label: "Commission Config", group: "Finance & Settings" },
