@@ -267,6 +267,23 @@ export default function AdminTeam() {
     }
   };
 
+  // Check if current user is Super Admin
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkSuperAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: teamRecord } = await supabase
+        .from("admin_team")
+        .select("designation")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setIsSuperAdmin(teamRecord?.designation === "Super Admin");
+    };
+    checkSuperAdmin();
+  }, []);
+
   const renderActions = (m: AdminMember) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -275,23 +292,32 @@ export default function AdminTeam() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => openEdit(m)}>
-          <Pencil className="w-4 h-4 mr-2" /> Edit Details
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => openEmailChange(m)}>
-          <Mail className="w-4 h-4 mr-2" /> Change Email
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => openPasswordChange(m)}>
-          <KeyRound className="w-4 h-4 mr-2" /> Change Password
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => toggleActive(m)}>
-          {m.is_active ? <UserX className="w-4 h-4 mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
-          {m.is_active ? "Deactivate" : "Activate"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => removeMember(m)} className="text-destructive">
-          <Trash2 className="w-4 h-4 mr-2" /> Remove
-        </DropdownMenuItem>
+        {isSuperAdmin && (
+          <>
+            <DropdownMenuItem onClick={() => openEdit(m)}>
+              <Pencil className="w-4 h-4 mr-2" /> Edit Details
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openEmailChange(m)}>
+              <Mail className="w-4 h-4 mr-2" /> Change Email
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openPasswordChange(m)}>
+              <KeyRound className="w-4 h-4 mr-2" /> Change Password
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => toggleActive(m)}>
+              {m.is_active ? <UserX className="w-4 h-4 mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
+              {m.is_active ? "Deactivate" : "Activate"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => removeMember(m)} className="text-destructive">
+              <Trash2 className="w-4 h-4 mr-2" /> Remove
+            </DropdownMenuItem>
+          </>
+        )}
+        {!isSuperAdmin && (
+          <DropdownMenuItem disabled className="text-muted-foreground">
+            Only Super Admin can manage
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
