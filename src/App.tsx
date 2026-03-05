@@ -131,9 +131,11 @@ const SupportTickets = lazy(() => import("./pages/SupportTickets"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      staleTime: 10 * 60 * 1000, // 10 minutes — data stays fresh, no refetch on revisit
+      gcTime: 30 * 60 * 1000, // 30 minutes — cached data kept in memory across navigations
       refetchOnWindowFocus: false,
+      refetchOnMount: false, // Don't refetch if data is still fresh
+      refetchOnReconnect: false,
       retry: 1,
     },
   },
