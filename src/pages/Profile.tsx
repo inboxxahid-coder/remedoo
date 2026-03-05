@@ -266,7 +266,6 @@ const Profile = () => {
                   <span className="text-sm">Other</span>
                 </Label>
               </div>
-              </div>
             </RadioGroup>
           </div>
         </div>
