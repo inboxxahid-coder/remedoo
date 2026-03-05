@@ -371,6 +371,27 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
 
           {type === "doctor" ? (
             <>
+              {/* Gender Selection */}
+              <div className="space-y-2">
+                <Label>Gender</Label>
+                <div className="flex gap-2">
+                  {["male", "female", "other"].map(g => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setGender(g)}
+                      className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all capitalize ${
+                        gender === g
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:border-primary/30"
+                      }`}
+                    >
+                      {g === "male" ? "👨‍⚕️" : g === "female" ? "👩‍⚕️" : "🧑‍⚕️"} {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="admin-specialization">Specialization</Label>
                 <div className="relative">
