@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2
+  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2, Pencil, KeyRound, Mail
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -49,7 +49,19 @@ export default function AdminTeam() {
   const [showAdd, setShowAdd] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Form state
+  // Edit state
+  const [editMember, setEditMember] = useState<AdminMember | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", designation: "", phone: "" });
+
+  // Change email state
+  const [emailMember, setEmailMember] = useState<AdminMember | null>(null);
+  const [newEmail, setNewEmail] = useState("");
+
+  // Change password state
+  const [passwordMember, setPasswordMember] = useState<AdminMember | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+
+  // Add form state
   const [form, setForm] = useState({
     name: "", email: "", password: "", designation: "Admin", phone: "",
   });
@@ -88,7 +100,6 @@ export default function AdminTeam() {
 
     setSaving(true);
     try {
-      // Create auth user via edge function
       const { data: fnData, error: fnError } = await supabase.functions.invoke("admin-create-user", {
         body: { email: form.email, password: form.password, full_name: form.name },
       });
@@ -101,7 +112,6 @@ export default function AdminTeam() {
 
       const userId = fnData.user_id;
 
-      // Add admin role
       const { error: roleError } = await supabase.from("user_roles").insert({
         user_id: userId,
         role: "admin",
@@ -113,7 +123,6 @@ export default function AdminTeam() {
         return;
       }
 
-      // Add to admin_team table
       const currentUser = (await supabase.auth.getUser()).data.user;
       const { error: teamError } = await supabase.from("admin_team").insert({
         user_id: userId,
@@ -135,6 +144,101 @@ export default function AdminTeam() {
       fetchTeam();
     } catch (err) {
       toast.error("Unexpected error creating admin");
+    }
+    setSaving(false);
+  };
+
+  // Edit details (name, designation, phone)
+  const openEdit = (member: AdminMember) => {
+    setEditMember(member);
+    setEditForm({ name: member.name, designation: member.designation, phone: member.phone || "" });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editMember || !editForm.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase
+      .from("admin_team")
+      .update({ name: editForm.name, designation: editForm.designation, phone: editForm.phone || null })
+      .eq("id", editMember.id);
+    if (error) {
+      toast.error("Failed to update details");
+    } else {
+      toast.success("Admin details updated");
+      setEditMember(null);
+      fetchTeam();
+    }
+    setSaving(false);
+  };
+
+  // Change email
+  const openEmailChange = (member: AdminMember) => {
+    setEmailMember(member);
+    setNewEmail("");
+  };
+
+  const handleChangeEmail = async () => {
+    if (!emailMember || !newEmail.trim()) {
+      toast.error("New email is required");
+      return;
+    }
+    setSaving(true);
+    try {
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("admin-change-email", {
+        body: { user_id: emailMember.user_id, new_email: newEmail },
+      });
+
+      if (fnError || fnData?.error) {
+        toast.error(fnData?.error || "Failed to change email");
+        setSaving(false);
+        return;
+      }
+
+      // Update admin_team record
+      await supabase.from("admin_team").update({ email: newEmail }).eq("id", emailMember.id);
+      toast.success("Email updated successfully");
+      setEmailMember(null);
+      fetchTeam();
+    } catch {
+      toast.error("Failed to change email");
+    }
+    setSaving(false);
+  };
+
+  // Change password
+  const openPasswordChange = (member: AdminMember) => {
+    setPasswordMember(member);
+    setNewPassword("");
+  };
+
+  const handleChangePassword = async () => {
+    if (!passwordMember || !newPassword.trim()) {
+      toast.error("New password is required");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setSaving(true);
+    try {
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("admin-create-user", {
+        body: { user_id: passwordMember.user_id, password: newPassword, action: "update_password" },
+      });
+
+      if (fnError || fnData?.error) {
+        toast.error(fnData?.error || "Failed to change password");
+        setSaving(false);
+        return;
+      }
+
+      toast.success("Password updated successfully");
+      setPasswordMember(null);
+    } catch {
+      toast.error("Failed to change password");
     }
     setSaving(false);
   };
@@ -162,6 +266,35 @@ export default function AdminTeam() {
       fetchTeam();
     }
   };
+
+  const renderActions = (m: AdminMember) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <MoreHorizontal className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => openEdit(m)}>
+          <Pencil className="w-4 h-4 mr-2" /> Edit Details
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => openEmailChange(m)}>
+          <Mail className="w-4 h-4 mr-2" /> Change Email
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => openPasswordChange(m)}>
+          <KeyRound className="w-4 h-4 mr-2" /> Change Password
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => toggleActive(m)}>
+          {m.is_active ? <UserX className="w-4 h-4 mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
+          {m.is_active ? "Deactivate" : "Activate"}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => removeMember(m)} className="text-destructive">
+          <Trash2 className="w-4 h-4 mr-2" /> Remove
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 
   return (
     <div>
@@ -244,24 +377,7 @@ export default function AdminTeam() {
                       <TableCell className="text-sm text-muted-foreground">
                         {new Date(m.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => toggleActive(m)}>
-                              {m.is_active ? <UserX className="w-4 h-4 mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
-                              {m.is_active ? "Deactivate" : "Activate"}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => removeMember(m)} className="text-destructive">
-                              <Trash2 className="w-4 h-4 mr-2" /> Remove
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
+                      <TableCell>{renderActions(m)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -277,26 +393,18 @@ export default function AdminTeam() {
                       <p className="font-medium text-foreground">{m.name}</p>
                       <p className="text-sm text-muted-foreground">{m.email}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       {m.is_active ? (
                         <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200 text-xs">Active</Badge>
                       ) : (
                         <Badge className="bg-red-500/10 text-red-600 border-red-200 text-xs">Inactive</Badge>
                       )}
+                      {renderActions(m)}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="text-xs">{m.designation}</Badge>
                     {m.phone && <span className="text-xs text-muted-foreground">{m.phone}</span>}
-                  </div>
-                  <div className="flex gap-2 pt-1">
-                    <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => toggleActive(m)}>
-                      {m.is_active ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
-                      {m.is_active ? "Deactivate" : "Activate"}
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-xs gap-1 text-destructive" onClick={() => removeMember(m)}>
-                      <Trash2 className="w-3.5 h-3.5" /> Remove
-                    </Button>
                   </div>
                 </div>
               ))}
@@ -311,66 +419,133 @@ export default function AdminTeam() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
-              Add New Admin
+              <Shield className="w-5 h-5 text-primary" /> Add New Admin
             </DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label>Full Name *</Label>
-              <Input
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="Enter full name"
-              />
+              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Enter full name" />
             </div>
             <div className="space-y-1.5">
               <Label>Email *</Label>
-              <Input
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                placeholder="admin@remedoo.com"
-              />
+              <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="admin@remedoo.com" />
             </div>
             <div className="space-y-1.5">
               <Label>Password *</Label>
-              <Input
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                placeholder="Min 6 characters"
-              />
+              <Input type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} placeholder="Min 6 characters" />
             </div>
             <div className="space-y-1.5">
               <Label>Designation *</Label>
               <Select value={form.designation} onValueChange={(v) => setForm((f) => ({ ...f, designation: v }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {DESIGNATIONS.map((d) => (
-                    <SelectItem key={d} value={d}>{d}</SelectItem>
-                  ))}
+                  {DESIGNATIONS.map((d) => (<SelectItem key={d} value={d}>{d}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
               <Label>Phone (optional)</Label>
-              <Input
-                value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                placeholder="+91 9876543210"
-              />
+              <Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="+91 9876543210" />
             </div>
           </div>
-
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
             <Button onClick={handleCreateAdmin} disabled={saving} className="gap-2">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               Create Admin
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Details Dialog */}
+      <Dialog open={!!editMember} onOpenChange={(open) => !open && setEditMember(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="w-5 h-5 text-primary" /> Edit Admin Details
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label>Full Name *</Label>
+              <Input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Designation *</Label>
+              <Select value={editForm.designation} onValueChange={(v) => setEditForm((f) => ({ ...f, designation: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {DESIGNATIONS.map((d) => (<SelectItem key={d} value={d}>{d}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Phone</Label>
+              <Input value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} placeholder="+91 9876543210" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditMember(null)}>Cancel</Button>
+            <Button onClick={handleSaveEdit} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Pencil className="w-4 h-4" />}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Email Dialog */}
+      <Dialog open={!!emailMember} onOpenChange={(open) => !open && setEmailMember(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="w-5 h-5 text-primary" /> Change Email
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-muted-foreground">Current Email</Label>
+              <Input value={emailMember?.email || ""} disabled className="bg-muted" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>New Email *</Label>
+              <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="new-email@remedoo.com" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailMember(null)}>Cancel</Button>
+            <Button onClick={handleChangeEmail} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+              Update Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Password Dialog */}
+      <Dialog open={!!passwordMember} onOpenChange={(open) => !open && setPasswordMember(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-primary" /> Change Password
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Set a new password for <span className="font-medium text-foreground">{passwordMember?.name}</span>
+            </p>
+            <div className="space-y-1.5">
+              <Label>New Password *</Label>
+              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Min 6 characters" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPasswordMember(null)}>Cancel</Button>
+            <Button onClick={handleChangePassword} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+              Update Password
             </Button>
           </DialogFooter>
         </DialogContent>
