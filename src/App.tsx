@@ -92,6 +92,7 @@ const DoctorAuditLogs = lazy(() => import("./pages/doctor/DoctorAuditLogs"));
 const DoctorSettings = lazy(() => import("./pages/doctor/DoctorSettings"));
 const DoctorReviews = lazy(() => import("./pages/doctor/DoctorReviews"));
 const DoctorAppointmentDetail = lazy(() => import("./pages/doctor/DoctorAppointmentDetail"));
+const DoctorSupportTickets = lazy(() => import("./pages/doctor/DoctorSupportTickets"));
 
 // Hospital Panel
 const HospitalLayout = lazy(() => import("./pages/hospital/HospitalLayout"));
@@ -111,6 +112,9 @@ const HospitalSettings = lazy(() => import("./pages/hospital/HospitalSettings"))
 const HospitalAmbulanceConfig = lazy(() => import("./pages/hospital/HospitalAmbulanceConfig"));
 const HospitalAmbulanceFleet = lazy(() => import("./pages/hospital/HospitalAmbulanceFleet"));
 const HospitalAmbulanceTrips = lazy(() => import("./pages/hospital/HospitalAmbulanceTrips"));
+const HospitalNotifications = lazy(() => import("./pages/hospital/HospitalNotifications"));
+const HospitalSupportTickets = lazy(() => import("./pages/hospital/HospitalSupportTickets"));
+const HospitalReviews = lazy(() => import("./pages/hospital/HospitalReviews"));
 
 // Pharmacy Panel
 const PharmacyLayout = lazy(() => import("./pages/pharmacy/PharmacyLayout"));
@@ -120,6 +124,11 @@ const PharmacyMedicines = lazy(() => import("./pages/pharmacy/PharmacyMedicinesE
 const PharmacyProfile = lazy(() => import("./pages/pharmacy/PharmacyProfile"));
 const PharmacySettings = lazy(() => import("./pages/pharmacy/PharmacySettings"));
 const PharmacyEarnings = lazy(() => import("./pages/pharmacy/PharmacyEarnings"));
+const PharmacyNotifications = lazy(() => import("./pages/pharmacy/PharmacyNotifications"));
+const PharmacySupportTickets = lazy(() => import("./pages/pharmacy/PharmacySupportTickets"));
+const PharmacyReviews = lazy(() => import("./pages/pharmacy/PharmacyReviews"));
+const PharmacyAuditLogs = lazy(() => import("./pages/pharmacy/PharmacyAuditLogs"));
+const PharmacyAnalytics = lazy(() => import("./pages/pharmacy/PharmacyAnalytics"));
 
 // Lab Panel
 const LabLayout = lazy(() => import("./pages/lab/LabLayout"));
@@ -130,6 +139,11 @@ const LabSettings = lazy(() => import("./pages/lab/LabSettings"));
 const LabTests = lazy(() => import("./pages/lab/LabTests"));
 const LabEarnings = lazy(() => import("./pages/lab/LabEarnings"));
 const LabSampleCollections = lazy(() => import("./pages/lab/LabSampleCollections"));
+const LabNotifications = lazy(() => import("./pages/lab/LabNotifications"));
+const LabSupportTickets = lazy(() => import("./pages/lab/LabSupportTickets"));
+const LabReviews = lazy(() => import("./pages/lab/LabReviews"));
+const LabAuditLogs = lazy(() => import("./pages/lab/LabAuditLogs"));
+const LabAnalytics = lazy(() => import("./pages/lab/LabAnalytics"));
 const SupportTickets = lazy(() => import("./pages/SupportTickets"));
 
 const queryClient = new QueryClient({
