@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings, Save, Building2, CreditCard, CalendarCheck, AlertTriangle, FileText, Loader2 } from "lucide-react";
+import { Settings, Save, Building2, CreditCard, CalendarCheck, AlertTriangle, FileText, Loader2, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -23,6 +23,7 @@ const categoryConfig: Record<string, { label: string; icon: React.ElementType; d
   appointments: { label: "Appointments", icon: CalendarCheck, description: "Scheduling rules and auto-cancel policies" },
   emergency: { label: "Emergency", icon: AlertTriangle, description: "Emergency search radius and timeout settings" },
   legal: { label: "Legal", icon: FileText, description: "URLs for terms, privacy, and refund policies" },
+  email: { label: "Email", icon: Mail, description: "Gmail SMTP configuration for sending emails (OTP, orders, reports)" },
 };
 
 export default function AdminSettings() {
@@ -106,11 +107,21 @@ export default function AdminSettings() {
           {isChanged && <span className="ml-2 text-xs text-primary">(modified)</span>}
         </Label>
         <Input
-          type={s.type === "number" ? "number" : "text"}
+          type={s.type === "password" ? "password" : s.type === "number" ? "number" : "text"}
           value={value}
           onChange={(e) => handleChange(s.key, e.target.value)}
+          placeholder={s.type === "password" ? "••••••••••••••••" : ""}
           className="max-w-md"
         />
+        {s.key === "gmail_app_password" && (
+          <p className="text-xs text-muted-foreground">
+            Generate at{" "}
+            <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-primary underline">
+              Google App Passwords
+            </a>
+            {" "}(requires 2-Step Verification)
+          </p>
+        )}
       </div>
     );
   };
