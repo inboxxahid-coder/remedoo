@@ -255,6 +255,8 @@ const App = () => {
               <Route path="featured-medicines" element={<AdminFeaturedMedicines />} />
               <Route path="info-cards" element={<AdminInfoCards />} />
               <Route path="quick-access" element={<AdminQuickAccess />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="team" element={<AdminTeam />} />
             </Route>
 
             {/* Doctor routes */}
