@@ -304,13 +304,17 @@ export default function AdminTeam() {
               <KeyRound className="w-4 h-4 mr-2" /> Change Password
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => toggleActive(m)}>
-              {m.is_active ? <UserX className="w-4 h-4 mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
-              {m.is_active ? "Deactivate" : "Activate"}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => removeMember(m)} className="text-destructive">
-              <Trash2 className="w-4 h-4 mr-2" /> Remove
-            </DropdownMenuItem>
+            {m.designation !== "Super Admin" && (
+              <>
+                <DropdownMenuItem onClick={() => toggleActive(m)}>
+                  {m.is_active ? <UserX className="w-4 h-4 mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
+                  {m.is_active ? "Deactivate" : "Activate"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => removeMember(m)} className="text-destructive">
+                  <Trash2 className="w-4 h-4 mr-2" /> Remove
+                </DropdownMenuItem>
+              </>
+            )}
           </>
         )}
         {!isSuperAdmin && (
