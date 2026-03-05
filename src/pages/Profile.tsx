@@ -62,14 +62,16 @@ const Profile = () => {
     return null;
   };
 
-  const displayAvatar = avatarUrl || getDefaultAvatar(form.gender);
+  const isDefaultAvatar = !avatarUrl || avatarUrl === avatarMale || avatarUrl === avatarFemale;
+  const displayAvatar = isDefaultAvatar ? getDefaultAvatar(form.gender) || avatarUrl : avatarUrl;
 
   const handleGenderChange = async (value: string) => {
     setForm(f => ({ ...f, gender: value }));
-    // If user has no custom avatar, auto-set the default
-    if (!avatarUrl && profile) {
+    // If user has no custom avatar (or is using a default one), update to match new gender
+    if (isDefaultAvatar && profile) {
       const defaultAv = getDefaultAvatar(value);
       if (defaultAv) {
+        setAvatarUrl(defaultAv);
         await supabase.from("profiles").update({ avatar_url: defaultAv } as any).eq("id", profile.id);
       }
     }
