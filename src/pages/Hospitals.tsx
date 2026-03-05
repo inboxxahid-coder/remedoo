@@ -8,6 +8,7 @@ import BottomNav from "@/components/BottomNav";
 import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolocation";
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
+import { getHospitalImage } from "@/lib/providerDefaults";
 
 const OFFER_BANNERS = [
   { emoji: "🏥", title: "Free Health Checkup", subtitle: "On first hospital visit", bg: "from-emerald-500 to-teal-600" },
@@ -210,14 +211,7 @@ const Hospitals = () => {
             >
               {/* Top image/banner area */}
               <div className="relative h-32 bg-gradient-to-br from-primary/10 via-accent/30 to-primary/5 flex items-center justify-center overflow-hidden">
-                {h.image_url ? (
-                  <img src={h.image_url} alt={h.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-5xl">{h.is_government ? "🏛️" : "🏥"}</span>
-                    <span className="text-xs text-muted-foreground font-medium">{h.is_government ? "Government Hospital" : "Hospital"}</span>
-                  </div>
-                )}
+                <img src={getHospitalImage(h.image_url)} alt={h.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
 
                 {/* Favorite button */}
                 <button
