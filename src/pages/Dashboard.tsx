@@ -110,11 +110,11 @@ const AnimatedMenuButton = () => {
   );
 };
 
-const PROMO_BANNERS = [
-  { title: "Flat 30% OFF", sub: "on first doctor consultation", gradient: "from-[hsl(262,60%,52%)] to-[hsl(280,55%,45%)]", emoji: "🩺" },
-  { title: "Free Delivery", sub: "on medicine orders above ₹199", gradient: "from-[hsl(152,55%,40%)] to-[hsl(170,60%,38%)]", emoji: "💊" },
-  { title: "Health Packages", sub: "starting at ₹299 only", gradient: "from-[hsl(200,65%,45%)] to-[hsl(215,70%,50%)]", emoji: "🧪" },
-  { title: "Emergency SOS", sub: "ambulance in under 10 mins", gradient: "from-[hsl(0,70%,52%)] to-[hsl(350,60%,48%)]", emoji: "🚑" },
+const PROMO_BANNERS_FALLBACK = [
+  { title: "Flat 30% OFF", subtitle: "on first doctor consultation", gradient: "from-[hsl(262,60%,52%)] to-[hsl(280,55%,45%)]", emoji: "🩺" },
+  { title: "Free Delivery", subtitle: "on medicine orders above ₹199", gradient: "from-[hsl(152,55%,40%)] to-[hsl(170,60%,38%)]", emoji: "💊" },
+  { title: "Health Packages", subtitle: "starting at ₹299 only", gradient: "from-[hsl(200,65%,45%)] to-[hsl(215,70%,50%)]", emoji: "🧪" },
+  { title: "Emergency SOS", subtitle: "ambulance in under 10 mins", gradient: "from-[hsl(0,70%,52%)] to-[hsl(350,60%,48%)]", emoji: "🚑" },
 ];
 
 const Dashboard = () => {
@@ -143,6 +143,8 @@ const Dashboard = () => {
   const [infoCards, setInfoCards] = useState<any[]>([]);
   const [quickAccessItems, setQuickAccessItems] = useState<any[]>([]);
   const [promoIdx, setPromoIdx] = useState(0);
+  const [promoBanners, setPromoBanners] = useState<any[]>([]);
+  const [categoryActions, setCategoryActions] = useState<any[]>([]);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
