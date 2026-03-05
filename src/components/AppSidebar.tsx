@@ -35,7 +35,7 @@ export function AppSidebar() {
 
   const handleNavigate = (url: string) => {
     setOpenMobile(false);
-    setTimeout(() => navigate(url), 150);
+    navigate(url);
   };
 
   return (
