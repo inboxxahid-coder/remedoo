@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, FileText, Pill, Package, Info, Navigation, BadgeCheck } from "lucide-react";
+import { ArrowLeft, Star, Search, MapPin, Clock, ShoppingCart, Plus, Minus, Pill, Navigation, BadgeCheck, Percent, Heart, Share2, X, ChevronRight } from "lucide-react";
 import { withAuthGuard } from "@/hooks/useRequireAuth";
 import MedicineDetailSheet from "@/components/patient/MedicineDetailSheet";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,20 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type CartItem = {
   medicine: Tables<"medicines">;
   quantity: number;
+};
+
+const getCategoryIcon = (category: string) => {
+  const icons: Record<string, string> = {
+    "Antibiotics": "💊", "Pain Relief": "🩹", "Vitamins": "🌿", "Cardiac": "❤️",
+    "Diabetes": "🩸", "Respiratory": "🫁", "Digestive": "🧬", "Skin Care": "✨",
+    "Eye Care": "👁️", "General": "💊",
+  };
+  return icons[category] || "💊";
 };
 
 const PharmacyDetail = () => {
@@ -25,6 +35,7 @@ const PharmacyDetail = () => {
   const [cart, setCart] = useState<Record<string, CartItem>>({});
   const [loading, setLoading] = useState(true);
   const [selectedMedicine, setSelectedMedicine] = useState<Tables<"medicines"> | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -51,6 +62,8 @@ const PharmacyDetail = () => {
       return matchSearch && matchCategory;
     });
   }, [medicines, search, selectedCategory]);
+
+  const offersCount = useMemo(() => medicines.filter(m => (m.discount_percent || 0) > 0).length, [medicines]);
 
   const addToCart = (medicine: Tables<"medicines">) => {
     if (medicine.requires_prescription) {
@@ -81,90 +94,153 @@ const PharmacyDetail = () => {
   }, 0);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const getDiscountedPrice = (m: Tables<"medicines">) => {
-    return m.price * (1 - (m.discount_percent || 0) / 100);
-  };
-
-  const getCategoryIcon = (category: string) => {
-    const icons: Record<string, string> = {
-      "Antibiotics": "💊",
-      "Pain Relief": "🩹",
-      "Vitamins": "🌿",
-      "Cardiac": "❤️",
-      "Diabetes": "🩸",
-      "Respiratory": "🫁",
-      "Digestive": "🧬",
-      "Skin Care": "✨",
-      "Eye Care": "👁️",
-      "General": "💊",
-    };
-    return icons[category] || "💊";
-  };
+  const getDiscountedPrice = (m: Tables<"medicines">) => m.price * (1 - (m.discount_percent || 0) / 100);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading...</div>;
   if (!pharmacy) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Pharmacy not found</div>;
 
   return (
-    <div className="min-h-screen bg-background pb-28">
-      {/* Header */}
-      <div className="gradient-primary px-5 pt-10 pb-6 rounded-b-[1.5rem]">
-        <div className="flex items-center gap-3 mb-3">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold text-primary-foreground truncate flex items-center gap-1.5">{pharmacy.name}{pharmacy.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-green-400 shrink-0" />}</h1>
-            {pharmacy.location && <p className="text-primary-foreground/70 text-xs flex items-center gap-1"><MapPin className="w-3 h-3" />{pharmacy.location}</p>}
-          </div>
-          <div className="flex items-center gap-1 bg-primary-foreground/20 rounded-lg px-2 py-1">
-            <Star className="w-3.5 h-3.5 fill-warning text-warning" />
-            <span className="text-primary-foreground text-xs font-semibold">{pharmacy.rating}</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 text-primary-foreground/70 text-xs mb-3">
-          <Clock className="w-3 h-3" /><span>Delivery in 25-35 min</span>
-          <span className="mx-1">•</span>
-          <span>{medicines.length} items available</span>
-          {(pharmacy.latitude && pharmacy.longitude || pharmacy.location) && (
-            <>
-              <span className="mx-1">•</span>
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${pharmacy.latitude && pharmacy.longitude ? `${pharmacy.latitude},${pharmacy.longitude}` : encodeURIComponent(pharmacy.location || '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-primary-foreground hover:text-primary-foreground/90 transition-colors"
-              >
-                <Navigation className="w-3 h-3" /> Directions
-              </a>
-            </>
+    <div className="min-h-screen bg-muted/30 pb-28">
+      {/* Swiggy-style hero header */}
+      <div className="relative">
+        {/* Hero image */}
+        <div className="h-48 bg-gradient-to-br from-primary/20 via-accent/40 to-primary/10 relative overflow-hidden">
+          {pharmacy.image_url ? (
+            <img src={pharmacy.image_url} alt={pharmacy.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-7xl opacity-30">🏥</span>
+            </div>
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search medicines..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card border-0 shadow-lg h-11 rounded-xl" />
+
+        {/* Top action bar */}
+        <div className="absolute top-0 left-0 right-0 px-4 pt-10 flex items-center justify-between z-10">
+          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setShowSearch(!showSearch)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
+              <Search className="w-4 h-4 text-foreground" />
+            </button>
+            <button className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
+              <Heart className="w-4 h-4 text-foreground" />
+            </button>
+          </div>
+        </div>
+
+        {/* Pharmacy info card overlapping hero */}
+        <div className="mx-4 -mt-12 relative z-10 bg-card rounded-2xl border border-border p-4 shadow-lg">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-bold text-foreground truncate flex items-center gap-1.5">
+                {pharmacy.name}
+                {pharmacy.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-primary shrink-0" />}
+              </h1>
+              {pharmacy.location && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                  <MapPin className="w-3 h-3 text-primary shrink-0" /> {pharmacy.location}
+                </p>
+              )}
+              <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> 25-35 min</span>
+                <span>•</span>
+                <span>{medicines.length} items</span>
+                {offersCount > 0 && (
+                  <>
+                    <span>•</span>
+                    <span className="text-primary font-semibold flex items-center gap-1"><Percent className="w-3 h-3" />{offersCount} offers</span>
+                  </>
+                )}
+              </div>
+            </div>
+            {/* Rating */}
+            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-bold text-white shrink-0 ${(pharmacy.rating || 0) >= 4 ? "bg-emerald-600" : "bg-amber-500"}`}>
+              <Star className="w-3.5 h-3.5 fill-current" />
+              {pharmacy.rating || "—"}
+            </div>
+          </div>
+
+          {/* Get directions link */}
+          {(pharmacy.latitude && pharmacy.longitude || pharmacy.location) && (
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${pharmacy.latitude && pharmacy.longitude ? `${pharmacy.latitude},${pharmacy.longitude}` : encodeURIComponent(pharmacy.location || '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 flex items-center justify-between py-2 border-t border-dashed border-border text-xs text-primary font-semibold"
+            >
+              <span className="flex items-center gap-1.5"><Navigation className="w-3.5 h-3.5" /> Get Directions</span>
+              <ChevronRight className="w-4 h-4" />
+            </a>
+          )}
         </div>
       </div>
 
-      {/* Category tabs */}
-      <div className="px-5 mt-4 mb-4 overflow-x-auto scrollbar-hide">
+      {/* Expandable search bar */}
+      <AnimatePresence>
+        {showSearch && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="px-4 overflow-hidden"
+          >
+            <div className="relative mt-3">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search medicines in this pharmacy..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 pr-9 bg-card border-border h-11 rounded-xl text-sm"
+                autoFocus
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Category filter chips */}
+      <div className="px-4 mt-4 mb-3 overflow-x-auto scrollbar-hide">
         <div className="flex gap-2">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${
                 selectedCategory === cat
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "bg-card text-muted-foreground border border-border hover:border-primary/30"
+                  ? "bg-foreground text-background shadow-md"
+                  : "bg-card text-foreground border border-border hover:bg-muted"
               }`}
             >
               {cat !== "All" && <span className="text-sm">{getCategoryIcon(cat)}</span>}
-              {cat === "All" && <Package className="w-3.5 h-3.5" />}
               {cat}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Catalogue Grid */}
+      {/* Offer banner */}
+      {offersCount > 0 && (
+        <div className="px-4 mb-4">
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20 p-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+              <Percent className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">Save with {offersCount} offers</p>
+              <p className="text-[11px] text-muted-foreground">Discounts on selected medicines</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Medicine catalogue */}
       <div className="px-4">
         {filtered.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
@@ -173,91 +249,84 @@ const PharmacyDetail = () => {
             <p className="text-xs mt-1">Try a different search or category</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {filtered.map((m) => {
+          <div className="space-y-2">
+            {filtered.map((m, idx) => {
               const inCart = cart[m.id];
               const discountedPrice = getDiscountedPrice(m);
               const hasDiscount = (m.discount_percent || 0) > 0;
 
               return (
-                <div
+                <motion.div
                   key={m.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.03 }}
                   onClick={() => setSelectedMedicine(m)}
-                  className="bg-card rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-shadow relative group cursor-pointer"
+                  className="bg-card rounded-xl border border-border p-3 flex gap-3 cursor-pointer hover:shadow-md transition-shadow group"
                 >
-                  {/* Discount ribbon */}
-                  {hasDiscount && (
-                    <div className="absolute top-1 left-1 z-10">
-                      <Badge className="bg-success text-success-foreground text-[8px] font-bold px-1 py-0 rounded-md shadow-sm">
-                        {m.discount_percent}%
-                      </Badge>
-                    </div>
-                  )}
-
-                  {/* Rx badge */}
-                  {m.requires_prescription && (
-                    <div className="absolute top-1 right-1 z-10">
-                      <Badge variant="outline" className="bg-card/90 backdrop-blur-sm text-[8px] border-primary text-primary px-1 py-0 rounded-md">
-                        Rx
-                      </Badge>
-                    </div>
-                  )}
-
-                  {/* Medicine visual area */}
-                  <div className="h-20 bg-gradient-to-br from-accent/60 to-accent/20 flex items-center justify-center relative overflow-hidden">
+                  {/* Medicine image */}
+                  <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-accent/60 to-accent/20 flex items-center justify-center overflow-hidden shrink-0 relative">
                     {m.image_url ? (
                       <img src={m.image_url} alt={m.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="flex flex-col items-center gap-0.5">
-                        <span className="text-2xl">{getCategoryIcon(m.category)}</span>
-                        <span className="text-[8px] text-accent-foreground/50 font-medium">{m.category}</span>
+                      <span className="text-3xl">{getCategoryIcon(m.category)}</span>
+                    )}
+                    {hasDiscount && (
+                      <div className="absolute top-1 left-1">
+                        <Badge className="bg-primary text-primary-foreground text-[8px] font-bold px-1 py-0 rounded-md">
+                          {m.discount_percent}% OFF
+                        </Badge>
                       </div>
                     )}
                   </div>
 
                   {/* Details */}
-                  <div className="p-2 space-y-1">
-                    <h3 className="font-semibold text-foreground text-[10px] leading-tight line-clamp-2 min-h-[1.5rem]">{m.name}</h3>
-                    {m.brand_name && (
-                      <p className="text-[9px] text-primary font-medium truncate">{m.brand_name}</p>
-                    )}
-                    {m.generic_name && (
-                      <p className="text-[8px] text-muted-foreground truncate">{m.generic_name}</p>
-                    )}
-                    <p className="text-[8px] text-muted-foreground">{m.unit} {m.manufacturer && `• ${m.manufacturer}`}</p>
-
-                    {/* Price */}
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-bold text-foreground text-xs">₹{discountedPrice.toFixed(0)}</span>
-                      {hasDiscount && (
-                        <span className="text-[8px] text-muted-foreground line-through">₹{m.price}</span>
-                      )}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">{m.name}</h3>
+                        {m.requires_prescription && (
+                          <Badge variant="outline" className="text-[8px] border-primary text-primary px-1 py-0 rounded-md shrink-0">
+                            Rx
+                          </Badge>
+                        )}
+                      </div>
+                      {m.brand_name && <p className="text-[11px] text-primary font-medium mt-0.5">{m.brand_name}</p>}
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{m.unit} {m.manufacturer && `• ${m.manufacturer}`}</p>
                     </div>
 
-                    {/* Add / Quantity control */}
-                    <div className="pt-0.5">
+                    {/* Price + Cart */}
+                    <div className="flex items-center justify-between mt-1.5">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="font-bold text-foreground text-sm">₹{discountedPrice.toFixed(0)}</span>
+                        {hasDiscount && (
+                          <span className="text-[11px] text-muted-foreground line-through">₹{m.price}</span>
+                        )}
+                      </div>
+
                       {inCart ? (
-                        <div className="flex items-center justify-between bg-primary/10 rounded-lg h-6">
-                          <button onClick={() => removeFromCart(m.id)} className="px-2 h-full flex items-center text-primary hover:bg-primary/20 rounded-l-lg transition-colors">
-                            <Minus className="w-3 h-3" />
+                        <div className="flex items-center bg-primary rounded-lg overflow-hidden h-8" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => removeFromCart(m.id)} className="px-2.5 h-full flex items-center text-primary-foreground hover:bg-primary/80 transition-colors">
+                            <Minus className="w-3.5 h-3.5" />
                           </button>
-                          <span className="text-[10px] font-bold text-primary">{inCart.quantity}</span>
-                          <button onClick={() => addToCart(m)} className="px-2 h-full flex items-center text-primary hover:bg-primary/20 rounded-r-lg transition-colors">
-                            <Plus className="w-3 h-3" />
+                          <span className="text-xs font-bold text-primary-foreground px-1 min-w-[20px] text-center">{inCart.quantity}</span>
+                          <button onClick={() => addToCart(m)} className="px-2.5 h-full flex items-center text-primary-foreground hover:bg-primary/80 transition-colors">
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       ) : (
                         <Button
                           size="sm"
-                          onClick={() => addToCart(m)}
-                          className="w-full h-6 rounded-lg text-[10px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+                          variant="outline"
+                          onClick={(e) => { e.stopPropagation(); addToCart(m); }}
+                          className="h-8 rounded-lg text-xs font-bold border-primary text-primary hover:bg-primary hover:text-primary-foreground px-4"
                         >
-                          <Plus className="w-2.5 h-2.5 mr-0.5" />Add
+                          ADD
                         </Button>
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -266,18 +335,13 @@ const PharmacyDetail = () => {
 
       {/* Location Map */}
       {(pharmacy.latitude && pharmacy.longitude || pharmacy.location) && (
-        <div className="px-4 mt-4">
+        <div className="px-4 mt-6">
           <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
-            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+            <h3 className="font-bold text-foreground mb-3 flex items-center gap-2 text-sm">
               <Navigation className="w-4 h-4 text-primary" /> Location
             </h3>
-            {pharmacy.location && (
-              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mb-3">
-                <MapPin className="w-3.5 h-3.5 flex-shrink-0" /> {pharmacy.location}
-              </p>
-            )}
             {pharmacy.latitude && pharmacy.longitude && (
-              <div className="rounded-xl overflow-hidden border border-border h-44">
+              <div className="rounded-xl overflow-hidden border border-border h-40">
                 <iframe
                   title="Pharmacy Location"
                   width="100%"
@@ -288,14 +352,6 @@ const PharmacyDetail = () => {
                 />
               </div>
             )}
-            <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${pharmacy.latitude && pharmacy.longitude ? `${pharmacy.latitude},${pharmacy.longitude}` : encodeURIComponent(pharmacy.location || '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 w-full h-9 rounded-xl text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/5 flex items-center justify-center gap-1.5 transition-colors"
-            >
-              <Navigation className="w-3.5 h-3.5" /> Get Directions
-            </a>
           </div>
         </div>
       )}
@@ -310,29 +366,38 @@ const PharmacyDetail = () => {
         onRemove={removeFromCart}
       />
 
-      {/* Floating cart bar */}
-      {cartCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 safe-bottom z-50">
-          <button
-            onClick={() => navigate("/cart", { state: { cart, pharmacy } })}
-            className="w-full gradient-primary text-primary-foreground rounded-2xl p-4 flex items-center justify-between shadow-xl"
+      {/* Floating cart bar — Swiggy style */}
+      <AnimatePresence>
+        {cartCount > 0 && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-0 left-0 right-0 p-4 safe-bottom z-50"
           >
-            <div className="flex items-center gap-2">
-              <div className="bg-primary-foreground/20 rounded-lg p-1.5">
-                <ShoppingCart className="w-5 h-5" />
+            <button
+              onClick={() => navigate("/cart", { state: { cart, pharmacy } })}
+              className="w-full bg-primary text-primary-foreground rounded-2xl p-4 flex items-center justify-between shadow-2xl"
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <ShoppingCart className="w-5 h-5" />
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary-foreground text-primary text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                </div>
+                <div className="text-left">
+                  <span className="font-bold text-sm">{cartCount} {cartCount === 1 ? "item" : "items"} • ₹{cartTotal.toFixed(0)}</span>
+                  <p className="text-[10px] text-primary-foreground/70">{pharmacy.name}</p>
+                </div>
               </div>
-              <div className="text-left">
-                <span className="font-bold text-sm">{cartCount} {cartCount === 1 ? "item" : "items"}</span>
-                <p className="text-xs text-primary-foreground/70">{pharmacy.name}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="font-bold">₹{cartTotal.toFixed(0)}</span>
-              <p className="text-xs text-primary-foreground/70">View Cart →</p>
-            </div>
-          </button>
-        </div>
-      )}
+              <span className="font-bold text-sm flex items-center gap-1">
+                View Cart <ChevronRight className="w-4 h-4" />
+              </span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
