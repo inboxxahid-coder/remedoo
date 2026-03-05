@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Star, MapPin, Trash2 } from "lucide-react";
+import { ArrowLeft, Heart, Star, MapPin, Trash2, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
+import { SkeletonListCard } from "@/components/SkeletonCard";
 
 type FavoriteItem = {
   id: string;
@@ -16,6 +18,12 @@ type FavoriteItem = {
 };
 
 const emojiMap: Record<string, string> = { doctor: "👨‍⚕️", hospital: "🏥", lab: "🔬", pharmacy: "💊" };
+const colorMap: Record<string, string> = {
+  doctor: "bg-primary/10",
+  hospital: "bg-success/10",
+  lab: "bg-warning/10",
+  pharmacy: "bg-emergency/10",
+};
 
 const Favorites = () => {
   const navigate = useNavigate();
@@ -25,23 +33,17 @@ const Favorites = () => {
   const loadFavorites = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { navigate("/login", { replace: true }); return; }
-
     const { data: favs } = await supabase.from("favorites").select("*").eq("user_id", session.user.id);
     if (!favs) { setLoading(false); return; }
-
     const items: FavoriteItem[] = [];
     for (const fav of favs) {
       const table = fav.provider_type === "doctor" ? "doctors" : fav.provider_type === "hospital" ? "hospitals" : fav.provider_type === "lab" ? "labs" : "pharmacies";
       const { data } = await supabase.from(table).select("*").eq("id", fav.provider_id).single();
       if (data) {
         items.push({
-          id: fav.id,
-          provider_type: fav.provider_type,
-          provider_id: fav.provider_id,
-          name: (data as any).name,
-          rating: (data as any).rating,
-          location: (data as any).location,
-          specialization: (data as any).specialization,
+          id: fav.id, provider_type: fav.provider_type, provider_id: fav.provider_id,
+          name: (data as any).name, rating: (data as any).rating,
+          location: (data as any).location, specialization: (data as any).specialization,
         });
       }
     }
@@ -57,52 +59,84 @@ const Favorites = () => {
     toast.success("Removed from favorites");
   };
 
+  const navigateToProvider = (fav: FavoriteItem) => {
+    const path = fav.provider_type === "doctor" ? `/doctor/${fav.provider_id}` :
+      fav.provider_type === "hospital" ? `/hospital/${fav.provider_id}` :
+      fav.provider_type === "lab" ? `/lab/${fav.provider_id}` : `/pharmacy/${fav.provider_id}`;
+    navigate(path);
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-20">
       <div className="gradient-primary px-5 pt-10 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-xl font-bold text-primary-foreground">Favorites</h1>
+          {favorites.length > 0 && (
+            <span className="ml-auto bg-primary-foreground/20 text-primary-foreground text-xs font-bold px-2.5 py-1 rounded-full">
+              {favorites.length}
+            </span>
+          )}
         </div>
       </div>
 
       <div className="px-5 mt-4 space-y-3">
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading...</div>
+          Array.from({ length: 3 }).map((_, i) => <SkeletonListCard key={i} />)
         ) : favorites.length === 0 ? (
-          <div className="text-center py-12">
-            <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">No favorites yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Add doctors, hospitals, labs or pharmacies to your favorites</p>
+          <div className="text-center py-16">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+              <Heart className="w-10 h-10 text-muted-foreground/30" />
+            </div>
+            <p className="text-foreground font-semibold mb-1">No favorites yet</p>
+            <p className="text-sm text-muted-foreground">Add doctors, hospitals, labs or pharmacies</p>
           </div>
         ) : (
-          favorites.map((fav) => (
-            <div key={fav.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm">
-              <div className="flex gap-3">
-                <div className="w-14 h-14 rounded-xl bg-accent flex items-center justify-center text-2xl flex-shrink-0">
-                  {emojiMap[fav.provider_type] || "❤️"}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-foreground truncate">{fav.name}</h3>
-                      <p className="text-xs text-primary capitalize">{fav.provider_type}</p>
+          <AnimatePresence>
+            {favorites.map((fav, i) => (
+              <motion.div
+                key={fav.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                transition={{ delay: i * 0.04 }}
+                className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
+              >
+                <button onClick={() => navigateToProvider(fav)} className="w-full p-4 text-left">
+                  <div className="flex gap-3 items-center">
+                    <div className={`w-14 h-14 rounded-2xl ${colorMap[fav.provider_type] || "bg-accent"} flex items-center justify-center text-2xl shrink-0`}>
+                      {emojiMap[fav.provider_type] || "❤️"}
                     </div>
-                    <button onClick={() => removeFavorite(fav.id)} className="text-muted-foreground hover:text-emergency">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-foreground truncate text-sm">{fav.name}</h3>
+                      <p className="text-xs text-primary capitalize font-semibold mt-0.5">{fav.provider_type}</p>
+                      <div className="flex items-center gap-3 mt-1">
+                        {fav.rating && (
+                          <span className="flex items-center gap-0.5 text-xs">
+                            <Star className="w-3 h-3 fill-warning text-warning" />{fav.rating}
+                          </span>
+                        )}
+                        {fav.location && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-0.5 truncate">
+                            <MapPin className="w-3 h-3 shrink-0" />{fav.location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 shrink-0">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); removeFavorite(fav.id); }}
+                        className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center hover:bg-destructive/20 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </button>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 mt-1">
-                    {fav.rating && (
-                      <div className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-warning text-warning" /><span className="text-xs">{fav.rating}</span></div>
-                    )}
-                    {fav.location && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" />{fav.location}</span>}
-                    {fav.specialization && <span className="text-xs text-muted-foreground">{fav.specialization}</span>}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
+                </button>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
       <BottomNav />
