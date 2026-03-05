@@ -323,12 +323,11 @@ const Dashboard = () => {
             )}
           </AnimatePresence>
 
-          <div className="pb-24 overflow-x-hidden">
-            {/* ===== TOP BAR ===== */}
-            <div className="sticky top-0 z-40 bg-primary">
-              <div className="flex items-center justify-between px-4 h-14">
-                <AnimatedMenuButton />
-                <AnimatedLogo />
+          {/* ===== TOP BAR ===== */}
+          <div className="sticky top-0 z-40 bg-primary">
+            <div className="flex items-center justify-between px-4 h-14">
+              <AnimatedMenuButton />
+              <AnimatedLogo />
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => navigate("/notifications")}
@@ -349,8 +348,9 @@ const Dashboard = () => {
                   </AnimatePresence>
                 </motion.button>
               </div>
-            </div>
+          </div>
 
+          <div className="pb-24 overflow-x-hidden">
             {/* ===== WELCOME + SEARCH ===== */}
             <div className="px-5 pt-4 pb-4 bg-primary rounded-b-3xl">
               <h1 className="text-lg font-bold text-white mb-2 truncate">Welcome, {displayName}!</h1>
