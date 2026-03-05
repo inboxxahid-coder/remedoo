@@ -1,23 +1,11 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, FileText, Microscope, Ambulance, MapPin, type LucideIcon } from "lucide-react";
+import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, FileText, Microscope, Ambulance, MapPin, Clock, Percent, Zap, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const logoIcons = ["💊", "🩺", "🏥", "❤️", "💉", "🧬", "🧪"];
 const logoLetters = "Remedoo".split("");
 let logoAnimatedOnce = false;
-
-const randomColorPool = [
-  "bg-[hsl(215,70%,50%)]", "bg-[hsl(152,55%,40%)]", "bg-[hsl(0,70%,52%)]",
-  "bg-[hsl(330,65%,50%)]", "bg-[hsl(262,60%,52%)]", "bg-[hsl(30,80%,50%)]",
-  "bg-[hsl(190,70%,42%)]", "bg-[hsl(350,60%,48%)]", "bg-[hsl(170,60%,38%)]",
-  "bg-[hsl(45,85%,48%)]", "bg-[hsl(280,55%,50%)]", "bg-[hsl(200,65%,45%)]",
-];
-
-const pickRandomColors = (count: number) => {
-  const shuffled = [...randomColorPool].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
-};
 
 const AnimatedLogo = () => {
   const skipAnimation = logoAnimatedOnce;
@@ -85,9 +73,9 @@ const AnimatedLogo = () => {
     </div>
   );
 };
+
 import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
 import HealthTipsCards from "@/components/dashboard/HealthTipsCards";
-
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -122,6 +110,13 @@ const AnimatedMenuButton = () => {
   );
 };
 
+const PROMO_BANNERS = [
+  { title: "Flat 30% OFF", sub: "on first doctor consultation", gradient: "from-[hsl(262,60%,52%)] to-[hsl(280,55%,45%)]", emoji: "🩺" },
+  { title: "Free Delivery", sub: "on medicine orders above ₹199", gradient: "from-[hsl(152,55%,40%)] to-[hsl(170,60%,38%)]", emoji: "💊" },
+  { title: "Health Packages", sub: "starting at ₹299 only", gradient: "from-[hsl(200,65%,45%)] to-[hsl(215,70%,50%)]", emoji: "🧪" },
+  { title: "Emergency SOS", sub: "ambulance in under 10 mins", gradient: "from-[hsl(0,70%,52%)] to-[hsl(350,60%,48%)]", emoji: "🚑" },
+];
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<SupaUser | null>(null);
@@ -139,7 +134,6 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [pullDistance, setPullDistance] = useState(0);
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
-  
   const [prescriptionCount, setPrescriptionCount] = useState(0);
   const [labReportCount, setLabReportCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
@@ -148,12 +142,16 @@ const Dashboard = () => {
   const [pharmacyOffers, setPharmacyOffers] = useState<any[]>([]);
   const [infoCards, setInfoCards] = useState<any[]>([]);
   const [quickAccessItems, setQuickAccessItems] = useState<any[]>([]);
-  const actionColors = useMemo(() => pickRandomColors(4), []);
-  const accessColors = useMemo(() => pickRandomColors(8), []);
+  const [promoIdx, setPromoIdx] = useState(0);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useRealtimeNotifications();
+
+  useEffect(() => {
+    const t = setInterval(() => setPromoIdx(p => (p + 1) % PROMO_BANNERS.length), 3500);
+    return () => clearInterval(t);
+  }, []);
 
   const fetchAllData = useCallback(async () => {
     try {
@@ -196,7 +194,6 @@ const Dashboard = () => {
       if (infoCardsRes.data) setInfoCards(infoCardsRes.data);
       if (quickAccessRes.data) setQuickAccessItems(quickAccessRes.data);
 
-      // Fetch pharmacy offers (medicines with discounts) for each pharmacy
       if (pharmacyOffersRes.data && pharmacyOffersRes.data.length > 0) {
         const pharmacyIds = pharmacyOffersRes.data.map((p: any) => p.id);
         const { data: offerMeds } = await supabase
@@ -207,7 +204,6 @@ const Dashboard = () => {
           .eq("in_stock", true)
           .order("discount_percent", { ascending: false })
           .limit(50);
-
         const pharmaciesWithOffers = pharmacyOffersRes.data.map((ph: any) => {
           const meds = (offerMeds || []).filter((m: any) => m.pharmacy_id === ph.id);
           const maxDiscount = meds.length > 0 ? Math.max(...meds.map((m: any) => m.discount_percent || 0)) : 0;
@@ -237,7 +233,6 @@ const Dashboard = () => {
       setRecentOrders(orderRes.count ?? 0);
       setActiveOrders(activeRes.count ?? 0);
       setUpcomingAppointments(upcomingRes.data || []);
-
       setPrescriptionCount(prescRes.count ?? 0);
       setLabReportCount(labRepRes.count ?? 0);
       setFavoritesCount(favRes.count ?? 0);
@@ -293,6 +288,20 @@ const Dashboard = () => {
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient";
 
+  const categoryActions = useMemo(() => {
+    const defaults = [
+      { label: "Doctors", icon_name: "Stethoscope", path: "/doctors", emoji: "🩺", bg: "bg-[hsl(205,80%,92%)] dark:bg-[hsl(205,40%,18%)]", color: "text-[hsl(205,65%,45%)]" },
+      { label: "Hospitals", icon_name: "Building2", path: "/hospitals", emoji: "🏥", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]", color: "text-[hsl(152,55%,40%)]" },
+      { label: "Labs", icon_name: "FlaskConical", path: "/labs", emoji: "🧪", bg: "bg-[hsl(262,50%,93%)] dark:bg-[hsl(262,30%,18%)]", color: "text-[hsl(262,60%,52%)]" },
+      { label: "Pharmacy", icon_name: "Store", path: "/pharmacies", emoji: "💊", bg: "bg-[hsl(30,80%,92%)] dark:bg-[hsl(30,40%,18%)]", color: "text-[hsl(30,80%,50%)]" },
+      { label: "Emergency", icon_name: "Ambulance", path: "/emergency", emoji: "🚑", bg: "bg-destructive/10", color: "text-destructive" },
+      { label: "Favorites", icon_name: "Heart", path: "/favorites", emoji: "❤️", bg: "bg-[hsl(330,60%,93%)] dark:bg-[hsl(330,30%,18%)]", color: "text-[hsl(330,65%,50%)]" },
+      { label: "Orders", icon_name: "ShoppingBag", path: "/my-orders", emoji: "📦", bg: "bg-[hsl(45,80%,92%)] dark:bg-[hsl(45,30%,18%)]", color: "text-[hsl(45,85%,40%)]" },
+      { label: "Reports", icon_name: "FileText", path: "/lab-reports", emoji: "📋", bg: "bg-[hsl(190,60%,92%)] dark:bg-[hsl(190,30%,18%)]", color: "text-[hsl(190,70%,42%)]" },
+    ];
+    return defaults;
+  }, []);
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full overflow-x-hidden">
@@ -323,130 +332,179 @@ const Dashboard = () => {
             )}
           </AnimatePresence>
 
-          {/* ===== TOP BAR ===== */}
+          {/* ===== STICKY HEADER ===== */}
           <div className="sticky top-0 z-40 bg-primary">
             <div className="flex items-center justify-between px-4 h-14">
               <AnimatedMenuButton />
               <AnimatedLogo />
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => navigate("/notifications")}
-                  className="relative w-10 h-10 rounded-full flex items-center justify-center"
-                >
-                  <Bell className="w-6 h-6 text-white" strokeWidth={1.8} />
-                  <AnimatePresence>
-                    {unreadCount > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        className="absolute -top-0.5 -right-0.5 min-w-[20px] h-[20px] px-1 bg-destructive rounded-full flex items-center justify-center border-2 border-primary"
-                      >
-                        <span className="text-[10px] font-bold text-destructive-foreground leading-none">{unreadCount > 99 ? "99+" : unreadCount}</span>
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
-              </div>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => navigate("/notifications")}
+                className="relative w-10 h-10 rounded-full flex items-center justify-center"
+              >
+                <Bell className="w-6 h-6 text-white" strokeWidth={1.8} />
+                <AnimatePresence>
+                  {unreadCount > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -top-0.5 -right-0.5 min-w-[20px] h-[20px] px-1 bg-destructive rounded-full flex items-center justify-center border-2 border-primary"
+                    >
+                      <span className="text-[10px] font-bold text-destructive-foreground leading-none">{unreadCount > 99 ? "99+" : unreadCount}</span>
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </div>
           </div>
 
           <div className="pb-24 overflow-x-hidden">
-            {/* ===== WELCOME + SEARCH ===== */}
-            <div className="px-5 pt-4 pb-4 bg-primary rounded-b-3xl">
-              <h1 className="text-lg font-bold text-white mb-2 truncate">Welcome, {displayName}!</h1>
-              <UnifiedSearch />
+            {/* ===== HERO HEADER with search ===== */}
+            <div className="bg-primary rounded-b-[28px] px-4 pt-2 pb-5">
+              <p className="text-white/80 text-xs font-medium">Hello,</p>
+              <h1 className="text-xl font-bold text-white truncate">{displayName} 👋</h1>
+              <div className="mt-3">
+                <UnifiedSearch />
+              </div>
             </div>
 
             {isLoading ? (
-              <div className="px-5 space-y-4 pt-4">
-                <Skeleton className="w-full h-44 rounded-2xl" />
+              <div className="px-4 space-y-4 pt-4">
+                <Skeleton className="w-full h-28 rounded-2xl" />
                 <div className="grid grid-cols-4 gap-3">
-                  {[1,2,3,4].map(i => <Skeleton key={i} className="h-24 rounded-xl" />)}
+                  {[1,2,3,4].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
                 </div>
                 <Skeleton className="w-full h-24 rounded-2xl" />
               </div>
             ) : (
               <div className="space-y-5 pt-4 w-full max-w-full">
 
-                {/* ===== HERO BANNER ===== */}
-                <div className="px-5">
-                   <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory max-w-full">
-                    {(slides.length > 0 ? slides : [
-                      { id: "default", title: "Stay Healthy with Remedoo", description: "Book appointments, order medicines & more", url: null, type: "image", target_link: null } as any
-                    ]).map((slide: any, idx: number) => {
-                      const hasImage = slide.url && slide.type !== "video";
-                      return (
-                        <motion.div
-                          key={slide.id}
-                          initial={{ opacity: 0, x: 30 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          onClick={() => slide.target_link && navigate(slide.target_link)}
-                          className="flex-shrink-0 w-[calc(100vw-2.5rem)] max-w-full rounded-2xl overflow-hidden relative snap-start cursor-pointer bg-gradient-to-r from-[hsl(205,80%,92%)] to-[hsl(205,70%,96%)] dark:from-[hsl(205,40%,18%)] dark:to-[hsl(205,30%,22%)]"
-                          style={{ minHeight: 170 }}
-                        >
-                          {hasImage ? (
-                            <>
-                              <img src={slide.url} alt={slide.title || ""} className="w-full h-[170px] object-cover" loading="lazy" decoding="async" />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                              <div className="absolute bottom-0 left-0 p-4">
-                                <p className="text-white font-bold text-lg drop-shadow-md">{slide.title}</p>
-                                {slide.description && <p className="text-white/80 text-xs mt-0.5">{slide.description}</p>}
-                              </div>
-                            </>
-                          ) : (
-                            <div className="p-5 flex flex-col justify-center h-[170px]">
-                              <p className="text-foreground font-bold text-xl italic">
-                                <span className="font-extrabold not-italic">Stay Healthy</span> with Remedoo
-                              </p>
-                              <p className="text-muted-foreground text-sm mt-1">{slide.description}</p>
-                            </div>
-                          )}
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* ===== QUICK ACTION CARDS (4 squares) ===== */}
-                <div className="px-5">
-                  <div className="grid grid-cols-4 gap-3">
-                  {(quickActions.length > 0 ? quickActions.slice(0, 4) : [
-                      { label: "Book\nAppointment", icon_name: "Calendar", gradient: "bg-[hsl(215,70%,50%)]", path: "/doctors" },
-                      { label: "Order\nMedicine", icon_name: "ClipboardList", gradient: "bg-[hsl(152,55%,40%)]", path: "/pharmacies" },
-                      { label: "Emergency", icon_name: "AlertTriangle", gradient: "bg-[hsl(0,70%,52%)]", path: "/emergency" },
-                      { label: "Favorites", icon_name: "Heart", gradient: "bg-[hsl(330,65%,50%)]", path: "/favorites" },
-                    ]).map((action: any, idx: number) => {
-                      const ActionIcon = getIcon(action.icon_name);
+                {/* ===== CATEGORY GRID (Swiggy-style round icons) ===== */}
+                <div className="px-4">
+                  <div className="grid grid-cols-4 gap-x-3 gap-y-4">
+                    {categoryActions.map((cat, idx) => {
+                      const CatIcon = getIcon(cat.icon_name);
                       return (
                         <motion.button
-                          key={action.label}
-                          initial={{ opacity: 0, y: 15 }}
+                          key={cat.label}
+                          initial={{ opacity: 0, y: 12 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 + idx * 0.05 }}
-                          whileTap={{ scale: 0.93 }}
-                          onClick={() => navigate(action.path)}
-                          className={`${actionColors[idx % actionColors.length]} rounded-2xl p-3 flex flex-col items-center justify-center gap-2 aspect-square shadow-md`}
+                          transition={{ delay: 0.05 + idx * 0.04 }}
+                          whileTap={{ scale: 0.92 }}
+                          onClick={() => navigate(cat.path)}
+                          className="flex flex-col items-center gap-1.5"
                         >
-                          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                            <ActionIcon className="w-5 h-5 text-white" strokeWidth={2} />
+                          <div className={`w-14 h-14 rounded-2xl ${cat.bg} flex items-center justify-center shadow-sm`}>
+                            <CatIcon className={`w-6 h-6 ${cat.color}`} strokeWidth={1.8} />
                           </div>
-                          <span className="text-[10px] text-white font-bold text-center leading-tight whitespace-pre-line">{action.label}</span>
+                          <span className="text-[11px] font-semibold text-foreground text-center leading-tight">{cat.label}</span>
                         </motion.button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* ===== YOUR UPCOMING APPOINTMENTS ===== */}
-                <div className="px-5">
+                {/* ===== PROMO CAROUSEL ===== */}
+                <div className="px-4">
+                  <div className="relative overflow-hidden rounded-2xl h-[110px]">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={promoIdx}
+                        initial={{ opacity: 0, x: 60 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -60 }}
+                        transition={{ duration: 0.4 }}
+                        className={`absolute inset-0 bg-gradient-to-r ${PROMO_BANNERS[promoIdx].gradient} rounded-2xl p-5 flex items-center justify-between`}
+                      >
+                        <div>
+                          <p className="text-white font-extrabold text-xl">{PROMO_BANNERS[promoIdx].title}</p>
+                          <p className="text-white/80 text-sm mt-1">{PROMO_BANNERS[promoIdx].sub}</p>
+                        </div>
+                        <span className="text-5xl opacity-80">{PROMO_BANNERS[promoIdx].emoji}</span>
+                      </motion.div>
+                    </AnimatePresence>
+                    {/* Dots */}
+                    <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {PROMO_BANNERS.map((_, i) => (
+                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === promoIdx ? "w-5 bg-white" : "w-1.5 bg-white/40"}`} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ===== HERO SLIDER (if slides exist) ===== */}
+                {slides.length > 0 && (
+                  <div className="px-4">
+                    <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
+                      {slides.map((slide: any, idx: number) => (
+                        <motion.div
+                          key={slide.id}
+                          initial={{ opacity: 0, x: 30 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.1 }}
+                          onClick={() => slide.target_link && navigate(slide.target_link)}
+                          className="flex-shrink-0 w-[85vw] max-w-[360px] rounded-2xl overflow-hidden relative snap-start cursor-pointer"
+                          style={{ minHeight: 150 }}
+                        >
+                          {slide.url && slide.type !== "video" ? (
+                            <>
+                              <img src={slide.url} alt={slide.title || ""} className="w-full h-[150px] object-cover" loading="lazy" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                              <div className="absolute bottom-0 left-0 p-4">
+                                <p className="text-white font-bold text-base drop-shadow-md">{slide.title}</p>
+                                {slide.description && <p className="text-white/80 text-xs mt-0.5">{slide.description}</p>}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="p-5 flex flex-col justify-center h-[150px] bg-gradient-to-r from-primary/10 to-primary/5">
+                              <p className="text-foreground font-bold text-lg">{slide.title}</p>
+                              <p className="text-muted-foreground text-sm mt-1">{slide.description}</p>
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ===== LIVE STATUS STRIP ===== */}
+                <div className="px-4">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                    {[
+                      { label: "Appointments", value: upcomingAppts, icon: Calendar, color: "text-primary", bg: "bg-primary/10", path: "/appointments" },
+                      { label: "Active Orders", value: activeOrders, icon: ShoppingBag, color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]", path: "/my-orders" },
+                      { label: "Prescriptions", value: prescriptionCount, icon: FileText, color: "text-[hsl(262,60%,52%)]", bg: "bg-[hsl(262,50%,93%)] dark:bg-[hsl(262,30%,18%)]", path: "/medical-history" },
+                      { label: "Reports", value: labReportCount, icon: Microscope, color: "text-[hsl(200,65%,45%)]", bg: "bg-[hsl(200,60%,92%)] dark:bg-[hsl(200,30%,18%)]", path: "/lab-reports" },
+                    ].map((item, idx) => (
+                      <motion.button
+                        key={item.label}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 + idx * 0.05 }}
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => navigate(item.path)}
+                        className="flex-shrink-0 flex items-center gap-2.5 bg-card border border-border rounded-xl px-3.5 py-2.5 shadow-sm min-w-[140px]"
+                      >
+                        <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center`}>
+                          <item.icon className={`w-4 h-4 ${item.color}`} />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-lg font-bold text-foreground leading-none">{item.value}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">{item.label}</p>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ===== UPCOMING APPOINTMENTS ===== */}
+                <div className="px-4">
                   <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
                     <div className="flex items-center justify-between mb-3">
-                      <h2 className="text-lg font-bold text-foreground truncate">Your Upcoming Appointments</h2>
+                      <h2 className="text-base font-bold text-foreground">Upcoming Appointments</h2>
                       {upcomingAppts > 0 && (
-                        <button onClick={() => navigate("/appointments")} className="text-muted-foreground hover:text-primary">
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
+                        <button onClick={() => navigate("/appointments")} className="text-xs font-semibold text-primary">See all</button>
                       )}
                     </div>
                     {upcomingAppointments.length > 0 ? (
@@ -465,32 +523,29 @@ const Dashboard = () => {
                               key={apt.id}
                               whileTap={{ scale: 0.98 }}
                               onClick={() => navigate(`/appointment/${apt.id}`)}
-                              className="bg-card rounded-2xl border border-border p-4 flex items-center gap-3 cursor-pointer shadow-sm"
+                              className="bg-card rounded-2xl border border-border p-3.5 flex items-center gap-3 cursor-pointer shadow-sm"
                             >
-                              <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
+                              <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
                                 {doc?.image_url ? (
-                                  <img src={doc.image_url} alt={doc.name} className="w-14 h-14 rounded-full object-cover" />
+                                  <img src={doc.image_url} alt={doc.name} className="w-12 h-12 rounded-xl object-cover" />
                                 ) : (
-                                  <Stethoscope className="w-6 h-6 text-primary" />
+                                  <Stethoscope className="w-5 h-5 text-primary" />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="font-bold text-sm text-foreground truncate">{doc?.name || "Doctor"}</p>
                                 <p className="text-xs text-muted-foreground">{doc?.specialization || "General"}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">{dateLabel} | {apt.appointment_time}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-[10px] text-muted-foreground flex items-center gap-0.5"><Clock className="w-3 h-3" /> {dateLabel} · {apt.appointment_time}</span>
+                                </div>
                               </div>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); navigate(`/appointment/${apt.id}`); }}
-                                className="text-xs font-bold text-white bg-primary px-4 py-2 rounded-full hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm"
-                              >
-                                View Details &gt;
-                              </button>
+                              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                             </motion.div>
                           );
                         })}
                       </div>
                     ) : (
-                      <div className="bg-card rounded-2xl border border-border p-6 text-center shadow-sm">
+                      <div className="bg-card rounded-2xl border border-border p-5 text-center shadow-sm">
                         <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">No upcoming appointments</p>
                         <button onClick={() => navigate("/doctors")} className="text-xs text-primary font-semibold mt-2 hover:underline">Book Now →</button>
@@ -499,424 +554,346 @@ const Dashboard = () => {
                   </motion.div>
                 </div>
 
-                {/* ===== INFO CARDS ROW ===== */}
-                {infoCards.length > 0 && (
-                <div className="px-5">
-                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                    <div className={`grid grid-cols-${Math.min(infoCards.length, 4)} gap-2.5`}>
-                      {infoCards.map((card: any) => {
-                        const CardIcon = getIcon(card.icon_name);
-                        // Compute dynamic value based on path
-                        const valueMap: Record<string, string> = {
-                          "/medical-history": `${prescriptionCount} Saved`,
-                          "/lab-reports": `${labReportCount} Reports`,
-                          "/my-orders": `${recentOrders} Orders`,
-                          "/favorites": `${favoritesCount} Saved`,
-                        };
-                        const displayValue = valueMap[card.path] || "";
-                        return (
-                          <motion.button
-                            key={card.id}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => navigate(card.path)}
-                            className="bg-card rounded-2xl border border-border p-3 flex flex-col items-center gap-1.5 text-center shadow-sm"
-                          >
-                            <div className={`w-10 h-10 rounded-xl ${card.icon_bg} flex items-center justify-center`}>
-                              <CardIcon className={`w-5 h-5 ${card.icon_color}`} strokeWidth={1.8} />
-                            </div>
-                            <span className="text-[9px] font-semibold text-foreground leading-tight">{card.label}</span>
-                            <span className="text-[10px] font-bold text-foreground">{displayValue}</span>
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                </div>
-                )}
-
                 {/* ===== POPULAR DOCTORS ===== */}
                 {topDoctors.length > 0 && (
-                  <div className="px-5">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-lg font-bold text-foreground">Popular Doctors</h2>
-                        <button onClick={() => navigate("/doctors")} className="text-primary font-bold text-sm flex items-center">
-                          <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
-                        </button>
-                      </div>
-                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
-                        {topDoctors.map((doc, idx) => (
-                          <motion.button
-                            key={doc.id}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 + idx * 0.06 }}
-                            onClick={() => navigate(`/doctor/${doc.id}`)}
-                            className="flex-shrink-0 w-[150px] bg-card rounded-2xl border border-border p-3 text-center snap-start shadow-sm"
-                          >
-                            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-2 overflow-hidden">
-                              {doc.image_url ? (
-                                <img src={doc.image_url} alt={doc.name} className="w-14 h-14 rounded-full object-cover" />
-                              ) : (
-                                <span className="text-2xl">👨‍⚕️</span>
-                              )}
-                            </div>
+                  <div className="px-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-base font-bold text-foreground">Popular Doctors</h2>
+                      <button onClick={() => navigate("/doctors")} className="text-xs font-semibold text-primary">See all</button>
+                    </div>
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                      {topDoctors.map((doc, idx) => (
+                        <motion.button
+                          key={doc.id}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + idx * 0.05 }}
+                          onClick={() => navigate(`/doctor/${doc.id}`)}
+                          className="flex-shrink-0 w-[140px] bg-card rounded-2xl border border-border overflow-hidden snap-start shadow-sm"
+                        >
+                          <div className="h-24 bg-muted flex items-center justify-center overflow-hidden">
+                            {doc.image_url ? (
+                              <img src={doc.image_url} alt={doc.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <Stethoscope className="w-8 h-8 text-muted-foreground/40" />
+                            )}
+                          </div>
+                          <div className="p-2.5">
                             <h4 className="font-bold text-xs truncate text-foreground">{doc.name}</h4>
-                            <p className="text-[10px] text-primary font-medium truncate">{doc.specialization}</p>
-                            <div className="flex items-center justify-center gap-1 mt-2">
-                              <Star className="w-3.5 h-3.5 fill-[hsl(38,90%,55%)] text-[hsl(38,90%,55%)]" />
-                              <span className="text-xs font-bold text-foreground">{doc.rating || "N/A"}</span>
-                              <span className="text-[9px] text-muted-foreground ml-0.5">
-                                {doc.experience_years ? `${doc.experience_years}+ Years Exp` : "Nearby"}
+                            <p className="text-[10px] text-muted-foreground truncate">{doc.specialization}</p>
+                            <div className="flex items-center gap-1 mt-1.5">
+                              <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold text-white ${(doc.rating || 0) >= 4 ? "bg-[hsl(152,55%,40%)]" : (doc.rating || 0) >= 3 ? "bg-[hsl(45,85%,48%)]" : "bg-[hsl(30,80%,50%)]"}`}>
+                                ★ {doc.rating || "N/A"}
+                              </div>
+                              <span className="text-[9px] text-muted-foreground">
+                                {doc.experience_years ? `${doc.experience_years}y exp` : ""}
                               </span>
                             </div>
-                          </motion.button>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-center gap-1.5 mt-1">
-                        <div className="w-6 h-1.5 rounded-full bg-primary" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ===== POPULAR MEDICINES ===== */}
-                {popularMedicines.length > 0 && (
-                  <div className="px-5">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-lg font-bold text-foreground">Popular Medicines</h2>
-                        <button onClick={() => navigate("/pharmacies")} className="text-primary font-bold text-sm flex items-center">
-                          <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
-                        </button>
-                      </div>
-                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
-                        {popularMedicines.map((med, idx) => {
-                          const discountedPrice = med.discount_percent ? med.price * (1 - med.discount_percent / 100) : null;
-                          return (
-                            <motion.button
-                              key={med.id}
-                              initial={{ opacity: 0, y: 15 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.4 + idx * 0.06 }}
-                              onClick={() => navigate(`/pharmacy/${med.pharmacy_id}`)}
-                              className="flex-shrink-0 w-[140px] bg-card rounded-2xl border border-border p-3 text-center snap-start shadow-sm relative"
-                            >
-                              {med.discount_percent && med.discount_percent > 0 && (
-                                <span className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                                  {med.discount_percent}% OFF
-                                </span>
-                              )}
-                              <div className="w-12 h-12 rounded-xl bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] flex items-center justify-center mx-auto mb-2">
-                                {med.image_url ? (
-                                  <img src={med.image_url} alt={med.name} className="w-10 h-10 rounded-lg object-cover" loading="lazy" />
-                                ) : (
-                                  <Pill className="w-5 h-5 text-[hsl(152,55%,40%)]" />
-                                )}
-                              </div>
-                              <h4 className="font-bold text-xs truncate text-foreground">{med.name}</h4>
-                              <p className="text-[10px] text-muted-foreground truncate">{med.category}</p>
-                              <div className="flex items-center justify-center gap-1 mt-1.5">
-                                <span className="text-xs font-bold text-foreground">₹{discountedPrice ? discountedPrice.toFixed(0) : med.price}</span>
-                                {discountedPrice && (
-                                  <span className="text-[10px] text-muted-foreground line-through">₹{med.price}</span>
-                                )}
-                              </div>
-                              {med.pharmacy_name && (
-                                <p className="text-[9px] text-muted-foreground mt-1 truncate">{med.pharmacy_name}</p>
-                              )}
-                            </motion.button>
-                          );
-                        })}
-                      </div>
+                          </div>
+                        </motion.button>
+                      ))}
                     </div>
                   </div>
                 )}
 
                 {/* ===== POPULAR HOSPITALS ===== */}
                 {popularHospitals.length > 0 && (
-                  <div className="px-5">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-lg font-bold text-foreground">Popular Hospitals</h2>
-                        <button onClick={() => navigate("/hospitals")} className="text-primary font-bold text-sm flex items-center">
-                          <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
-                        </button>
-                      </div>
-                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
-                        {popularHospitals.map((hosp: any, idx: number) => (
-                          <motion.button
-                            key={hosp.id}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.45 + idx * 0.06 }}
-                            onClick={() => navigate(`/hospital/${hosp.id}`)}
-                            className="flex-shrink-0 w-[280px] max-w-[85vw] bg-gradient-to-r from-[hsl(205,80%,94%)] to-[hsl(205,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(205,30%,20%)] rounded-2xl border border-border p-4 text-left snap-start shadow-sm relative overflow-hidden"
-                            style={{ minHeight: 150 }}
-                          >
-                            <div className="relative z-10">
-                              <h4 className="font-bold text-base text-foreground">{hosp.name}</h4>
-                              <div className="flex items-center gap-0.5 mt-1">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(hosp.rating || 0) ? "fill-[hsl(38,90%,55%)] text-[hsl(38,90%,55%)]" : "fill-none text-muted-foreground/30"}`} />
-                                ))}
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-1.5">● Multispeciality</p>
-                              <div className="flex items-center gap-2 mt-3">
-                                {hosp.location && (
-                                  <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                                    <MapPin className="w-3 h-3" /> {hosp.total_beds || "15"}+ Doctors
-                                  </span>
-                                )}
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); navigate(`/hospital/${hosp.id}`); }}
-                                  className="text-[11px] font-bold text-white bg-primary px-3 py-1.5 rounded-full shadow-sm"
-                                >
-                                  View Details &gt;
-                                </button>
-                              </div>
-                            </div>
-                            {hosp.image_url && (
-                              <img src={hosp.image_url} alt={hosp.name} className="absolute right-0 bottom-0 w-28 h-28 object-contain opacity-80" loading="lazy" decoding="async" />
-                            )}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ===== FEATURED PACKAGES (before Quick Access) ===== */}
-                {featuredPackages.length > 0 && (
-                  <div className="px-5">
-                    <div>
-                      <h2 className="text-lg font-bold mb-3 text-foreground">Featured Packages</h2>
-                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
-                        {featuredPackages.map((pkg: any, idx: number) => {
-                          const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
-                          const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
-                          const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
-                          return (
-                            <motion.button
-                              key={pkg.id}
-                              initial={{ opacity: 0, x: 20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.48 + idx * 0.06 }}
-                              whileTap={{ scale: 0.97 }}
-                              onClick={() => navigate("/labs")}
-                              className="flex-shrink-0 w-[200px] bg-gradient-to-br from-[hsl(205,80%,94%)] to-[hsl(205,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(205,30%,20%)] rounded-2xl p-4 text-left border border-border relative overflow-hidden shadow-sm snap-start"
-                            >
-                              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-                                <FlaskConical className="w-5 h-5 text-primary" />
-                              </div>
-                              <h4 className="font-bold text-sm text-foreground truncate">{pkg.name}</h4>
-                              <div className="flex items-center gap-1.5 mt-1">
-                                <span className="text-lg font-bold text-foreground">₹{pkg.package_price}</span>
-                                {hasDiscount && <span className="text-[10px] text-muted-foreground line-through">₹{originalPrice}</span>}
-                              </div>
-                              {tests.length > 0 && <p className="text-[10px] text-muted-foreground mt-1">{tests.length}+ Tests</p>}
-                              {hasDiscount && (
-                                <span className="absolute top-2 right-2 text-[9px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded">{pkg.discount_percent}% OFF</span>
-                              )}
-                            </motion.button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ===== PHARMACY BENEFITS ===== */}
-                <div className="px-5">
-                  <div>
+                  <div className="px-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h2 className="text-lg font-bold text-foreground">Pharmacy Benefits</h2>
-                      <button onClick={() => navigate("/pharmacies")} className="text-primary font-bold text-sm flex items-center">
-                        <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2.5" />
-                      </button>
+                      <h2 className="text-base font-bold text-foreground">Popular Hospitals</h2>
+                      <button onClick={() => navigate("/hospitals")} className="text-xs font-semibold text-primary">See all</button>
                     </div>
-
-                    {pharmacyOffers.length > 0 ? (
-                      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x">
-                        {pharmacyOffers.map((ph: any, idx: number) => (
-                          <motion.button
-                            key={ph.id}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.5 + idx * 0.06 }}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate(`/pharmacy/${ph.id}`)}
-                            className="flex-shrink-0 w-[200px] bg-card rounded-2xl border border-border p-4 text-left snap-start shadow-sm relative overflow-hidden"
-                          >
-                            {ph.maxDiscount > 0 && (
-                              <span className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                                Up to {ph.maxDiscount}% OFF
-                              </span>
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                      {popularHospitals.map((hosp: any, idx: number) => (
+                        <motion.button
+                          key={hosp.id}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.35 + idx * 0.05 }}
+                          onClick={() => navigate(`/hospital/${hosp.id}`)}
+                          className="flex-shrink-0 w-[260px] bg-card rounded-2xl border border-border overflow-hidden snap-start shadow-sm"
+                        >
+                          <div className="h-28 bg-muted relative overflow-hidden">
+                            {hosp.image_url ? (
+                              <img src={hosp.image_url} alt={hosp.name} className="w-full h-full object-cover" loading="lazy" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                                <Building2 className="w-10 h-10 text-muted-foreground/30" />
+                              </div>
                             )}
-                            <div className="w-11 h-11 rounded-xl bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] flex items-center justify-center mb-2">
-                              {ph.image_url ? (
-                                <img src={ph.image_url} alt={ph.name} className="w-9 h-9 rounded-lg object-cover" loading="lazy" />
-                              ) : (
-                                <Store className="w-5 h-5 text-[hsl(152,55%,40%)]" />
+                            <div className="absolute top-2 left-2">
+                              <div className={`px-1.5 py-0.5 rounded text-[10px] font-bold text-white ${(hosp.rating || 0) >= 4 ? "bg-[hsl(152,55%,40%)]" : "bg-[hsl(45,85%,48%)]"}`}>
+                                ★ {hosp.rating || "N/A"}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-3">
+                            <h4 className="font-bold text-sm text-foreground truncate">{hosp.name}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                              {hosp.location && (
+                                <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 truncate">
+                                  <MapPin className="w-3 h-3 flex-shrink-0" /> {hosp.location}
+                                </span>
                               )}
                             </div>
-                            <h4 className="font-bold text-sm text-foreground truncate">{ph.name}</h4>
-                            {ph.location && (
-                              <p className="text-[10px] text-muted-foreground truncate flex items-center gap-0.5 mt-0.5">
-                                <MapPin className="w-3 h-3 flex-shrink-0" /> {ph.location}
-                              </p>
-                            )}
-                            {ph.rating > 0 && (
-                              <div className="flex items-center gap-1 mt-1">
-                                <Star className="w-3.5 h-3.5 fill-[hsl(38,90%,55%)] text-[hsl(38,90%,55%)]" />
-                                <span className="text-xs font-bold text-foreground">{ph.rating}</span>
-                              </div>
-                            )}
-                            {ph.offerCount > 0 ? (
-                              <div className="mt-2 bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)] rounded-lg px-2 py-1.5">
-                                <p className="text-[10px] font-semibold text-[hsl(152,55%,35%)] dark:text-[hsl(152,50%,60%)]">
-                                  🎉 {ph.offerCount} offer{ph.offerCount > 1 ? "s" : ""} available
-                                </p>
-                                {ph.topOffers.slice(0, 2).map((offer: any) => (
-                                  <p key={offer.id} className="text-[9px] text-muted-foreground truncate mt-0.5">
-                                    {offer.name} — {offer.discount_percent}% off
-                                  </p>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="text-[10px] text-muted-foreground mt-2">Home delivery available</p>
-                            )}
-                          </motion.button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="bg-gradient-to-br from-[hsl(205,80%,94%)] to-[hsl(210,60%,97%)] dark:from-[hsl(205,40%,15%)] dark:to-[hsl(210,30%,20%)] rounded-2xl p-4 border border-border shadow-sm">
-                        <div className="grid grid-cols-2 gap-3">
-                          {[
-                            { icon: Tag, label: "10% Discounts", color: "text-primary", bg: "bg-primary/10" },
-                            { icon: ShoppingBag, label: "Home Delivery", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
-                            { icon: Stethoscope, label: "Free Consultation", color: "text-[hsl(200,65%,48%)]", bg: "bg-[hsl(200,60%,92%)] dark:bg-[hsl(200,30%,18%)]" },
-                            { icon: Heart, label: "Secure Payment", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
-                          ].map((item, idx) => (
-                            <motion.div
-                              key={item.label}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: 0.5 + idx * 0.05 }}
-                              className="bg-card rounded-xl p-3 flex items-center gap-2 shadow-sm border border-border"
-                            >
-                              <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center flex-shrink-0`}>
-                                <item.icon className={`w-4 h-4 ${item.color}`} />
-                              </div>
-                              <span className="text-xs font-semibold text-foreground leading-tight">{item.label}</span>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* ===== QUICK ACCESS MORE (2x2 grid) ===== */}
-                {quickAccessItems.length > 0 && (
-                <div className="px-5">
-                  <div>
-                    <div className="flex items-center gap-1 mb-3">
-                      <h2 className="text-lg font-bold text-foreground">Quick Access More</h2>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">Multispeciality</span>
+                              {hosp.total_beds && <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{hosp.total_beds} beds</span>}
+                            </div>
+                          </div>
+                        </motion.button>
+                      ))}
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      {quickAccessItems.map((item: any, idx: number) => {
-                        const QAIcon = getIcon(item.icon_name);
+                  </div>
+                )}
+
+                {/* ===== POPULAR MEDICINES ===== */}
+                {popularMedicines.length > 0 && (
+                  <div className="px-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-base font-bold text-foreground">Popular Medicines</h2>
+                      <button onClick={() => navigate("/pharmacies")} className="text-xs font-semibold text-primary">See all</button>
+                    </div>
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                      {popularMedicines.map((med, idx) => {
+                        const discountedPrice = med.discount_percent ? med.price * (1 - med.discount_percent / 100) : null;
                         return (
                           <motion.button
-                            key={item.id}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate(item.path)}
-                            className={`${accessColors[idx % accessColors.length]} rounded-2xl p-4 text-left relative overflow-hidden shadow-md`}
-                            style={{ minHeight: 130 }}
+                            key={med.id}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 + idx * 0.05 }}
+                            onClick={() => navigate(`/pharmacy/${med.pharmacy_id}`)}
+                            className="flex-shrink-0 w-[130px] bg-card rounded-2xl border border-border p-3 text-center snap-start shadow-sm relative"
                           >
-                            <p className="text-white font-bold text-base">{item.title}</p>
-                            <p className="text-white/80 text-xs mt-0.5">{item.subtitle}</p>
-                            {item.extra_text && (
-                              <p className="text-white/80 text-xs font-semibold mt-2">{item.extra_text}</p>
+                            {med.discount_percent && med.discount_percent > 0 && (
+                              <span className="absolute top-2 right-2 bg-[hsl(152,55%,40%)] text-white text-[8px] font-bold px-1.5 py-0.5 rounded">
+                                {med.discount_percent}% OFF
+                              </span>
                             )}
-                            <QAIcon className="absolute bottom-3 right-3 w-12 h-12 text-white/15" />
+                            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-2">
+                              {med.image_url ? (
+                                <img src={med.image_url} alt={med.name} className="w-10 h-10 rounded-lg object-cover" loading="lazy" />
+                              ) : (
+                                <Pill className="w-5 h-5 text-muted-foreground" />
+                              )}
+                            </div>
+                            <h4 className="font-bold text-[11px] truncate text-foreground">{med.name}</h4>
+                            <p className="text-[9px] text-muted-foreground truncate">{med.category}</p>
+                            <div className="flex items-center justify-center gap-1 mt-1.5">
+                              <span className="text-xs font-bold text-foreground">₹{discountedPrice ? discountedPrice.toFixed(0) : med.price}</span>
+                              {discountedPrice && <span className="text-[9px] text-muted-foreground line-through">₹{med.price}</span>}
+                            </div>
                           </motion.button>
                         );
                       })}
                     </div>
                   </div>
-                </div>
                 )}
 
+                {/* ===== FEATURED PACKAGES ===== */}
+                {featuredPackages.length > 0 && (
+                  <div className="px-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-base font-bold text-foreground">Health Packages</h2>
+                      <button onClick={() => navigate("/labs")} className="text-xs font-semibold text-primary">See all</button>
+                    </div>
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                      {featuredPackages.map((pkg: any, idx: number) => {
+                        const hasDiscount = pkg.discount_percent && pkg.discount_percent > 0;
+                        const originalPrice = hasDiscount ? Math.round(pkg.package_price / (1 - pkg.discount_percent / 100)) : pkg.package_price;
+                        const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
+                        return (
+                          <motion.button
+                            key={pkg.id}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.42 + idx * 0.05 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => navigate("/labs")}
+                            className="flex-shrink-0 w-[180px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start shadow-sm relative overflow-hidden"
+                          >
+                            {hasDiscount && (
+                              <span className="absolute top-2 right-2 text-[8px] font-bold bg-destructive text-destructive-foreground px-1.5 py-0.5 rounded">{pkg.discount_percent}% OFF</span>
+                            )}
+                            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+                              <FlaskConical className="w-4 h-4 text-primary" />
+                            </div>
+                            <h4 className="font-bold text-xs text-foreground truncate">{pkg.name}</h4>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className="text-sm font-bold text-foreground">₹{pkg.package_price}</span>
+                              {hasDiscount && <span className="text-[9px] text-muted-foreground line-through">₹{originalPrice}</span>}
+                            </div>
+                            {tests.length > 0 && <p className="text-[9px] text-muted-foreground mt-1">{tests.length}+ Tests included</p>}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* ===== PHARMACY BENEFITS ===== */}
+                <div className="px-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-base font-bold text-foreground">Pharmacy Benefits</h2>
+                    <button onClick={() => navigate("/pharmacies")} className="text-xs font-semibold text-primary">See all</button>
+                  </div>
+                  {pharmacyOffers.length > 0 ? (
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                      {pharmacyOffers.map((ph: any, idx: number) => (
+                        <motion.button
+                          key={ph.id}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.45 + idx * 0.05 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => navigate(`/pharmacy/${ph.id}`)}
+                          className="flex-shrink-0 w-[180px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start shadow-sm relative overflow-hidden"
+                        >
+                          {ph.maxDiscount > 0 && (
+                            <span className="absolute top-2 right-2 bg-[hsl(152,55%,40%)] text-white text-[8px] font-bold px-1.5 py-0.5 rounded">
+                              Up to {ph.maxDiscount}% OFF
+                            </span>
+                          )}
+                          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center mb-2 overflow-hidden">
+                            {ph.image_url ? (
+                              <img src={ph.image_url} alt={ph.name} className="w-10 h-10 rounded-xl object-cover" loading="lazy" />
+                            ) : (
+                              <Store className="w-5 h-5 text-muted-foreground" />
+                            )}
+                          </div>
+                          <h4 className="font-bold text-xs text-foreground truncate">{ph.name}</h4>
+                          {ph.location && (
+                            <p className="text-[9px] text-muted-foreground truncate flex items-center gap-0.5 mt-0.5">
+                              <MapPin className="w-3 h-3 flex-shrink-0" /> {ph.location}
+                            </p>
+                          )}
+                          {ph.rating > 0 && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold text-white ${ph.rating >= 4 ? "bg-[hsl(152,55%,40%)]" : "bg-[hsl(45,85%,48%)]"}`}>
+                                ★ {ph.rating}
+                              </div>
+                            </div>
+                          )}
+                          {ph.offerCount > 0 && (
+                            <p className="text-[9px] text-[hsl(152,55%,35%)] dark:text-[hsl(152,50%,60%)] font-semibold mt-1.5">🎉 {ph.offerCount} offer{ph.offerCount > 1 ? "s" : ""}</p>
+                          )}
+                        </motion.button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {[
+                        { icon: Tag, label: "10% Discounts", color: "text-primary", bg: "bg-primary/10" },
+                        { icon: ShoppingBag, label: "Home Delivery", color: "text-[hsl(152,55%,40%)]", bg: "bg-[hsl(152,50%,92%)] dark:bg-[hsl(152,30%,18%)]" },
+                        { icon: Stethoscope, label: "Free Consultation", color: "text-[hsl(200,65%,48%)]", bg: "bg-[hsl(200,60%,92%)] dark:bg-[hsl(200,30%,18%)]" },
+                        { icon: Heart, label: "Secure Payment", color: "text-[hsl(330,65%,50%)]", bg: "bg-[hsl(330,50%,93%)] dark:bg-[hsl(330,30%,18%)]" },
+                      ].map((item, idx) => (
+                        <motion.div
+                          key={item.label}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.5 + idx * 0.05 }}
+                          className="bg-card rounded-xl p-3 flex items-center gap-2 shadow-sm border border-border"
+                        >
+                          <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center flex-shrink-0`}>
+                            <item.icon className={`w-4 h-4 ${item.color}`} />
+                          </div>
+                          <span className="text-xs font-semibold text-foreground leading-tight">{item.label}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* ===== QUICK ACCESS ===== */}
+                {quickAccessItems.length > 0 && (
+                  <div className="px-4">
+                    <h2 className="text-base font-bold text-foreground mb-3">Explore More</h2>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {quickAccessItems.map((item: any, idx: number) => {
+                        const QAIcon = getIcon(item.icon_name);
+                        return (
+                          <motion.button
+                            key={item.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 + idx * 0.04 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => navigate(item.path)}
+                            className="bg-card rounded-2xl border border-border p-4 text-left shadow-sm relative overflow-hidden"
+                          >
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+                              <QAIcon className="w-5 h-5 text-primary" />
+                            </div>
+                            <p className="font-bold text-sm text-foreground">{item.title}</p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5">{item.subtitle}</p>
+                            {item.extra_text && <p className="text-[9px] font-semibold text-primary mt-1">{item.extra_text}</p>}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* ===== BROWSE SERVICES ===== */}
                 {services.length > 0 && (
-                  <div className="px-5">
-                    <div>
-                      <h2 className="text-lg font-bold mb-3 text-foreground">Browse Services</h2>
-                      <div className="grid grid-cols-2 gap-3">
-                        {services.map((svc: any) => {
-                          const SvcIcon = getIcon(svc.icon_name);
-                          return (
-                            <motion.button
-                              key={svc.id}
-                              whileTap={{ scale: 0.97 }}
-                              onClick={() => navigate(svc.path)}
-                              className="bg-card rounded-2xl p-4 border border-border text-left shadow-sm"
-                            >
-                              <div className={`w-10 h-10 rounded-xl ${svc.bg_color} flex items-center justify-center mb-2`}>
-                                <SvcIcon className={`w-5 h-5 ${svc.color}`} />
-                              </div>
-                              <h3 className="font-bold text-sm text-foreground">{svc.title}</h3>
-                              <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{svc.description}</p>
-                            </motion.button>
-                          );
-                        })}
-                      </div>
+                  <div className="px-4">
+                    <h2 className="text-base font-bold mb-3 text-foreground">Browse Services</h2>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {services.map((svc: any) => {
+                        const SvcIcon = getIcon(svc.icon_name);
+                        return (
+                          <motion.button
+                            key={svc.id}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => navigate(svc.path)}
+                            className="bg-card rounded-2xl p-3.5 border border-border text-left shadow-sm"
+                          >
+                            <div className={`w-9 h-9 rounded-xl ${svc.bg_color} flex items-center justify-center mb-2`}>
+                              <SvcIcon className={`w-4 h-4 ${svc.color}`} />
+                            </div>
+                            <h3 className="font-bold text-xs text-foreground">{svc.title}</h3>
+                            <p className="text-[9px] text-muted-foreground mt-0.5 line-clamp-2">{svc.description}</p>
+                          </motion.button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
                 {/* ===== HEALTH TIPS ===== */}
-                <div className="px-5">
+                <div className="px-4">
                   <HealthTipsCards />
                 </div>
 
                 {/* ===== NEARBY HOSPITALS MAP ===== */}
-                <div className="px-5">
+                <div className="px-4">
                   <NearbyHospitalsMap />
                 </div>
 
                 {/* ===== ADS ===== */}
                 {ads.length > 0 && (
-                  <div className="px-5">
-                    <div>
-                      <div className="space-y-3">
-                        {ads.map((ad) => (
-                          <motion.a
-                            key={ad.id}
-                            whileHover={{ scale: 1.01 }}
-                            href={ad.target_link || "#"}
-                            target={ad.target_link?.startsWith("http") ? "_blank" : "_self"}
-                            rel="noopener noreferrer"
-                            className="block rounded-2xl overflow-hidden shadow-md border border-border"
-                          >
-                            <img src={ad.content_url} alt={ad.title || "Ad"} className="w-full h-32 object-cover" loading="lazy" decoding="async" />
-                            {ad.title && (
-                              <div className="bg-card px-4 py-2.5">
-                                <p className="text-xs font-semibold text-foreground">{ad.title}</p>
-                                <p className="text-[10px] text-muted-foreground">Sponsored</p>
-                              </div>
-                            )}
-                          </motion.a>
-                        ))}
-                      </div>
+                  <div className="px-4">
+                    <div className="space-y-3">
+                      {ads.map((ad) => (
+                        <motion.a
+                          key={ad.id}
+                          whileHover={{ scale: 1.01 }}
+                          href={ad.target_link || "#"}
+                          target={ad.target_link?.startsWith("http") ? "_blank" : "_self"}
+                          rel="noopener noreferrer"
+                          className="block rounded-2xl overflow-hidden shadow-sm border border-border"
+                        >
+                          <img src={ad.content_url} alt={ad.title || "Ad"} className="w-full h-28 object-cover" loading="lazy" />
+                          {ad.title && (
+                            <div className="bg-card px-3 py-2">
+                              <p className="text-xs font-semibold text-foreground">{ad.title}</p>
+                              <p className="text-[9px] text-muted-foreground">Sponsored</p>
+                            </div>
+                          )}
+                        </motion.a>
+                      ))}
                     </div>
                   </div>
                 )}
