@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
+import remedooLogo from "@/assets/remedoo-logo.png";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -18,27 +20,18 @@ const Signup = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
+    if (password.length < 6) { toast.error("Password must be at least 6 characters"); return; }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: name },
-      },
+      email, password,
+      options: { emailRedirectTo: window.location.origin, data: { full_name: name } },
     });
     setLoading(false);
     if (error) {
       const msg = error.message.toLowerCase();
       if (msg.includes("already") || msg.includes("registered") || msg.includes("exists") || msg.includes("unique")) {
-        toast.error("This email is already registered. Please use a different email or sign in.");
-      } else {
-        toast.error(error.message);
-      }
+        toast.error("This email is already registered. Please sign in instead.");
+      } else toast.error(error.message);
     } else {
       toast.success("Check your email for a confirmation link!");
       navigate("/login", { replace: true });
@@ -47,91 +40,79 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="gradient-primary px-6 pt-12 pb-16 flex flex-col items-center rounded-b-[2rem]">
-        <div className="w-14 h-14 rounded-xl bg-primary-foreground/20 flex items-center justify-center mb-3 border border-primary-foreground/30">
-          <Heart className="w-7 h-7 text-primary-foreground" fill="currentColor" />
-        </div>
-        <h1 className="text-2xl font-bold text-primary-foreground">Create Account</h1>
-        <p className="text-primary-foreground/70 text-sm mt-1">Join Remedoo today</p>
+      {/* Curved header */}
+      <div className="relative gradient-primary px-6 pt-14 pb-20 flex flex-col items-center overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-primary-foreground/5" />
+        <div className="absolute -bottom-10 -left-16 w-40 h-40 rounded-full bg-primary-foreground/5" />
+        
+        <motion.img
+          src={remedooLogo}
+          alt="Remedoo"
+          className="w-16 h-16 rounded-2xl shadow-lg mb-4"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        />
+        <motion.h1 className="text-2xl font-bold text-primary-foreground" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          Create Account
+        </motion.h1>
+        <motion.p className="text-primary-foreground/60 text-sm mt-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          Join Remedoo today
+        </motion.p>
+        <svg className="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 60" fill="none" preserveAspectRatio="none">
+          <path d="M0 60L60 50C120 40 240 20 360 13C480 7 600 13 720 20C840 27 960 33 1080 33C1200 33 1320 27 1380 23L1440 20V60H0Z" fill="hsl(var(--background))" />
+        </svg>
       </div>
 
       {/* Form */}
-      <div className="flex-1 px-6 -mt-6">
-        <div className="bg-card rounded-2xl shadow-lg border border-border p-6">
-          <form onSubmit={handleSignup} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+      <motion.div className="flex-1 px-5 -mt-8 z-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        <div className="bg-card rounded-2xl shadow-xl border border-border p-6">
+          <form onSubmit={handleSignup} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Full Name</Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="name"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pl-10"
-                  required
-                />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} className="pl-10 h-12 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-12 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Min. 6 characters"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                >
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input id="password" type={showPassword ? "text" : "password"} placeholder="Min. 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-semibold text-base"
-            >
+            {/* Password strength indicator */}
+            <div className="flex gap-1">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${
+                  password.length >= i * 3 ? (password.length >= 12 ? "bg-success" : password.length >= 8 ? "bg-warning" : "bg-emergency") : "bg-border"
+                }`} />
+              ))}
+            </div>
+            <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold text-[15px] shadow-lg shadow-primary/20">
               {loading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
 
-          <div className="relative my-5">
+          <div className="relative my-6">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">or</span></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-3 text-muted-foreground font-medium">or</span></div>
           </div>
 
           <Button
-            type="button"
-            variant="outline"
-            className="w-full h-12 rounded-xl font-semibold text-base gap-2"
+            type="button" variant="outline"
+            className="w-full h-12 rounded-xl font-semibold text-[15px] gap-2.5 border-border hover:bg-muted/50"
             onClick={async () => {
               const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
               if (error) toast.error(error.message);
@@ -142,13 +123,11 @@ const Signup = () => {
           </Button>
         </div>
 
-        <p className="text-center mt-6 text-sm text-muted-foreground">
+        <p className="text-center mt-6 mb-8 text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="text-primary font-semibold">
-            Sign In
-          </Link>
+          <Link to="/login" className="text-primary font-bold">Sign In</Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

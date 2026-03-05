@@ -190,19 +190,20 @@ const Appointments = () => {
   const display = tab === "upcoming" ? upcoming : past;
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-background pb-20">
       <div className="gradient-primary px-5 pt-10 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-xl font-bold text-primary-foreground">Appointments</h1>
+          <span className="ml-auto text-primary-foreground/60 text-xs font-medium">{appointments.length} total</span>
         </div>
         <div className="flex gap-2">
           {(["upcoming", "past"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                tab === t ? "bg-primary-foreground text-primary" : "bg-primary-foreground/20 text-primary-foreground"
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                tab === t ? "bg-primary-foreground text-primary shadow-sm" : "bg-primary-foreground/15 text-primary-foreground"
               }`}
             >
               {t === "upcoming" ? `Upcoming (${upcoming.length})` : `Past (${past.length})`}
@@ -213,7 +214,12 @@ const Appointments = () => {
 
       <div className="px-5 mt-4 space-y-3">
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading...</div>
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-card rounded-2xl border border-border p-4 space-y-3 animate-pulse">
+              <div className="flex justify-between"><div className="h-4 w-1/3 bg-muted rounded" /><div className="h-5 w-16 bg-muted rounded-full" /></div>
+              <div className="flex gap-4"><div className="h-3 w-24 bg-muted rounded" /><div className="h-3 w-16 bg-muted rounded" /></div>
+            </div>
+          ))
         ) : display.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3" />

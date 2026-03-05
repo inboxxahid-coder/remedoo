@@ -1,14 +1,41 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const icons = ["💊", "🩺", "🏥", "❤️", "💉", "🧬", "🧪"];
 const letters = "Remedoo".split("");
 
+// Floating particles
+const Particle = ({ delay, x, y, size }: { delay: number; x: number; y: number; size: number }) => (
+  <motion.div
+    className="absolute rounded-full bg-primary-foreground/10"
+    style={{ width: size, height: size, left: `${x}%`, top: `${y}%` }}
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{
+      opacity: [0, 0.6, 0],
+      scale: [0, 1.2, 0.5],
+      y: [0, -40, -80],
+    }}
+    transition={{ duration: 3, delay, repeat: Infinity, ease: "easeOut" }}
+  />
+);
+
 const Splash = () => {
   const navigate = useNavigate();
   const [morphed, setMorphed] = useState(false);
   const [showTagline, setShowTagline] = useState(false);
+
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 12 }).map((_, i) => ({
+        id: i,
+        delay: i * 0.3,
+        x: Math.random() * 90 + 5,
+        y: Math.random() * 80 + 10,
+        size: Math.random() * 8 + 4,
+      })),
+    []
+  );
 
   useEffect(() => {
     const t1 = setTimeout(() => setMorphed(true), 1000);
@@ -22,7 +49,12 @@ const Splash = () => {
 
   return (
     <div className="fixed inset-0 gradient-primary flex items-center justify-center overflow-hidden">
-      {/* Pulse rings on morph */}
+      {/* Background particles */}
+      {particles.map((p) => (
+        <Particle key={p.id} {...p} />
+      ))}
+
+      {/* Pulse rings */}
       {morphed && (
         <>
           <motion.div
@@ -41,11 +73,10 @@ const Splash = () => {
       )}
 
       <div className="flex flex-col items-center gap-6 z-10">
-        {/* Each slot: icon morphs into its corresponding letter */}
+        {/* Morphing logo */}
         <div className="flex items-center justify-center gap-0">
           {letters.map((letter, i) => (
             <div key={i} className="relative w-[2.2rem] h-14 flex items-center justify-center">
-              {/* Icon — fades/scales out */}
               <motion.span
                 className="absolute text-2xl"
                 initial={{ opacity: 0, scale: 0 }}
@@ -62,8 +93,6 @@ const Splash = () => {
               >
                 {icons[i]}
               </motion.span>
-
-              {/* Letter — fades/scales in */}
               <motion.span
                 className="absolute text-5xl font-extrabold text-primary-foreground"
                 initial={{ opacity: 0, scale: 0.3, rotateY: -90 }}
@@ -85,7 +114,7 @@ const Splash = () => {
           ))}
         </div>
 
-        {/* Tagline */}
+        {/* Tagline with shimmer */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: showTagline ? 1 : 0, y: showTagline ? 0 : 10 }}
@@ -94,6 +123,21 @@ const Splash = () => {
         >
           Your Health, Our Priority
         </motion.p>
+
+        {/* Progress bar */}
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: "120px" }}
+          transition={{ duration: 3, ease: "linear" }}
+          className="h-1 rounded-full bg-primary-foreground/30 overflow-hidden"
+        >
+          <motion.div
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 3, ease: "linear" }}
+            className="h-full rounded-full bg-primary-foreground/60"
+          />
+        </motion.div>
       </div>
     </div>
   );
