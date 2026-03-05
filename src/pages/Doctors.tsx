@@ -9,6 +9,7 @@ import BottomNav from "@/components/BottomNav";
 import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolocation";
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
+import { getDoctorAvatar } from "@/lib/providerDefaults";
 
 const OFFER_BANNERS = [
   { emoji: "🩺", title: "Flat 30% OFF", subtitle: "On first doctor consultation", bg: "from-emerald-500 to-teal-600" },
@@ -249,14 +250,7 @@ const Doctors = () => {
             >
               {/* Top image/banner area */}
               <div className="relative h-32 bg-gradient-to-br from-primary/10 via-accent/30 to-primary/5 flex items-center justify-center overflow-hidden">
-                {doc.image_url ? (
-                  <img src={doc.image_url} alt={doc.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-5xl">👨‍⚕️</span>
-                    <span className="text-xs text-muted-foreground font-medium">{doc.specialization || "Doctor"}</span>
-                  </div>
-                )}
+                <img src={getDoctorAvatar(doc.gender, doc.image_url)} alt={doc.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
 
                 {/* Favorite button */}
                 <button

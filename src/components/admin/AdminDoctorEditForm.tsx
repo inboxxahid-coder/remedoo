@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  Building2, Phone, MapPin, Stethoscope, FileText, Upload, X, Save, Clock, Users, Star, Calendar,
+  Building2, Phone, MapPin, Stethoscope, FileText, Upload, X, Save, Clock, Users, Star, Calendar, Camera, Loader2,
 } from "lucide-react";
 import AdminEmailChangeRow from "./AdminEmailChangeRow";
+import { getDoctorAvatar } from "@/lib/providerDefaults";
 
 interface FileUploadBoxProps {
   id: string;
@@ -56,6 +57,8 @@ interface AdminDoctorEditFormProps {
 export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSuccess }: AdminDoctorEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [providerEmail, setProviderEmail] = useState("");
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // All doctor fields
   const [name, setName] = useState("");
@@ -73,6 +76,7 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
   const [accountStatus, setAccountStatus] = useState("active");
   const [approvalStatus, setApprovalStatus] = useState("approved");
   const [adminNote, setAdminNote] = useState("");
+  const [gender, setGender] = useState("");
 
   // Document files
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
@@ -98,10 +102,12 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
       setAccountStatus(doctor.account_status || "active");
       setApprovalStatus(doctor.approval_status || "approved");
       setAdminNote(doctor.admin_note || "");
+      setGender((doctor as any).gender || "");
       setLicenseFile(null);
       setGstFile(null);
       setCertificateFile(null);
       setPhotoFile(null);
+      setPhotoPreview(null);
       setProviderEmail("");
       // Fetch email from profiles
       if (doctor.user_id) {
@@ -140,6 +146,7 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
       account_status: accountStatus,
       approval_status: approvalStatus,
       admin_note: adminNote.trim() || null,
+      gender: gender || null,
     };
 
     // Upload files
@@ -192,6 +199,25 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
             onEmailChanged={(email) => setProviderEmail(email)}
           />
 
+          {/* Profile Photo Preview */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative">
+              <input ref={photoInputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={(e) => {
+                const f = e.target.files?.[0] || null;
+                setPhotoFile(f);
+                if (f) setPhotoPreview(URL.createObjectURL(f));
+                e.target.value = "";
+              }} />
+              <button type="button" onClick={() => photoInputRef.current?.click()} className="w-24 h-24 rounded-full border-4 border-border overflow-hidden bg-muted flex items-center justify-center hover:opacity-80 transition-opacity">
+                <img src={photoPreview || getDoctorAvatar(gender, doctor?.image_url)} alt="Doctor" className="w-full h-full object-cover" />
+              </button>
+              <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md cursor-pointer" onClick={() => photoInputRef.current?.click()}>
+                <Camera className="w-4 h-4 text-primary-foreground" />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Tap to change photo</p>
+          </div>
+
           {/* Basic Details */}
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Stethoscope className="w-4 h-4" /> Basic Information
@@ -202,6 +228,27 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input value={name} onChange={(e) => setName(e.target.value)} className="pl-10" required />
+            </div>
+          </div>
+
+          {/* Gender Selection */}
+          <div className="space-y-2">
+            <Label>Gender</Label>
+            <div className="flex gap-2">
+              {["male", "female", "other"].map(g => (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => setGender(g)}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all capitalize ${
+                    gender === g
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/30"
+                  }`}
+                >
+                  {g === "male" ? "👨‍⚕️" : g === "female" ? "👩‍⚕️" : "🧑‍⚕️"} {g}
+                </button>
+              ))}
             </div>
           </div>
 

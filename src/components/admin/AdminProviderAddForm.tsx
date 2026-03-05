@@ -89,6 +89,7 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
   const [location, setLocation] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [bio, setBio] = useState("");
+  const [gender, setGender] = useState("");
   const [consultationFee, setConsultationFee] = useState("");
   const [rating, setRating] = useState("");
 
@@ -117,6 +118,7 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
     setLocation("");
     setSpecialization("");
     setBio("");
+    setGender("");
     setConsultationFee("");
     setRating("");
     setLatitude("");
@@ -238,6 +240,7 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
       providerData.specialization = specialization.trim() || null;
       providerData.bio = bio.trim() || null;
       providerData.consultation_fee = consultationFee ? Number(consultationFee) : null;
+      if (gender) providerData.gender = gender;
     } else {
       providerData.location = location.trim() || null;
     }
@@ -368,6 +371,27 @@ export default function AdminProviderAddForm({ type, open, onOpenChange, onSucce
 
           {type === "doctor" ? (
             <>
+              {/* Gender Selection */}
+              <div className="space-y-2">
+                <Label>Gender</Label>
+                <div className="flex gap-2">
+                  {["male", "female", "other"].map(g => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setGender(g)}
+                      className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all capitalize ${
+                        gender === g
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:border-primary/30"
+                      }`}
+                    >
+                      {g === "male" ? "👨‍⚕️" : g === "female" ? "👩‍⚕️" : "🧑‍⚕️"} {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="admin-specialization">Specialization</Label>
                 <div className="relative">
