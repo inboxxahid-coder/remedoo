@@ -102,10 +102,12 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
       setAccountStatus(doctor.account_status || "active");
       setApprovalStatus(doctor.approval_status || "approved");
       setAdminNote(doctor.admin_note || "");
+      setGender((doctor as any).gender || "");
       setLicenseFile(null);
       setGstFile(null);
       setCertificateFile(null);
       setPhotoFile(null);
+      setPhotoPreview(null);
       setProviderEmail("");
       // Fetch email from profiles
       if (doctor.user_id) {
@@ -144,6 +146,7 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
       account_status: accountStatus,
       approval_status: approvalStatus,
       admin_note: adminNote.trim() || null,
+      gender: gender || null,
     };
 
     // Upload files
