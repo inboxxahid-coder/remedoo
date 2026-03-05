@@ -339,9 +339,11 @@ export default function AdminTeam() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search admins..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
           </div>
-          <Button onClick={() => setShowAdd(true)} className="gap-1.5 shrink-0">
-            <Plus className="w-4 h-4" /> Add Admin
-          </Button>
+          {isSuperAdmin && (
+            <Button onClick={() => setShowAdd(true)} className="gap-1.5 shrink-0">
+              <Plus className="w-4 h-4" /> Add Admin
+            </Button>
+          )}
         </div>
       </div>
 
