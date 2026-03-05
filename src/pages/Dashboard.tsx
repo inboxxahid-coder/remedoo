@@ -389,7 +389,7 @@ const Dashboard = () => {
                 {/* ===== CATEGORY GRID (Swiggy-style round icons) ===== */}
                 <div className="px-4">
                   <div className="grid grid-cols-4 gap-x-3 gap-y-4">
-                    {categoryActions.map((cat, idx) => {
+                    {activeCategoryActions.map((cat, idx) => {
                       const CatIcon = getIcon(cat.icon_name);
                       return (
                         <motion.button
@@ -401,8 +401,8 @@ const Dashboard = () => {
                           onClick={() => navigate(cat.path)}
                           className="flex flex-col items-center gap-1.5"
                         >
-                          <div className={`w-14 h-14 rounded-2xl ${cat.bg} flex items-center justify-center shadow-sm`}>
-                            <CatIcon className={`w-6 h-6 ${cat.color}`} strokeWidth={1.8} />
+                          <div className={`w-14 h-14 rounded-2xl ${cat.bg_color || cat.bg} flex items-center justify-center shadow-sm`}>
+                            <CatIcon className={`w-6 h-6 ${cat.text_color || cat.color}`} strokeWidth={1.8} />
                           </div>
                           <span className="text-[11px] font-semibold text-foreground text-center leading-tight">{cat.label}</span>
                         </motion.button>
@@ -421,19 +421,19 @@ const Dashboard = () => {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -60 }}
                         transition={{ duration: 0.4 }}
-                        className={`absolute inset-0 bg-gradient-to-r ${PROMO_BANNERS[promoIdx].gradient} rounded-2xl p-5 flex items-center justify-between`}
+                        className={`absolute inset-0 bg-gradient-to-r ${activeBanners[promoIdx % activeBanners.length]?.gradient} rounded-2xl p-5 flex items-center justify-between`}
                       >
                         <div>
-                          <p className="text-white font-extrabold text-xl">{PROMO_BANNERS[promoIdx].title}</p>
-                          <p className="text-white/80 text-sm mt-1">{PROMO_BANNERS[promoIdx].sub}</p>
+                          <p className="text-white font-extrabold text-xl">{activeBanners[promoIdx % activeBanners.length]?.title}</p>
+                          <p className="text-white/80 text-sm mt-1">{activeBanners[promoIdx % activeBanners.length]?.subtitle || activeBanners[promoIdx % activeBanners.length]?.sub}</p>
                         </div>
-                        <span className="text-5xl opacity-80">{PROMO_BANNERS[promoIdx].emoji}</span>
+                        <span className="text-5xl opacity-80">{activeBanners[promoIdx % activeBanners.length]?.emoji}</span>
                       </motion.div>
                     </AnimatePresence>
                     {/* Dots */}
                     <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {PROMO_BANNERS.map((_, i) => (
-                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === promoIdx ? "w-5 bg-white" : "w-1.5 bg-white/40"}`} />
+                      {activeBanners.map((_, i) => (
+                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === promoIdx % activeBanners.length ? "w-5 bg-white" : "w-1.5 bg-white/40"}`} />
                       ))}
                     </div>
                   </div>
