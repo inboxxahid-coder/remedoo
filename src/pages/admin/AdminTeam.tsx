@@ -1,0 +1,380 @@
+import { useEffect, useState, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+
+const DESIGNATIONS = [
+  "Super Admin",
+  "Admin",
+  "Operations Manager",
+  "Finance Manager",
+  "Support Manager",
+  "Content Manager",
+  "Medical Officer",
+];
+
+interface AdminMember {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  designation: string;
+  phone: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export default function AdminTeam() {
+  const [data, setData] = useState<AdminMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Form state
+  const [form, setForm] = useState({
+    name: "", email: "", password: "", designation: "Admin", phone: "",
+  });
+
+  const fetchTeam = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("admin_team")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (!error) setData((data as any[]) || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchTeam(); }, []);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return data;
+    const q = search.toLowerCase();
+    return data.filter((m) =>
+      m.name.toLowerCase().includes(q) ||
+      m.email.toLowerCase().includes(q) ||
+      m.designation.toLowerCase().includes(q)
+    );
+  }, [data, search]);
+
+  const handleCreateAdmin = async () => {
+    if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
+      toast.error("Name, email and password are required");
+      return;
+    }
+    if (form.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // Create auth user via edge function
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("admin-create-user", {
+        body: { email: form.email, password: form.password, full_name: form.name },
+      });
+
+      if (fnError || !fnData?.user_id) {
+        toast.error(fnData?.error || "Failed to create user account");
+        setSaving(false);
+        return;
+      }
+
+      const userId = fnData.user_id;
+
+      // Add admin role
+      const { error: roleError } = await supabase.from("user_roles").insert({
+        user_id: userId,
+        role: "admin",
+      });
+
+      if (roleError && !roleError.message.includes("duplicate")) {
+        toast.error("User created but failed to assign admin role");
+        setSaving(false);
+        return;
+      }
+
+      // Add to admin_team table
+      const currentUser = (await supabase.auth.getUser()).data.user;
+      const { error: teamError } = await supabase.from("admin_team").insert({
+        user_id: userId,
+        name: form.name,
+        email: form.email,
+        designation: form.designation,
+        phone: form.phone || null,
+        created_by: currentUser?.id,
+      });
+
+      if (teamError) {
+        toast.error("User & role created, but team record failed");
+      } else {
+        toast.success(`Admin "${form.name}" created as ${form.designation}`);
+      }
+
+      setShowAdd(false);
+      setForm({ name: "", email: "", password: "", designation: "Admin", phone: "" });
+      fetchTeam();
+    } catch (err) {
+      toast.error("Unexpected error creating admin");
+    }
+    setSaving(false);
+  };
+
+  const toggleActive = async (member: AdminMember) => {
+    const { error } = await supabase
+      .from("admin_team")
+      .update({ is_active: !member.is_active })
+      .eq("id", member.id);
+    if (error) {
+      toast.error("Failed to update status");
+    } else {
+      toast.success(member.is_active ? "Admin deactivated" : "Admin activated");
+      fetchTeam();
+    }
+  };
+
+  const removeMember = async (member: AdminMember) => {
+    if (!confirm(`Remove "${member.name}" from admin team? This won't delete their account.`)) return;
+    const { error } = await supabase.from("admin_team").delete().eq("id", member.id);
+    if (error) {
+      toast.error("Failed to remove");
+    } else {
+      toast.success("Admin removed from team");
+      fetchTeam();
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-primary/10">
+            <Shield className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Admin Team</h1>
+            <p className="text-sm text-muted-foreground">Manage admin users and designations</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input placeholder="Search admins..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          </div>
+          <Button onClick={() => setShowAdd(true)} className="gap-1.5 shrink-0">
+            <Plus className="w-4 h-4" /> Add Admin
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        {[
+          { label: "Total Admins", value: data.length, color: "text-primary" },
+          { label: "Active", value: data.filter((d) => d.is_active).length, color: "text-emerald-600" },
+          { label: "Inactive", value: data.filter((d) => !d.is_active).length, color: "text-amber-600" },
+          { label: "Designations", value: [...new Set(data.map((d) => d.designation))].length, color: "text-blue-600" },
+        ].map((stat) => (
+          <div key={stat.label} className="bg-card rounded-xl border border-border p-3 text-center">
+            <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
+            <p className="text-xs text-muted-foreground">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Table */}
+      <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+        {loading ? (
+          <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+        ) : filtered.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground">
+            {data.length === 0 ? "No admin team members yet. Add your first admin!" : "No results found"}
+          </div>
+        ) : (
+          <>
+            {/* Desktop */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Designation</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead className="w-20">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((m) => (
+                    <TableRow key={m.id}>
+                      <TableCell className="font-medium">{m.name}</TableCell>
+                      <TableCell className="text-sm">{m.email}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="font-medium">{m.designation}</Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">{m.phone || "—"}</TableCell>
+                      <TableCell>
+                        {m.is_active ? (
+                          <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">Active</Badge>
+                        ) : (
+                          <Badge className="bg-red-500/10 text-red-600 border-red-200">Inactive</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {new Date(m.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => toggleActive(m)}>
+                              {m.is_active ? <UserX className="w-4 h-4 mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
+                              {m.is_active ? "Deactivate" : "Activate"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => removeMember(m)} className="text-destructive">
+                              <Trash2 className="w-4 h-4 mr-2" /> Remove
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile */}
+            <div className="md:hidden divide-y divide-border">
+              {filtered.map((m) => (
+                <div key={m.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-medium text-foreground">{m.name}</p>
+                      <p className="text-sm text-muted-foreground">{m.email}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {m.is_active ? (
+                        <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200 text-xs">Active</Badge>
+                      ) : (
+                        <Badge className="bg-red-500/10 text-red-600 border-red-200 text-xs">Inactive</Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">{m.designation}</Badge>
+                    {m.phone && <span className="text-xs text-muted-foreground">{m.phone}</span>}
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => toggleActive(m)}>
+                      {m.is_active ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+                      {m.is_active ? "Deactivate" : "Activate"}
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs gap-1 text-destructive" onClick={() => removeMember(m)}>
+                      <Trash2 className="w-3.5 h-3.5" /> Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground mt-3">{filtered.length} admin{filtered.length !== 1 ? "s" : ""}</p>
+
+      {/* Add Admin Dialog */}
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              Add New Admin
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label>Full Name *</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="Enter full name"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email *</Label>
+              <Input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                placeholder="admin@remedoo.com"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Password *</Label>
+              <Input
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                placeholder="Min 6 characters"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Designation *</Label>
+              <Select value={form.designation} onValueChange={(v) => setForm((f) => ({ ...f, designation: v }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DESIGNATIONS.map((d) => (
+                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Phone (optional)</Label>
+              <Input
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                placeholder="+91 9876543210"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+            <Button onClick={handleCreateAdmin} disabled={saving} className="gap-2">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              Create Admin
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
