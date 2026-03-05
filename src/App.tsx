@@ -297,6 +297,7 @@ const AppRoutes = () => {
         <Route path="profile" element={<DoctorProfile />} />
         <Route path="audit-logs" element={<DoctorAuditLogs />} />
         <Route path="reviews" element={<DoctorReviews />} />
+        <Route path="support-tickets" element={<DoctorSupportTickets />} />
         <Route path="settings" element={<DoctorSettings />} />
       </Route>
 
@@ -316,6 +317,9 @@ const AppRoutes = () => {
         <Route path="ambulance-fleet" element={<HospitalAmbulanceFleet />} />
         <Route path="ambulance-trips" element={<HospitalAmbulanceTrips />} />
         <Route path="audit-logs" element={<HospitalAuditLogs />} />
+        <Route path="notifications" element={<HospitalNotifications />} />
+        <Route path="support-tickets" element={<HospitalSupportTickets />} />
+        <Route path="reviews" element={<HospitalReviews />} />
         <Route path="profile" element={<HospitalProfile />} />
         <Route path="settings" element={<HospitalSettings />} />
       </Route>
@@ -326,6 +330,11 @@ const AppRoutes = () => {
         <Route path="orders" element={<PharmacyOrders />} />
         <Route path="medicines" element={<PharmacyMedicines />} />
         <Route path="earnings" element={<PharmacyEarnings />} />
+        <Route path="notifications" element={<PharmacyNotifications />} />
+        <Route path="support-tickets" element={<PharmacySupportTickets />} />
+        <Route path="reviews" element={<PharmacyReviews />} />
+        <Route path="audit-logs" element={<PharmacyAuditLogs />} />
+        <Route path="analytics" element={<PharmacyAnalytics />} />
         <Route path="profile" element={<PharmacyProfile />} />
         <Route path="settings" element={<PharmacySettings />} />
       </Route>
@@ -337,6 +346,11 @@ const AppRoutes = () => {
         <Route path="tests" element={<LabTests />} />
         <Route path="samples" element={<LabSampleCollections />} />
         <Route path="earnings" element={<LabEarnings />} />
+        <Route path="notifications" element={<LabNotifications />} />
+        <Route path="support-tickets" element={<LabSupportTickets />} />
+        <Route path="reviews" element={<LabReviews />} />
+        <Route path="audit-logs" element={<LabAuditLogs />} />
+        <Route path="analytics" element={<LabAnalytics />} />
         <Route path="profile" element={<LabProfile />} />
         <Route path="settings" element={<LabSettings />} />
       </Route>
