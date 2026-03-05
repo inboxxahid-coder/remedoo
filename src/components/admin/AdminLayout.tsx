@@ -6,10 +6,11 @@ import {
   LayoutDashboard, Stethoscope, Building2, FlaskConical, Store, CalendarCheck,
   ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill, Menu, X,
   CheckSquare, AlertTriangle, FilePenLine, KeyRound, LayoutGrid, Heart, Zap, Star, CreditCard, Grid3X3,
-  ChevronDown, Layers, Settings, BarChart3, Headphones
+  ChevronDown, Layers, Settings, BarChart3, Headphones, Bell, Search
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface NavItem {
   label: string;
@@ -90,7 +91,6 @@ export default function AdminLayout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Filter nav based on permissions
   const filteredNavGroups = isSuperAdmin
     ? navGroups
     : navGroups
@@ -100,12 +100,10 @@ export default function AdminLayout() {
             if (filteredItems.length === 0) return null;
             return { ...item, items: filteredItems };
           }
-          // Top-level items (Dashboard)
           return allowedPaths?.includes(item.path) ? item : null;
         })
         .filter(Boolean) as (NavItem | NavGroup)[];
 
-  // Auto-expand groups that contain the active route
   const getInitialOpen = () => {
     const open: Record<string, boolean> = {};
     navGroups.forEach((item) => {
@@ -140,54 +138,90 @@ export default function AdminLayout() {
     setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
+  // Get current page title
+  const getCurrentTitle = () => {
+    for (const item of navGroups) {
+      if (!isNavGroup(item) && item.path === location.pathname) return item.label;
+      if (isNavGroup(item)) {
+        const found = item.items.find(i => i.path === location.pathname);
+        if (found) return found.label;
+      }
+    }
+    return "Admin";
+  };
+
   const renderNavItem = (item: NavItem) => {
     const isActive = location.pathname === item.path;
     return (
-      <button
+      <motion.button
         key={item.path}
+        whileTap={{ scale: 0.97 }}
         onClick={() => handleNav(item.path)}
         className={cn(
-          "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all",
+          "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
           isActive
             ? "bg-primary text-primary-foreground shadow-md"
-            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
         )}
       >
         <item.icon className="w-4 h-4 shrink-0" />
-        {item.label}
-      </button>
+        <span className="truncate">{item.label}</span>
+        {isActive && (
+          <motion.div
+            layoutId="admin-active-indicator"
+            className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-foreground"
+          />
+        )}
+      </motion.button>
     );
   };
 
   const renderNavGroup = (group: NavGroup) => {
     const isOpen = openGroups[group.label] ?? false;
     const hasActive = group.items.some((i) => location.pathname === i.path);
+    const activeCount = group.items.length;
 
     return (
-      <div key={group.label}>
+      <div key={group.label} className="space-y-0.5">
         <button
           onClick={() => toggleGroup(group.label)}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all",
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all",
             hasActive
-              ? "text-primary"
-              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              ? "text-primary bg-primary/5"
+              : "text-foreground hover:bg-muted"
           )}
         >
-          <group.icon className="w-4 h-4 shrink-0" />
-          <span className="flex-1 text-left">{group.label}</span>
+          <div className={cn(
+            "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
+            hasActive ? "bg-primary/10" : "bg-muted"
+          )}>
+            <group.icon className={cn("w-3.5 h-3.5", hasActive ? "text-primary" : "text-muted-foreground")} />
+          </div>
+          <span className="flex-1 text-left truncate">{group.label}</span>
+          <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full mr-1">{activeCount}</span>
           <ChevronDown
             className={cn(
-              "w-4 h-4 transition-transform duration-200",
+              "w-4 h-4 text-muted-foreground transition-transform duration-200",
               isOpen && "rotate-180"
             )}
           />
         </button>
-        {isOpen && (
-          <div className="ml-3 pl-3 border-l border-border/50 mt-1 space-y-0.5">
-            {group.items.map(renderNavItem)}
-          </div>
-        )}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="ml-4 pl-3 border-l-2 border-border/60 space-y-0.5 py-1">
+                {group.items.map(renderNavItem)}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   };
@@ -195,64 +229,102 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col shrink-0 transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 w-72 bg-card flex flex-col shrink-0 transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 shadow-xl lg:shadow-sm border-r border-border",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="p-5 border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-primary" />
-            <h1 className="text-lg font-bold text-foreground">Admin Panel</h1>
+        {/* Sidebar header */}
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
+                <Shield className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-base font-bold text-foreground">Remedoo</h1>
+                <p className="text-[11px] text-muted-foreground font-medium">Admin Console</p>
+              </div>
+            </div>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center">
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg hover:bg-muted">
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
         </div>
-        <p className="text-xs text-muted-foreground px-5 pt-2">Remedoo Management</p>
 
-        <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1 scrollbar-hide">
           {filteredNavGroups.map((item) =>
             isNavGroup(item) ? renderNavGroup(item) : renderNavItem(item)
           )}
         </nav>
 
+        {/* Footer */}
         <div className="p-3 border-t border-border">
+          {isSuperAdmin && (
+            <div className="mb-2 px-3 py-1.5 bg-primary/5 rounded-lg">
+              <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Super Admin</p>
+            </div>
+          )}
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-all"
           >
             <LogOut className="w-4 h-4" />
-            Logout
+            Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main content */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Mobile header */}
-        <header className="sticky top-0 z-30 bg-card border-b border-border px-4 py-3 flex items-center gap-3 lg:hidden">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-xl hover:bg-muted transition-colors"
-          >
-            <Menu className="w-5 h-5 text-foreground" />
-          </button>
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary" />
-            <span className="font-bold text-foreground">Admin</span>
+        {/* Top header — always visible, never scrolls */}
+        <header className="shrink-0 z-30 bg-card border-b border-border">
+          <div className="flex items-center gap-3 px-4 md:px-6 h-14">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden w-9 h-9 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors"
+            >
+              <Menu className="w-5 h-5 text-foreground" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base font-bold text-foreground truncate">{getCurrentTitle()}</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center bg-muted rounded-xl px-3 h-9 gap-2 w-56">
+                <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none w-full"
+                  readOnly
+                />
+              </div>
+              <button className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors relative">
+                <Bell className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                <Shield className="w-4 h-4 text-primary-foreground" />
+              </div>
+            </div>
           </div>
         </header>
 
+        {/* Page content */}
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <Outlet />
         </main>
