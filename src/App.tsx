@@ -92,6 +92,7 @@ const DoctorAuditLogs = lazy(() => import("./pages/doctor/DoctorAuditLogs"));
 const DoctorSettings = lazy(() => import("./pages/doctor/DoctorSettings"));
 const DoctorReviews = lazy(() => import("./pages/doctor/DoctorReviews"));
 const DoctorAppointmentDetail = lazy(() => import("./pages/doctor/DoctorAppointmentDetail"));
+const DoctorSupportTickets = lazy(() => import("./pages/doctor/DoctorSupportTickets"));
 
 // Hospital Panel
 const HospitalLayout = lazy(() => import("./pages/hospital/HospitalLayout"));
@@ -111,6 +112,9 @@ const HospitalSettings = lazy(() => import("./pages/hospital/HospitalSettings"))
 const HospitalAmbulanceConfig = lazy(() => import("./pages/hospital/HospitalAmbulanceConfig"));
 const HospitalAmbulanceFleet = lazy(() => import("./pages/hospital/HospitalAmbulanceFleet"));
 const HospitalAmbulanceTrips = lazy(() => import("./pages/hospital/HospitalAmbulanceTrips"));
+const HospitalNotifications = lazy(() => import("./pages/hospital/HospitalNotifications"));
+const HospitalSupportTickets = lazy(() => import("./pages/hospital/HospitalSupportTickets"));
+const HospitalReviews = lazy(() => import("./pages/hospital/HospitalReviews"));
 
 // Pharmacy Panel
 const PharmacyLayout = lazy(() => import("./pages/pharmacy/PharmacyLayout"));
@@ -120,6 +124,11 @@ const PharmacyMedicines = lazy(() => import("./pages/pharmacy/PharmacyMedicinesE
 const PharmacyProfile = lazy(() => import("./pages/pharmacy/PharmacyProfile"));
 const PharmacySettings = lazy(() => import("./pages/pharmacy/PharmacySettings"));
 const PharmacyEarnings = lazy(() => import("./pages/pharmacy/PharmacyEarnings"));
+const PharmacyNotifications = lazy(() => import("./pages/pharmacy/PharmacyNotifications"));
+const PharmacySupportTickets = lazy(() => import("./pages/pharmacy/PharmacySupportTickets"));
+const PharmacyReviews = lazy(() => import("./pages/pharmacy/PharmacyReviews"));
+const PharmacyAuditLogs = lazy(() => import("./pages/pharmacy/PharmacyAuditLogs"));
+const PharmacyAnalytics = lazy(() => import("./pages/pharmacy/PharmacyAnalytics"));
 
 // Lab Panel
 const LabLayout = lazy(() => import("./pages/lab/LabLayout"));
@@ -130,6 +139,11 @@ const LabSettings = lazy(() => import("./pages/lab/LabSettings"));
 const LabTests = lazy(() => import("./pages/lab/LabTests"));
 const LabEarnings = lazy(() => import("./pages/lab/LabEarnings"));
 const LabSampleCollections = lazy(() => import("./pages/lab/LabSampleCollections"));
+const LabNotifications = lazy(() => import("./pages/lab/LabNotifications"));
+const LabSupportTickets = lazy(() => import("./pages/lab/LabSupportTickets"));
+const LabReviews = lazy(() => import("./pages/lab/LabReviews"));
+const LabAuditLogs = lazy(() => import("./pages/lab/LabAuditLogs"));
+const LabAnalytics = lazy(() => import("./pages/lab/LabAnalytics"));
 const SupportTickets = lazy(() => import("./pages/SupportTickets"));
 
 const queryClient = new QueryClient({
@@ -283,6 +297,7 @@ const AppRoutes = () => {
         <Route path="profile" element={<DoctorProfile />} />
         <Route path="audit-logs" element={<DoctorAuditLogs />} />
         <Route path="reviews" element={<DoctorReviews />} />
+        <Route path="support-tickets" element={<DoctorSupportTickets />} />
         <Route path="settings" element={<DoctorSettings />} />
       </Route>
 
@@ -302,6 +317,9 @@ const AppRoutes = () => {
         <Route path="ambulance-fleet" element={<HospitalAmbulanceFleet />} />
         <Route path="ambulance-trips" element={<HospitalAmbulanceTrips />} />
         <Route path="audit-logs" element={<HospitalAuditLogs />} />
+        <Route path="notifications" element={<HospitalNotifications />} />
+        <Route path="support-tickets" element={<HospitalSupportTickets />} />
+        <Route path="reviews" element={<HospitalReviews />} />
         <Route path="profile" element={<HospitalProfile />} />
         <Route path="settings" element={<HospitalSettings />} />
       </Route>
@@ -312,6 +330,11 @@ const AppRoutes = () => {
         <Route path="orders" element={<PharmacyOrders />} />
         <Route path="medicines" element={<PharmacyMedicines />} />
         <Route path="earnings" element={<PharmacyEarnings />} />
+        <Route path="notifications" element={<PharmacyNotifications />} />
+        <Route path="support-tickets" element={<PharmacySupportTickets />} />
+        <Route path="reviews" element={<PharmacyReviews />} />
+        <Route path="audit-logs" element={<PharmacyAuditLogs />} />
+        <Route path="analytics" element={<PharmacyAnalytics />} />
         <Route path="profile" element={<PharmacyProfile />} />
         <Route path="settings" element={<PharmacySettings />} />
       </Route>
@@ -323,6 +346,11 @@ const AppRoutes = () => {
         <Route path="tests" element={<LabTests />} />
         <Route path="samples" element={<LabSampleCollections />} />
         <Route path="earnings" element={<LabEarnings />} />
+        <Route path="notifications" element={<LabNotifications />} />
+        <Route path="support-tickets" element={<LabSupportTickets />} />
+        <Route path="reviews" element={<LabReviews />} />
+        <Route path="audit-logs" element={<LabAuditLogs />} />
+        <Route path="analytics" element={<LabAnalytics />} />
         <Route path="profile" element={<LabProfile />} />
         <Route path="settings" element={<LabSettings />} />
       </Route>

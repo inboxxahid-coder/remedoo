@@ -1,6 +1,6 @@
 import { useProviderAuth } from "@/hooks/useProviderAuth";
 import ProviderLayout from "@/components/provider/ProviderLayout";
-import { Building2, LayoutDashboard, CalendarCheck, Stethoscope, BedDouble, AlertTriangle, Building, Wrench, Scissors, IndianRupee, BarChart3, ScrollText, User, Settings, Ambulance, Route, Settings2 } from "lucide-react";
+import { Building2, LayoutDashboard, CalendarCheck, Stethoscope, BedDouble, AlertTriangle, Building, Wrench, Scissors, IndianRupee, BarChart3, ScrollText, User, Settings, Ambulance, Route, Settings2, Bell, MessageSquare, Star } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/hospital", icon: LayoutDashboard },
@@ -17,6 +17,9 @@ const navItems = [
   { label: "Earnings", path: "/hospital/earnings", icon: IndianRupee },
   { label: "Analytics", path: "/hospital/analytics", icon: BarChart3 },
   { label: "Audit Logs", path: "/hospital/audit-logs", icon: ScrollText },
+  { label: "Notifications", path: "/hospital/notifications", icon: Bell },
+  { label: "Support Tickets", path: "/hospital/support-tickets", icon: MessageSquare },
+  { label: "Reviews", path: "/hospital/reviews", icon: Star },
   { label: "Profile", path: "/hospital/profile", icon: User },
   { label: "Settings", path: "/hospital/settings", icon: Settings },
 ];
