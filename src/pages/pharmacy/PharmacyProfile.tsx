@@ -97,12 +97,12 @@ export default function PharmacyProfile() {
   return (
     <div className="max-w-2xl space-y-6">
       {/* Hero Section */}
-      <Card className="p-5 sticky top-0 z-20 bg-card shadow-sm">
-        <div className="flex items-center gap-4">
-          <img src={getPharmacyImage(profile.image_url)} alt={profile.name || "Pharmacy"} className="w-20 h-20 rounded-2xl object-cover border-2 border-primary/20" />
+      <Card className="p-3 sticky top-0 z-20 bg-card shadow-sm">
+        <div className="flex items-center gap-3">
+          <img src={getPharmacyImage(profile.image_url)} alt={profile.name || "Pharmacy"} className="w-10 h-10 rounded-xl object-cover border border-primary/20" />
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-foreground truncate">{profile.name || "Unnamed Pharmacy"}</h1>
-            <p className="text-sm text-muted-foreground">{profile.location || "Location not set"}</p>
+            <h1 className="text-base font-bold text-foreground truncate">{profile.name || "Unnamed Pharmacy"}</h1>
+            <p className="text-xs text-muted-foreground">{profile.location || "Location not set"}</p>
             <div className="flex items-center gap-2 mt-1.5">
               {profile.approval_status === "approved" && <BadgeCheck className="w-4 h-4 text-green-500" />}
               <Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-green-500 hover:bg-green-600 text-white border-green-500 text-xs" : "text-xs"}>
@@ -111,7 +111,7 @@ export default function PharmacyProfile() {
             </div>
           </div>
         </div>
-        <div className="mt-3">
+        <div className="mt-2">
           <FileUploadBox id="pharm-photo" label="" file={photoFile} onFileChange={setPhotoFile} accept=".jpg,.jpeg,.png,.webp" hint="Upload new photo" />
         </div>
       </Card>
