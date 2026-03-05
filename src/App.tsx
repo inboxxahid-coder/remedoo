@@ -74,6 +74,8 @@ const AdminFeaturedDoctors = lazy(() => import("./pages/admin/AdminFeaturedDocto
 const AdminFeaturedMedicines = lazy(() => import("./pages/admin/AdminFeaturedMedicines"));
 const AdminInfoCards = lazy(() => import("./pages/admin/AdminInfoCards"));
 const AdminQuickAccess = lazy(() => import("./pages/admin/AdminQuickAccess"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminTeam = lazy(() => import("./pages/admin/AdminTeam"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
