@@ -191,7 +191,7 @@ export default function DoctorProfile() {
   return (
     <div className="max-w-2xl space-y-6">
       {/* Hero Section */}
-      <Card className="p-5">
+      <Card className="p-5 sticky top-0 z-20 bg-card shadow-sm">
         <div className="flex items-center gap-4">
           <img src={getDoctorAvatar(profile.gender, profile.image_url)} alt={profile.name || "Doctor"} className="w-20 h-20 rounded-2xl object-cover border-2 border-primary/20" />
           <div className="flex-1 min-w-0">
