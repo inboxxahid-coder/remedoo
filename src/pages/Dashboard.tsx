@@ -306,34 +306,9 @@ const Dashboard = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full overflow-x-hidden">
         <AppSidebar />
-        <div
-          ref={scrollRef}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto overflow-x-hidden bg-[hsl(210,20%,97%)] dark:bg-background"
-          style={{ overscrollBehavior: "contain" }}
-        >
-          {/* Pull-to-refresh */}
-          <AnimatePresence>
-            {(pullDistance > 0 || isRefreshing) && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: isRefreshing ? 48 : pullDistance, opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center justify-center bg-background overflow-hidden"
-              >
-                <motion.div animate={{ rotate: isRefreshing ? 360 : pullDistance * 3.6 }} transition={isRefreshing ? { duration: 0.8, repeat: Infinity, ease: "linear" } : { duration: 0 }}>
-                  <RefreshCw className={`w-5 h-5 ${pullDistance > 50 || isRefreshing ? "text-primary" : "text-muted-foreground"}`} />
-                </motion.div>
-                {isRefreshing && <span className="ml-2 text-xs text-muted-foreground font-medium">Refreshing...</span>}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* ===== STICKY HEADER ===== */}
-          <div className="sticky top-0 z-40 bg-primary">
+        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-x-hidden bg-muted/30 dark:bg-background">
+          {/* ===== FIXED HEADER — outside scroll ===== */}
+          <div className="shrink-0 z-40 bg-primary">
             <div className="flex items-center justify-between px-4 h-14">
               <AnimatedMenuButton />
               <AnimatedLogo />
@@ -358,6 +333,33 @@ const Dashboard = () => {
               </motion.button>
             </div>
           </div>
+
+          {/* Scrollable content area */}
+          <div
+            ref={scrollRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="flex-1 overflow-y-auto overflow-x-hidden"
+            style={{ overscrollBehavior: "contain" }}
+          >
+            {/* Pull-to-refresh */}
+            <AnimatePresence>
+              {(pullDistance > 0 || isRefreshing) && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: isRefreshing ? 48 : pullDistance, opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center justify-center bg-background overflow-hidden"
+                >
+                  <motion.div animate={{ rotate: isRefreshing ? 360 : pullDistance * 3.6 }} transition={isRefreshing ? { duration: 0.8, repeat: Infinity, ease: "linear" } : { duration: 0 }}>
+                    <RefreshCw className={`w-5 h-5 ${pullDistance > 50 || isRefreshing ? "text-primary" : "text-muted-foreground"}`} />
+                  </motion.div>
+                  {isRefreshing && <span className="ml-2 text-xs text-muted-foreground font-medium">Refreshing...</span>}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
           <div className="pb-24 overflow-x-hidden">
             {/* ===== HERO HEADER with search ===== */}
