@@ -1019,6 +1019,7 @@ export type Database = {
           emergency_available: boolean | null
           experience_years: number | null
           featured_sort_order: number | null
+          gender: string | null
           gst_url: string | null
           hospital_id: string | null
           id: string
@@ -1048,6 +1049,7 @@ export type Database = {
           emergency_available?: boolean | null
           experience_years?: number | null
           featured_sort_order?: number | null
+          gender?: string | null
           gst_url?: string | null
           hospital_id?: string | null
           id?: string
@@ -1077,6 +1079,7 @@ export type Database = {
           emergency_available?: boolean | null
           experience_years?: number | null
           featured_sort_order?: number | null
+          gender?: string | null
           gst_url?: string | null
           hospital_id?: string | null
           id?: string
