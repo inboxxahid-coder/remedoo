@@ -33,7 +33,12 @@ const Signup = () => {
     });
     setLoading(false);
     if (error) {
-      toast.error(error.message);
+      const msg = error.message.toLowerCase();
+      if (msg.includes("already") || msg.includes("registered") || msg.includes("exists") || msg.includes("unique")) {
+        toast.error("This email is already registered. Please use a different email or sign in.");
+      } else {
+        toast.error(error.message);
+      }
     } else {
       toast.success("Check your email for a confirmation link!");
       navigate("/login", { replace: true });

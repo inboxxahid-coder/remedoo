@@ -140,7 +140,12 @@ const ProviderRegister = () => {
     });
 
     if (signUpError) {
-      toast.error(signUpError.message);
+      const msg = signUpError.message.toLowerCase();
+      if (msg.includes("already") || msg.includes("registered") || msg.includes("exists") || msg.includes("unique")) {
+        toast.error("This email is already registered. Please use a different email or sign in.");
+      } else {
+        toast.error(signUpError.message);
+      }
       setLoading(false);
       return;
     }
