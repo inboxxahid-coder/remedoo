@@ -91,6 +91,7 @@ const ProviderRegister = () => {
   const [location, setLocation] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [bio, setBio] = useState("");
+  const [gender, setGender] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
 
@@ -227,6 +228,7 @@ const ProviderRegister = () => {
     if (selectedType === "doctor") {
       providerData.specialization = specialization;
       providerData.bio = bio;
+      if (gender) providerData.gender = gender;
     }
     providerData.location = location;
     if (latitude) providerData.latitude = Number(latitude);
@@ -378,6 +380,27 @@ const ProviderRegister = () => {
 
               {selectedType === "doctor" && (
                 <>
+                  {/* Gender Selection */}
+                  <div className="space-y-2">
+                    <Label>Gender <span className="text-destructive">*</span></Label>
+                    <div className="flex gap-2">
+                      {["male", "female", "other"].map(g => (
+                        <button
+                          key={g}
+                          type="button"
+                          onClick={() => setGender(g)}
+                          className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all capitalize ${
+                            gender === g
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border text-muted-foreground hover:border-primary/30"
+                          }`}
+                        >
+                          {g === "male" ? "👨‍⚕️" : g === "female" ? "👩‍⚕️" : "🧑‍⚕️"} {g}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="specialization">Specialization</Label>
                     <div className="relative">
