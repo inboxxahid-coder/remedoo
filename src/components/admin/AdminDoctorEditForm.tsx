@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  Building2, Phone, MapPin, Stethoscope, FileText, Upload, X, Save, Clock, Users, Star, Calendar,
+  Building2, Phone, MapPin, Stethoscope, FileText, Upload, X, Save, Clock, Users, Star, Calendar, Camera, Loader2,
 } from "lucide-react";
 import AdminEmailChangeRow from "./AdminEmailChangeRow";
+import { getDoctorAvatar } from "@/lib/providerDefaults";
 
 interface FileUploadBoxProps {
   id: string;
@@ -56,6 +57,8 @@ interface AdminDoctorEditFormProps {
 export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSuccess }: AdminDoctorEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [providerEmail, setProviderEmail] = useState("");
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // All doctor fields
   const [name, setName] = useState("");
@@ -73,6 +76,7 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
   const [accountStatus, setAccountStatus] = useState("active");
   const [approvalStatus, setApprovalStatus] = useState("approved");
   const [adminNote, setAdminNote] = useState("");
+  const [gender, setGender] = useState("");
 
   // Document files
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
