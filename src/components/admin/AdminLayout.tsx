@@ -72,6 +72,8 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Payouts", path: "/admin/payouts", icon: CreditCard },
       { label: "Commission Config", path: "/admin/commission", icon: KeyRound },
       { label: "OTP Settings", path: "/admin/otp-settings", icon: KeyRound },
+      { label: "Admin Team", path: "/admin/team", icon: Shield },
+      { label: "Platform Settings", path: "/admin/settings", icon: Settings },
     ],
   },
 ];
