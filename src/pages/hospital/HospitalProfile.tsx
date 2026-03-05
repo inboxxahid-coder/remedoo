@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logAuditAction } from "@/lib/auditLog";
 import { Save, BadgeCheck, Lock, Upload, X, FileText } from "lucide-react";
+import { getHospitalImage } from "@/lib/providerDefaults";
 
 interface FileUploadBoxProps {
   id: string; label: string; file: File | null; existingUrl?: string | null;
@@ -101,15 +102,23 @@ export default function HospitalProfile() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Hospital Profile</h1>
-      <div className="flex items-center gap-2">{profile.approval_status === "approved" && <><BadgeCheck className="w-5 h-5 text-red-500" /><span className="text-sm font-semibold text-red-500">Verified</span></>}<Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-red-500 hover:bg-red-600 text-white border-red-500" : ""}>{profile.approval_status === "approved" ? "Verified Hospital" : profile.approval_status}</Badge></div>
-
-      {/* Photo */}
+      {/* Hero Section */}
       <Card className="p-5">
-        <Label className="text-sm font-semibold mb-3 block">Hospital Photo</Label>
         <div className="flex items-center gap-4">
-          {profile.image_url ? <img src={profile.image_url} alt="Hospital" className="w-20 h-20 rounded-2xl object-cover" /> : <div className="w-20 h-20 rounded-2xl bg-accent flex items-center justify-center text-3xl">🏥</div>}
-          <div className="flex-1"><FileUploadBox id="hosp-photo" label="" file={photoFile} onFileChange={setPhotoFile} accept=".jpg,.jpeg,.png,.webp" hint="Upload new photo" /></div>
+          <img src={getHospitalImage(profile.image_url)} alt={profile.name || "Hospital"} className="w-20 h-20 rounded-2xl object-cover border-2 border-primary/20" />
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold text-foreground truncate">{profile.name || "Unnamed Hospital"}</h1>
+            <p className="text-sm text-muted-foreground">{profile.location || "Location not set"}</p>
+            <div className="flex items-center gap-2 mt-1.5">
+              {profile.approval_status === "approved" && <BadgeCheck className="w-4 h-4 text-red-500" />}
+              <Badge variant={profile.approval_status === "approved" ? "default" : "secondary"} className={profile.approval_status === "approved" ? "bg-red-500 hover:bg-red-600 text-white border-red-500 text-xs" : "text-xs"}>
+                {profile.approval_status === "approved" ? "Verified Hospital" : profile.approval_status}
+              </Badge>
+            </div>
+          </div>
+        </div>
+        <div className="mt-3">
+          <FileUploadBox id="hosp-photo" label="" file={photoFile} onFileChange={setPhotoFile} accept=".jpg,.jpeg,.png,.webp" hint="Upload new photo" />
         </div>
       </Card>
 
