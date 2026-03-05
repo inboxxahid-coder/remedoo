@@ -47,6 +47,35 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_permissions: {
+        Row: {
+          admin_team_id: string
+          created_at: string
+          id: string
+          page_path: string
+        }
+        Insert: {
+          admin_team_id: string
+          created_at?: string
+          id?: string
+          page_path: string
+        }
+        Update: {
+          admin_team_id?: string
+          created_at?: string
+          id?: string
+          page_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_permissions_admin_team_id_fkey"
+            columns: ["admin_team_id"]
+            isOneToOne: false
+            referencedRelation: "admin_team"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_team: {
         Row: {
           created_at: string
