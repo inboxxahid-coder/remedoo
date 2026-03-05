@@ -10,7 +10,7 @@ const PaymentFailure = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="gradient-emergency px-5 pt-10 pb-6 rounded-b-[1.5rem]">
+      <div className="gradient-emergency page-header px-5 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="text-emergency-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-xl font-bold text-emergency-foreground">Payment Failed</h1>
