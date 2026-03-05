@@ -323,12 +323,11 @@ const Dashboard = () => {
             )}
           </AnimatePresence>
 
-          <div className="pb-24 overflow-x-hidden">
-            {/* ===== TOP BAR ===== */}
-            <div className="sticky top-0 z-40 bg-primary">
-              <div className="flex items-center justify-between px-4 h-14">
-                <AnimatedMenuButton />
-                <AnimatedLogo />
+          {/* ===== TOP BAR ===== */}
+          <div className="sticky top-0 z-40 bg-primary">
+            <div className="flex items-center justify-between px-4 h-14">
+              <AnimatedMenuButton />
+              <AnimatedLogo />
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => navigate("/notifications")}
