@@ -348,8 +348,9 @@ const Dashboard = () => {
                   </AnimatePresence>
                 </motion.button>
               </div>
-            </div>
+          </div>
 
+          <div className="pb-24 overflow-x-hidden">
             {/* ===== WELCOME + SEARCH ===== */}
             <div className="px-5 pt-4 pb-4 bg-primary rounded-b-3xl">
               <h1 className="text-lg font-bold text-white mb-2 truncate">Welcome, {displayName}!</h1>
