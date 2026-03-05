@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useAdminPermissions } from "@/hooks/useAdminPermissions";
 import {
   LayoutDashboard, Stethoscope, Building2, FlaskConical, Store, CalendarCheck,
   ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill, Menu, X,
@@ -84,9 +85,25 @@ function isNavGroup(item: NavItem | NavGroup): item is NavGroup {
 
 export default function AdminLayout() {
   const { loading, isAdmin } = useAdminAuth();
+  const { allowedPaths, isSuperAdmin, loading: permsLoading } = useAdminPermissions();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Filter nav based on permissions
+  const filteredNavGroups = isSuperAdmin
+    ? navGroups
+    : navGroups
+        .map((item) => {
+          if (isNavGroup(item)) {
+            const filteredItems = item.items.filter((i) => allowedPaths?.includes(i.path));
+            if (filteredItems.length === 0) return null;
+            return { ...item, items: filteredItems };
+          }
+          // Top-level items (Dashboard)
+          return allowedPaths?.includes(item.path) ? item : null;
+        })
+        .filter(Boolean) as (NavItem | NavGroup)[];
 
   // Auto-expand groups that contain the active route
   const getInitialOpen = () => {
@@ -101,7 +118,7 @@ export default function AdminLayout() {
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(getInitialOpen);
 
-  if (loading || !isAdmin) {
+  if (loading || !isAdmin || permsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -204,7 +221,7 @@ export default function AdminLayout() {
         <p className="text-xs text-muted-foreground px-5 pt-2">Remedoo Management</p>
 
         <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
-          {navGroups.map((item) =>
+          {filteredNavGroups.map((item) =>
             isNavGroup(item) ? renderNavGroup(item) : renderNavItem(item)
           )}
         </nav>
