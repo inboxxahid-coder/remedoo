@@ -109,7 +109,12 @@ export default function AdminTeam() {
       });
 
       if (fnError || !fnData?.user_id) {
-        toast.error(fnData?.error || "Failed to create user account");
+        const errMsg = fnData?.error || "Failed to create user account";
+        if (errMsg.toLowerCase().includes("already") || errMsg.toLowerCase().includes("exists") || errMsg.toLowerCase().includes("registered")) {
+          toast.error("This email is already registered. Please use a different email.");
+        } else {
+          toast.error(errMsg);
+        }
         setSaving(false);
         return;
       }
