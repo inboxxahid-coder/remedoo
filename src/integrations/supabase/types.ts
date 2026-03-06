@@ -3082,6 +3082,45 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_api_keys: {
+        Row: {
+          category: string
+          changed_by: string | null
+          cooldown_minutes: number
+          created_at: string
+          display_label: string
+          id: string
+          is_masked: boolean
+          key_name: string
+          key_value: string
+          last_changed_at: string | null
+        }
+        Insert: {
+          category?: string
+          changed_by?: string | null
+          cooldown_minutes?: number
+          created_at?: string
+          display_label: string
+          id?: string
+          is_masked?: boolean
+          key_name: string
+          key_value?: string
+          last_changed_at?: string | null
+        }
+        Update: {
+          category?: string
+          changed_by?: string | null
+          cooldown_minutes?: number
+          created_at?: string
+          display_label?: string
+          id?: string
+          is_masked?: boolean
+          key_name?: string
+          key_value?: string
+          last_changed_at?: string | null
+        }
+        Relationships: []
+      }
       platform_branding: {
         Row: {
           category: string
