@@ -423,6 +423,7 @@ export type Database = {
           created_at: string
           department: string | null
           doctor_id: string | null
+          family_member_id: string | null
           follow_up_date: string | null
           hospital_id: string | null
           id: string
@@ -447,6 +448,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           doctor_id?: string | null
+          family_member_id?: string | null
           follow_up_date?: string | null
           hospital_id?: string | null
           id?: string
@@ -471,6 +473,7 @@ export type Database = {
           created_at?: string
           department?: string | null
           doctor_id?: string | null
+          family_member_id?: string | null
           follow_up_date?: string | null
           hospital_id?: string | null
           id?: string
@@ -500,6 +503,13 @@ export type Database = {
             columns: ["doctor_id"]
             isOneToOne: false
             referencedRelation: "doctors_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_family_member_id_fkey"
+            columns: ["family_member_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
             referencedColumns: ["id"]
           },
           {
@@ -1534,6 +1544,51 @@ export type Database = {
         }
         Relationships: []
       }
+      family_members: {
+        Row: {
+          allergies: string | null
+          avatar_url: string | null
+          blood_group: string | null
+          chronic_conditions: string | null
+          created_at: string
+          date_of_birth: string | null
+          gender: string | null
+          id: string
+          name: string
+          relationship: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allergies?: string | null
+          avatar_url?: string | null
+          blood_group?: string | null
+          chronic_conditions?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          gender?: string | null
+          id?: string
+          name: string
+          relationship: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allergies?: string | null
+          avatar_url?: string | null
+          blood_group?: string | null
+          chronic_conditions?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          gender?: string | null
+          id?: string
+          name?: string
+          relationship?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       faqs: {
         Row: {
           answer: string
@@ -1587,6 +1642,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      health_reminders: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          family_member_id: string | null
+          id: string
+          is_completed: boolean | null
+          recurrence: string | null
+          reminder_date: string
+          reminder_time: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          family_member_id?: string | null
+          id?: string
+          is_completed?: boolean | null
+          recurrence?: string | null
+          reminder_date: string
+          reminder_time?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          family_member_id?: string | null
+          id?: string
+          is_completed?: boolean | null
+          recurrence?: string | null
+          reminder_date?: string
+          reminder_time?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_reminders_family_member_id_fkey"
+            columns: ["family_member_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hospital_ambulance_config: {
         Row: {
