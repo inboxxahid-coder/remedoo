@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Stethoscope, Building2, ShoppingBag, CalendarCheck, Store, AlertTriangle, IndianRupee, FlaskConical, Clock, TrendingUp, ArrowRight, CheckSquare, Activity } from "lucide-react";
+import { Users, Stethoscope, Building2, ShoppingBag, CalendarCheck, Store, AlertTriangle, IndianRupee, FlaskConical, Clock, TrendingUp, ArrowRight, CheckSquare } from "lucide-react";
+import PlatformHealthAnalytics from "@/components/admin/PlatformHealthAnalytics";
 import { motion } from "framer-motion";
 
 interface StatCard {
@@ -209,31 +210,8 @@ export default function AdminDashboard() {
         </motion.div>
       )}
 
-      {/* Platform Activity */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="bg-card rounded-2xl border border-border p-5 shadow-sm"
-      >
-        <h3 className="font-bold text-foreground text-base flex items-center gap-2 mb-4">
-          <Activity className="w-5 h-5 text-primary" /> Platform Overview
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "Total Appointments", value: stats.find(s => s.label === "Appointments Today")?.subtitle?.replace(" this month", "") || "0", sub: "this month" },
-            { label: "Total Orders", value: stats.find(s => s.label === "Total Orders")?.value || 0, sub: "all time" },
-            { label: "Revenue", value: stats.find(s => s.label === "Revenue")?.value || "₹0", sub: "total earned" },
-            { label: "Users", value: stats.find(s => s.label === "Total Users")?.value || 0, sub: "registered" },
-          ].map(item => (
-            <div key={item.label} className="text-center">
-              <p className="text-2xl font-extrabold text-foreground">{item.value}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{item.label}</p>
-              <p className="text-[10px] text-muted-foreground/70">{item.sub}</p>
-            </div>
-          ))}
-        </div>
-      </motion.div>
+      {/* Platform Health Analytics */}
+      <PlatformHealthAnalytics />
     </div>
   );
 }
