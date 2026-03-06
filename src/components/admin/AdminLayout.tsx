@@ -317,21 +317,49 @@ export default function AdminLayout() {
               <h2 className="text-base font-bold text-foreground truncate">{getCurrentTitle()}</h2>
             </div>
             <div className="flex items-center gap-2">
-              <div className="hidden md:flex items-center bg-muted rounded-xl px-3 h-9 gap-2 w-56">
+              <div className="hidden md:flex items-center bg-muted rounded-xl px-3 h-9 gap-2 w-56 relative">
                 <Search className="w-4 h-4 text-muted-foreground shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search pages..."
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                  onFocus={() => setSearchOpen(true)}
+                  onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
                   className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none w-full"
-                  readOnly
                 />
+                {searchOpen && searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 py-1 max-h-64 overflow-y-auto">
+                    {searchResults.map((item) => (
+                      <button
+                        key={item.path}
+                        onMouseDown={() => { handleNav(item.path); setSearchQuery(""); setSearchOpen(false); }}
+                        className={cn(
+                          "w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-muted transition-colors text-left",
+                          location.pathname === item.path && "text-primary font-semibold"
+                        )}
+                      >
+                        <item.icon className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <span className="truncate">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              <button className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors relative">
+              <button
+                onClick={() => navigate("/admin/support-tickets")}
+                className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors relative"
+                title="Support Tickets"
+              >
                 <Bell className="w-4 h-4 text-muted-foreground" />
               </button>
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+              <button
+                onClick={() => navigate("/admin/settings")}
+                className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
+                title="Platform Settings"
+              >
                 <Shield className="w-4 h-4 text-primary-foreground" />
-              </div>
+              </button>
             </div>
           </div>
         </header>
