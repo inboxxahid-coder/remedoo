@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
+import { useBranding } from "@/hooks/useBranding";
 import MaintenanceModePage from "@/pages/MaintenanceMode";
 
 // Lazy-loaded pages — each becomes a separate chunk
@@ -105,6 +106,7 @@ const AdminHealthcarePackages = lazy(() => import("./pages/admin/AdminHealthcare
 const AdminCorporatePlans = lazy(() => import("./pages/admin/AdminCorporatePlans"));
 const AdminFeaturedProviders = lazy(() => import("./pages/admin/AdminFeaturedProviders"));
 const AdminPaymentAccounts = lazy(() => import("./pages/admin/AdminPaymentAccounts"));
+const AdminBranding = lazy(() => import("./pages/admin/AdminBranding"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -208,6 +210,7 @@ const PageLoader = () => (
 
 const AppRoutes = () => {
   const { isMaintenanceMode, loading: maintenanceLoading } = useMaintenanceMode();
+  useBranding(); // Apply admin-managed theme colors on mount
 
   if (maintenanceLoading) return <PageLoader />;
 
@@ -268,7 +271,8 @@ const AppRoutes = () => {
           <Route path="symptom-assistant" element={<AdminSymptomAssistant />} />
           <Route path="healthcare-packages" element={<AdminHealthcarePackages />} />
           <Route path="corporate-plans" element={<AdminCorporatePlans />} />
-          <Route path="featured-providers" element={<AdminFeaturedProviders />} />
+           <Route path="featured-providers" element={<AdminFeaturedProviders />} />
+           <Route path="branding" element={<AdminBranding />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -378,6 +382,7 @@ const AppRoutes = () => {
           <Route path="corporate-plans" element={<AdminCorporatePlans />} />
           <Route path="featured-providers" element={<AdminFeaturedProviders />} />
           <Route path="payment-accounts" element={<AdminPaymentAccounts />} />
+          <Route path="branding" element={<AdminBranding />} />
         </Route>
 
       {/* Doctor routes */}

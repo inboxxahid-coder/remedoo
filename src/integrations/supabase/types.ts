@@ -3079,6 +3079,42 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_branding: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          key: string
+          label: string
+          type: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          key: string
+          label: string
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          key?: string
+          label?: string
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       platform_commission_config: {
         Row: {
           commission_percent: number
