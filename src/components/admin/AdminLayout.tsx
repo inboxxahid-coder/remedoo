@@ -7,7 +7,8 @@ import {
   ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill, Menu, X,
   CheckSquare, AlertTriangle, FilePenLine, KeyRound, LayoutGrid, Heart, Zap, Star, CreditCard, Grid3X3,
   ChevronDown, Layers, Settings, BarChart3, Headphones, Bell, Search,
-  MessageSquare, Ticket, MapPin, Send, HelpCircle, Crown
+  MessageSquare, Ticket, MapPin, Send, HelpCircle, Crown, Ambulance,
+  FileText, RotateCcw, Receipt, Activity, Truck
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -26,34 +27,95 @@ interface NavGroup {
 }
 
 const navGroups: (NavItem | NavGroup)[] = [
+  // 1. Dashboard
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
+
+  // 2. Providers Management
   {
     label: "Providers",
     icon: Stethoscope,
     items: [
-      { label: "Approvals", path: "/admin/approvals", icon: CheckSquare },
       { label: "Doctors", path: "/admin/doctors", icon: Stethoscope },
       { label: "Hospitals", path: "/admin/hospitals", icon: Building2 },
       { label: "Labs", path: "/admin/labs", icon: FlaskConical },
       { label: "Pharmacies", path: "/admin/pharmacies", icon: Store },
       { label: "Featured Doctors", path: "/admin/featured-doctors", icon: Star },
-      { label: "Reviews", path: "/admin/reviews", icon: MessageSquare },
     ],
   },
+
+  // 3. Approvals System
+  {
+    label: "Approvals",
+    icon: CheckSquare,
+    items: [
+      { label: "Provider Approvals", path: "/admin/approvals", icon: CheckSquare },
+      { label: "Edit Requests", path: "/admin/edit-requests", icon: FilePenLine },
+    ],
+  },
+
+  // 4. Operations
   {
     label: "Operations",
     icon: Layers,
     items: [
       { label: "Appointments", path: "/admin/appointments", icon: CalendarCheck },
-      { label: "Orders", path: "/admin/orders", icon: ShoppingBag },
-      { label: "Emergencies", path: "/admin/emergencies", icon: AlertTriangle },
+      { label: "Medicine Orders", path: "/admin/orders", icon: ShoppingBag },
+      { label: "Emergency Requests", path: "/admin/emergencies", icon: AlertTriangle },
       { label: "Users", path: "/admin/users", icon: Users },
-      { label: "Edit Requests", path: "/admin/edit-requests", icon: FilePenLine },
       { label: "Support Tickets", path: "/admin/support-tickets", icon: Headphones },
       { label: "Suspicious Activity", path: "/admin/suspicious-activity", icon: AlertTriangle },
-      { label: "Broadcast", path: "/admin/broadcast", icon: Send },
     ],
   },
+
+  // 5. Ambulance Management
+  {
+    label: "Ambulance",
+    icon: Ambulance,
+    items: [
+      { label: "Fleet & Drivers", path: "/admin/ambulance", icon: Truck },
+    ],
+  },
+
+  // 6. Pharmacy Management
+  {
+    label: "Pharmacy Mgmt",
+    icon: Pill,
+    items: [
+      { label: "Medicines Database", path: "/admin/medicines", icon: Pill },
+      { label: "Featured Medicines", path: "/admin/featured-medicines", icon: Star },
+    ],
+  },
+
+  // 7. Medical Records
+  {
+    label: "Medical Records",
+    icon: FileText,
+    items: [
+      { label: "Records Overview", path: "/admin/medical-records", icon: FileText },
+    ],
+  },
+
+  // 8. Reviews & Ratings
+  {
+    label: "Reviews",
+    icon: MessageSquare,
+    items: [
+      { label: "Review Moderation", path: "/admin/reviews", icon: MessageSquare },
+    ],
+  },
+
+  // 9. Promotions & Marketing
+  {
+    label: "Promotions",
+    icon: Ticket,
+    items: [
+      { label: "Coupons & Promos", path: "/admin/coupons", icon: Ticket },
+      { label: "Promo Banners", path: "/admin/promo-banners", icon: Megaphone },
+      { label: "Subscriptions", path: "/admin/subscriptions", icon: Crown },
+    ],
+  },
+
+  // 10. Dashboard Content
   {
     label: "Dashboard Content",
     icon: LayoutGrid,
@@ -65,26 +127,76 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Quick Access Grid", path: "/admin/quick-access", icon: Grid3X3 },
       { label: "Slider", path: "/admin/slider", icon: Image },
       { label: "Ads", path: "/admin/ads", icon: Megaphone },
-      { label: "Medicines", path: "/admin/medicines", icon: Pill },
-      { label: "Featured Medicines", path: "/admin/featured-medicines", icon: Star },
-      { label: "Promo Banners", path: "/admin/promo-banners", icon: Megaphone },
       { label: "Category Actions", path: "/admin/category-actions", icon: Grid3X3 },
-      { label: "Coupons & Promos", path: "/admin/coupons", icon: Ticket },
     ],
   },
+
+  // 11. Notification Center
   {
-    label: "Finance & Settings",
-    icon: Settings,
+    label: "Notifications",
+    icon: Bell,
+    items: [
+      { label: "Broadcast Messages", path: "/admin/broadcast", icon: Send },
+    ],
+  },
+
+  // 12. Finance Management
+  {
+    label: "Finance",
+    icon: CreditCard,
     items: [
       { label: "Platform Revenue", path: "/admin/revenue", icon: BarChart3 },
       { label: "Payouts", path: "/admin/payouts", icon: CreditCard },
       { label: "Commission Config", path: "/admin/commission", icon: KeyRound },
+      { label: "Refund Tracking", path: "/admin/refunds", icon: RotateCcw },
+      { label: "Transactions", path: "/admin/transactions", icon: Receipt },
+    ],
+  },
+
+  // 13. Analytics & Reports
+  {
+    label: "Analytics",
+    icon: BarChart3,
+    items: [
+      { label: "Analytics & Reports", path: "/admin/analytics", icon: BarChart3 },
+    ],
+  },
+
+  // 14. Location Management
+  {
+    label: "Locations",
+    icon: MapPin,
+    items: [
+      { label: "Service Areas", path: "/admin/service-areas", icon: MapPin },
+    ],
+  },
+
+  // 15. Security & Logs
+  {
+    label: "Security & Logs",
+    icon: Shield,
+    items: [
+      { label: "Audit & Login Logs", path: "/admin/logs", icon: Activity },
+    ],
+  },
+
+  // 16. Content & Legal
+  {
+    label: "Content & Legal",
+    icon: HelpCircle,
+    items: [
+      { label: "FAQ & Legal Pages", path: "/admin/faq", icon: HelpCircle },
+    ],
+  },
+
+  // 17. System Settings
+  {
+    label: "System Settings",
+    icon: Settings,
+    items: [
       { label: "OTP Settings", path: "/admin/otp-settings", icon: KeyRound },
       { label: "Admin Team", path: "/admin/team", icon: Shield },
       { label: "Platform Settings", path: "/admin/settings", icon: Settings },
-      { label: "Service Areas", path: "/admin/service-areas", icon: MapPin },
-      { label: "FAQ & Legal", path: "/admin/faq", icon: HelpCircle },
-      { label: "Subscriptions", path: "/admin/subscriptions", icon: Crown },
     ],
   },
 ];
