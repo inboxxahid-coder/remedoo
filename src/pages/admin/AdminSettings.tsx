@@ -87,6 +87,32 @@ export default function AdminSettings() {
     const value = editedValues[s.key] ?? s.value;
     const isChanged = value !== s.value;
 
+    // Special pharmacy_mode renderer
+    if (s.key === "pharmacy_mode") {
+      return (
+        <div key={s.key} className="py-3 px-1 space-y-2">
+          <Label className="text-sm font-medium text-foreground">
+            {s.label}
+            {isChanged && <span className="ml-2 text-xs text-primary">(modified)</span>}
+          </Label>
+          <p className="text-xs text-muted-foreground mb-2">Controls whether medicine orders go to partner pharmacies or Remedoo's own pharmacy</p>
+          <div className="flex gap-3">
+            {["partner", "remedoo"].map(m => (
+              <button
+                key={m}
+                onClick={() => handleChange(s.key, m)}
+                className={`flex-1 p-3 rounded-xl border-2 text-center text-sm font-medium transition-all ${
+                  value === m ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground"
+                }`}
+              >
+                {m === "partner" ? "Partner Pharmacies" : "Remedoo Pharmacy"}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     if (s.type === "toggle") {
       return (
         <div key={s.key} className="flex items-center justify-between py-3 px-1">
