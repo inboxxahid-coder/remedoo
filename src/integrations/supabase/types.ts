@@ -118,30 +118,51 @@ export type Database = {
       ads: {
         Row: {
           active: boolean | null
+          advertiser_name: string | null
+          advertiser_type: string | null
+          budget: number | null
+          clicks: number | null
           content_url: string
           created_at: string
+          end_date: string | null
           id: string
+          impressions: number | null
           placement: string | null
+          start_date: string | null
           target_link: string | null
           title: string | null
           type: string
         }
         Insert: {
           active?: boolean | null
+          advertiser_name?: string | null
+          advertiser_type?: string | null
+          budget?: number | null
+          clicks?: number | null
           content_url: string
           created_at?: string
+          end_date?: string | null
           id?: string
+          impressions?: number | null
           placement?: string | null
+          start_date?: string | null
           target_link?: string | null
           title?: string | null
           type?: string
         }
         Update: {
           active?: boolean | null
+          advertiser_name?: string | null
+          advertiser_type?: string | null
+          budget?: number | null
+          clicks?: number | null
           content_url?: string
           created_at?: string
+          end_date?: string | null
           id?: string
+          impressions?: number | null
           placement?: string | null
+          start_date?: string | null
           target_link?: string | null
           title?: string | null
           type?: string
@@ -427,6 +448,7 @@ export type Database = {
           follow_up_date: string | null
           hospital_id: string | null
           id: string
+          is_video_consultation: boolean | null
           lab_id: string | null
           notes: string | null
           patient_id: string
@@ -439,6 +461,7 @@ export type Database = {
           status: string
           token_number: number | null
           updated_at: string
+          video_meeting_link: string | null
         }
         Insert: {
           appointment_date: string
@@ -452,6 +475,7 @@ export type Database = {
           follow_up_date?: string | null
           hospital_id?: string | null
           id?: string
+          is_video_consultation?: boolean | null
           lab_id?: string | null
           notes?: string | null
           patient_id: string
@@ -464,6 +488,7 @@ export type Database = {
           status?: string
           token_number?: number | null
           updated_at?: string
+          video_meeting_link?: string | null
         }
         Update: {
           appointment_date?: string
@@ -477,6 +502,7 @@ export type Database = {
           follow_up_date?: string | null
           hospital_id?: string | null
           id?: string
+          is_video_consultation?: boolean | null
           lab_id?: string | null
           notes?: string | null
           patient_id?: string
@@ -489,6 +515,7 @@ export type Database = {
           status?: string
           token_number?: number | null
           updated_at?: string
+          video_meeting_link?: string | null
         }
         Relationships: [
           {
@@ -771,6 +798,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      corporate_plans: {
+        Row: {
+          company_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          max_employees: number | null
+          monthly_price: number
+          plan_type: string | null
+          services_included: Json | null
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_employees?: number | null
+          monthly_price?: number
+          plan_type?: string | null
+          services_included?: Json | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_employees?: number | null
+          monthly_price?: number
+          plan_type?: string | null
+          services_included?: Json | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       coupon_usage: {
         Row: {
@@ -1369,6 +1444,9 @@ export type Database = {
           specialization: string | null
           user_id: string | null
           vacation_dates: string[] | null
+          video_consultation_duration: number | null
+          video_consultation_enabled: boolean | null
+          video_consultation_fee: number | null
           working_hours: Json | null
         }
         Insert: {
@@ -1399,6 +1477,9 @@ export type Database = {
           specialization?: string | null
           user_id?: string | null
           vacation_dates?: string[] | null
+          video_consultation_duration?: number | null
+          video_consultation_enabled?: boolean | null
+          video_consultation_fee?: number | null
           working_hours?: Json | null
         }
         Update: {
@@ -1429,6 +1510,9 @@ export type Database = {
           specialization?: string | null
           user_id?: string | null
           vacation_dates?: string[] | null
+          video_consultation_duration?: number | null
+          video_consultation_enabled?: boolean | null
+          video_consultation_fee?: number | null
           working_hours?: Json | null
         }
         Relationships: [
@@ -1696,6 +1780,57 @@ export type Database = {
           },
         ]
       }
+      healthcare_packages: {
+        Row: {
+          bookings_count: number | null
+          created_at: string | null
+          description: string | null
+          discounted_price: number | null
+          duration_days: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          original_price: number
+          provider_id: string
+          provider_type: string
+          sort_order: number | null
+          tests_included: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          bookings_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          discounted_price?: number | null
+          duration_days?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          original_price?: number
+          provider_id: string
+          provider_type?: string
+          sort_order?: number | null
+          tests_included?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          bookings_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          discounted_price?: number | null
+          duration_days?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          original_price?: number
+          provider_id?: string
+          provider_type?: string
+          sort_order?: number | null
+          tests_included?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       hospital_ambulance_config: {
         Row: {
           base_fare: number | null
@@ -1900,11 +2035,13 @@ export type Database = {
           beds: number | null
           created_at: string
           emergency_contact: string | null
+          featured_sort_order: number | null
           gst_url: string | null
           holidays: string[] | null
           icu_available: boolean | null
           id: string
           image_url: string | null
+          is_featured: boolean | null
           is_government: boolean
           latitude: number | null
           license_url: string | null
@@ -1928,11 +2065,13 @@ export type Database = {
           beds?: number | null
           created_at?: string
           emergency_contact?: string | null
+          featured_sort_order?: number | null
           gst_url?: string | null
           holidays?: string[] | null
           icu_available?: boolean | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           is_government?: boolean
           latitude?: number | null
           license_url?: string | null
@@ -1956,11 +2095,13 @@ export type Database = {
           beds?: number | null
           created_at?: string
           emergency_contact?: string | null
+          featured_sort_order?: number | null
           gst_url?: string | null
           holidays?: string[] | null
           icu_available?: boolean | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           is_government?: boolean
           latitude?: number | null
           license_url?: string | null
@@ -2281,9 +2422,11 @@ export type Database = {
           admin_note: string | null
           approval_status: string
           created_at: string
+          featured_sort_order: number | null
           gst_url: string | null
           id: string
           image_url: string | null
+          is_featured: boolean | null
           latitude: number | null
           license_url: string | null
           location: string | null
@@ -2300,9 +2443,11 @@ export type Database = {
           admin_note?: string | null
           approval_status?: string
           created_at?: string
+          featured_sort_order?: number | null
           gst_url?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           latitude?: number | null
           license_url?: string | null
           location?: string | null
@@ -2319,9 +2464,11 @@ export type Database = {
           admin_note?: string | null
           approval_status?: string
           created_at?: string
+          featured_sort_order?: number | null
           gst_url?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           latitude?: number | null
           license_url?: string | null
           location?: string | null
@@ -2672,6 +2819,63 @@ export type Database = {
           },
         ]
       }
+      package_bookings: {
+        Row: {
+          amount_paid: number | null
+          booking_date: string | null
+          created_at: string | null
+          family_member_id: string | null
+          id: string
+          package_id: string
+          payment_method: string | null
+          payment_status: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number | null
+          booking_date?: string | null
+          created_at?: string | null
+          family_member_id?: string | null
+          id?: string
+          package_id: string
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number | null
+          booking_date?: string | null
+          created_at?: string | null
+          family_member_id?: string | null
+          id?: string
+          package_id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_bookings_family_member_id_fkey"
+            columns: ["family_member_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_bookings_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "healthcare_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -2762,10 +2966,12 @@ export type Database = {
           admin_note: string | null
           approval_status: string
           created_at: string
+          featured_sort_order: number | null
           gst_url: string | null
           id: string
           image_url: string | null
           inventory: Json | null
+          is_featured: boolean | null
           latitude: number | null
           license_url: string | null
           location: string | null
@@ -2781,10 +2987,12 @@ export type Database = {
           admin_note?: string | null
           approval_status?: string
           created_at?: string
+          featured_sort_order?: number | null
           gst_url?: string | null
           id?: string
           image_url?: string | null
           inventory?: Json | null
+          is_featured?: boolean | null
           latitude?: number | null
           license_url?: string | null
           location?: string | null
@@ -2800,10 +3008,12 @@ export type Database = {
           admin_note?: string | null
           approval_status?: string
           created_at?: string
+          featured_sort_order?: number | null
           gst_url?: string | null
           id?: string
           image_url?: string | null
           inventory?: Json | null
+          is_featured?: boolean | null
           latitude?: number | null
           license_url?: string | null
           location?: string | null
@@ -3802,6 +4012,57 @@ export type Database = {
           id?: string
           is_emergency?: boolean | null
           symptom_name?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          payment_status: string | null
+          platform_commission: number | null
+          provider_id: string | null
+          provider_payout: number | null
+          provider_type: string | null
+          reference_id: string | null
+          service_type: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          payment_status?: string | null
+          platform_commission?: number | null
+          provider_id?: string | null
+          provider_payout?: number | null
+          provider_type?: string | null
+          reference_id?: string | null
+          service_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          payment_status?: string | null
+          platform_commission?: number | null
+          provider_id?: string | null
+          provider_payout?: number | null
+          provider_type?: string | null
+          reference_id?: string | null
+          service_type?: string
+          user_id?: string
         }
         Relationships: []
       }

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
@@ -29,6 +30,9 @@ const BookAppointment = () => {
   const [paymentMethod, setPaymentMethod] = useState<"at_clinic" | "online">("at_clinic");
   const [loading, setLoading] = useState(false);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [isVideoConsultation, setIsVideoConsultation] = useState(false);
+  const [videoConsultationFee, setVideoConsultationFee] = useState<number | null>(null);
+  const [videoEnabled, setVideoEnabled] = useState(false);
 
   // Lab test selection
   const [labTests, setLabTests] = useState<Tables<"lab_tests">[]>([]);
@@ -47,8 +51,12 @@ const BookAppointment = () => {
       if (data) setProviderName(data.name);
 
       if (type === "doctor") {
-        const { data: docData } = await supabase.from("doctors").select("consultation_fee").eq("id", id).single();
+        const { data: docData } = await supabase.from("doctors").select("consultation_fee, video_consultation_enabled, video_consultation_fee").eq("id", id).single();
         if (docData?.consultation_fee) setConsultationFee(docData.consultation_fee);
+        if (docData?.video_consultation_enabled) {
+          setVideoEnabled(true);
+          setVideoConsultationFee(docData.video_consultation_fee || docData.consultation_fee);
+        }
       }
 
       if (type === "hospital") {
@@ -143,12 +151,13 @@ const BookAppointment = () => {
         // Create a temporary appointment first to get an ID
         const record: any = {
           patient_id: session.user.id,
-          service_type: type,
+          service_type: isVideoConsultation ? "video_consultation" : type,
           appointment_date: date,
           appointment_time: time,
            notes: fullNotes,
           payment_method: "online",
           payment_status: "pending",
+          is_video_consultation: isVideoConsultation,
         };
         if (type === "doctor") record.doctor_id = id;
         else if (type === "hospital") {
@@ -229,12 +238,13 @@ const BookAppointment = () => {
     // Regular booking (at_clinic)
     const record: any = {
       patient_id: session.user.id,
-      service_type: type,
+      service_type: isVideoConsultation ? "video_consultation" : type,
       appointment_date: date,
       appointment_time: time,
       notes: fullNotes,
       payment_method: paymentMethod,
       payment_status: "pending",
+      is_video_consultation: isVideoConsultation,
     };
     if (type === "doctor") record.doctor_id = id;
     else if (type === "hospital") {
@@ -281,6 +291,19 @@ const BookAppointment = () => {
               {consultationFee != null && consultationFee > 0 && (
                 <p className="text-xs font-semibold text-foreground">· ₹{consultationFee}</p>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Video Consultation Toggle */}
+        {type === "doctor" && videoEnabled && (
+          <div className="bg-card rounded-2xl border border-border p-4 mb-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-sm text-foreground">📹 Video Consultation</p>
+                <p className="text-xs text-muted-foreground">Consult online from home{videoConsultationFee ? ` · ₹${videoConsultationFee}` : ""}</p>
+              </div>
+              <Switch checked={isVideoConsultation} onCheckedChange={setIsVideoConsultation} />
             </div>
           </div>
         )}

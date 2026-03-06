@@ -101,6 +101,9 @@ const AdminRemedooOrders = lazy(() => import("./pages/admin/AdminRemedooOrders")
 const AdminDeliveryDrivers = lazy(() => import("./pages/admin/AdminDeliveryDrivers"));
 const AdminPharmacyAnalytics = lazy(() => import("./pages/admin/AdminPharmacyAnalytics"));
 const AdminSymptomAssistant = lazy(() => import("./pages/admin/AdminSymptomAssistant"));
+const AdminHealthcarePackages = lazy(() => import("./pages/admin/AdminHealthcarePackages"));
+const AdminCorporatePlans = lazy(() => import("./pages/admin/AdminCorporatePlans"));
+const AdminFeaturedProviders = lazy(() => import("./pages/admin/AdminFeaturedProviders"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -262,6 +265,9 @@ const AppRoutes = () => {
           <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
            <Route path="pharmacy-analytics" element={<AdminPharmacyAnalytics />} />
           <Route path="symptom-assistant" element={<AdminSymptomAssistant />} />
+          <Route path="healthcare-packages" element={<AdminHealthcarePackages />} />
+          <Route path="corporate-plans" element={<AdminCorporatePlans />} />
+          <Route path="featured-providers" element={<AdminFeaturedProviders />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -367,6 +373,9 @@ const AppRoutes = () => {
           <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
            <Route path="pharmacy-analytics" element={<AdminPharmacyAnalytics />} />
           <Route path="symptom-assistant" element={<AdminSymptomAssistant />} />
+          <Route path="healthcare-packages" element={<AdminHealthcarePackages />} />
+          <Route path="corporate-plans" element={<AdminCorporatePlans />} />
+          <Route path="featured-providers" element={<AdminFeaturedProviders />} />
         </Route>
 
       {/* Doctor routes */}

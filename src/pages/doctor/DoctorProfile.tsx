@@ -106,6 +106,9 @@ export default function DoctorProfile() {
       consultation_duration: profile.consultation_duration ?? 15,
       max_appointments_per_day: profile.max_appointments_per_day ?? 20,
       emergency_available: profile.emergency_available ?? false,
+      video_consultation_enabled: profile.video_consultation_enabled ?? false,
+      video_consultation_fee: profile.video_consultation_fee ?? 0,
+      video_consultation_duration: profile.video_consultation_duration ?? 15,
     };
 
     // Upload files if any
@@ -262,6 +265,22 @@ export default function DoctorProfile() {
           <Label>Emergency Available</Label>
           <Switch checked={profile.emergency_available ?? false} onCheckedChange={(v) => set("emergency_available", v)} />
         </div>
+        <div className="flex items-center justify-between pt-2">
+          <Label>Video Consultation Enabled</Label>
+          <Switch checked={profile.video_consultation_enabled ?? false} onCheckedChange={(v) => set("video_consultation_enabled", v)} />
+        </div>
+        {profile.video_consultation_enabled && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div>
+              <Label>Video Consultation Fee (₹)</Label>
+              <Input type="number" value={profile.video_consultation_fee ?? 0} onChange={e => set("video_consultation_fee", Number(e.target.value))} />
+            </div>
+            <div>
+              <Label>Video Duration (mins)</Label>
+              <Input type="number" value={profile.video_consultation_duration ?? 15} onChange={e => set("video_consultation_duration", Number(e.target.value))} />
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Documents */}
