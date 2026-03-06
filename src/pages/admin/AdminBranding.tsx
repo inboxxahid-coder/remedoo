@@ -105,11 +105,11 @@ export default function AdminBranding() {
       if (error) hasError = true;
     }
 
-    if (userId) {
-      await logAuditAction(userId, "branding_update", "platform_branding", undefined, {
-        changed_keys: changed.map((c) => c.key),
-      });
-    }
+    await logAuditAction({
+      action: "branding_update",
+      entityType: "platform_branding",
+      details: { changed_keys: changed.map((c) => c.key) },
+    });
 
     if (hasError) {
       toast.error("Some settings failed to save");
