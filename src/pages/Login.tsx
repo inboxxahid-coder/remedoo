@@ -74,7 +74,7 @@ const Login = () => {
         <motion.img
           src={remedooLogo}
           alt="Remedoo"
-          className="h-12 object-contain mb-4"
+          className="h-16 object-contain mb-4 brightness-0 invert"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
