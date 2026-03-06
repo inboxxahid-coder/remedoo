@@ -149,4 +149,25 @@
     @apply sticky top-0 z-30;
     padding-top: max(env(safe-area-inset-top, 0px), 12px);
   }
+
+  /* Responsive text scaling for very small screens */
+  @media (max-width: 340px) {
+    .text-responsive-sm { font-size: 0.8125rem; }
+    .text-responsive-xs { font-size: 0.6875rem; }
+  }
+
+  /* Scrollbar hide utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Touch-friendly tap targets */
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }

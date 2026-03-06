@@ -1,5 +1,5 @@
 import { Wrench } from "lucide-react";
-import remedooLogo from "@/assets/remedoo-logo.png";
+import remedooLogo from "@/assets/remedoo-logo-transparent.png";
 
 export default function MaintenanceMode() {
   return (

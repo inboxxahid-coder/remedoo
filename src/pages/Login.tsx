@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { getRoleRedirectPath } from "@/hooks/useRoleRedirect";
 import { toast } from "sonner";
-import remedooLogo from "@/assets/remedoo-logo.png";
+import remedooLogo from "@/assets/remedoo-logo-transparent.png";
 
 const Login = () => {
   const navigate = useNavigate();
