@@ -155,6 +155,7 @@ const navGroups: (NavItem | NavGroup)[] = [
     items: [
       { label: "Platform Revenue", path: "/admin/revenue", icon: BarChart3 },
       { label: "Payouts", path: "/admin/payouts", icon: CreditCard },
+      { label: "Payment Accounts", path: "/admin/payment-accounts", icon: CreditCard },
       { label: "Commission Config", path: "/admin/commission", icon: KeyRound },
       { label: "Refund Tracking", path: "/admin/refunds", icon: RotateCcw },
       { label: "Transactions", path: "/admin/transactions", icon: Receipt },
