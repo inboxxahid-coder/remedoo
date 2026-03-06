@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2, Pencil, KeyRound, Mail, Lock
+  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2, Pencil, KeyRound, Mail, Lock, Upload, X, Camera
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import AdminPermissionsDialog from "@/components/admin/AdminPermissionsDialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const DESIGNATIONS = [
   "Super Admin",
@@ -41,6 +42,7 @@ interface AdminMember {
   phone: string | null;
   is_active: boolean;
   created_at: string;
+  avatar_url: string | null;
 }
 
 export default function AdminTeam() {
