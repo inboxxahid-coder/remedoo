@@ -105,6 +105,7 @@ const AdminHealthcarePackages = lazy(() => import("./pages/admin/AdminHealthcare
 const AdminCorporatePlans = lazy(() => import("./pages/admin/AdminCorporatePlans"));
 const AdminFeaturedProviders = lazy(() => import("./pages/admin/AdminFeaturedProviders"));
 const AdminPaymentAccounts = lazy(() => import("./pages/admin/AdminPaymentAccounts"));
+const AdminBranding = lazy(() => import("./pages/admin/AdminBranding"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -268,7 +269,8 @@ const AppRoutes = () => {
           <Route path="symptom-assistant" element={<AdminSymptomAssistant />} />
           <Route path="healthcare-packages" element={<AdminHealthcarePackages />} />
           <Route path="corporate-plans" element={<AdminCorporatePlans />} />
-          <Route path="featured-providers" element={<AdminFeaturedProviders />} />
+           <Route path="featured-providers" element={<AdminFeaturedProviders />} />
+           <Route path="branding" element={<AdminBranding />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -378,6 +380,7 @@ const AppRoutes = () => {
           <Route path="corporate-plans" element={<AdminCorporatePlans />} />
           <Route path="featured-providers" element={<AdminFeaturedProviders />} />
           <Route path="payment-accounts" element={<AdminPaymentAccounts />} />
+          <Route path="branding" element={<AdminBranding />} />
         </Route>
 
       {/* Doctor routes */}

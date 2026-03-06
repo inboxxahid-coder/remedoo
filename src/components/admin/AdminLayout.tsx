@@ -8,7 +8,7 @@ import {
   CheckSquare, AlertTriangle, FilePenLine, KeyRound, LayoutGrid, Heart, Zap, Star, CreditCard, Grid3X3,
   ChevronDown, Layers, Settings, BarChart3, Headphones, Bell, Search,
   MessageSquare, Ticket, MapPin, Send, HelpCircle, Crown, Ambulance,
-  FileText, RotateCcw, Receipt, Activity, Truck, Package, Brain
+  FileText, RotateCcw, Receipt, Activity, Truck, Package, Brain, Palette
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -212,6 +212,7 @@ const navGroups: (NavItem | NavGroup)[] = [
     label: "System Settings",
     icon: Settings,
     items: [
+      { label: "Branding & Theme", path: "/admin/branding", icon: Palette },
       { label: "OTP Settings", path: "/admin/otp-settings", icon: KeyRound },
       { label: "Admin Team", path: "/admin/team", icon: Shield },
       { label: "Platform Settings", path: "/admin/settings", icon: Settings },
