@@ -24,6 +24,7 @@ const FILTERS = ["Relevance", "Rating 4.0+", "Fee: Low-High", "Experience", "Nea
 const Doctors = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { services, loading: serviceLoading } = useServiceToggle();
   const specFromUrl = searchParams.get("spec") || "All";
   const [doctors, setDoctors] = useState<any[]>([]);
   const [search, setSearch] = useState("");
