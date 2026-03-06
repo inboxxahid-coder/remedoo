@@ -40,6 +40,7 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Labs", path: "/admin/labs", icon: FlaskConical },
       { label: "Pharmacies", path: "/admin/pharmacies", icon: Store },
       { label: "Featured Doctors", path: "/admin/featured-doctors", icon: Star },
+      { label: "Featured Providers", path: "/admin/featured-providers", icon: Star },
     ],
   },
 
@@ -117,6 +118,8 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Coupons & Promos", path: "/admin/coupons", icon: Ticket },
       { label: "Promo Banners", path: "/admin/promo-banners", icon: Megaphone },
       { label: "Subscriptions", path: "/admin/subscriptions", icon: Crown },
+      { label: "Healthcare Packages", path: "/admin/healthcare-packages", icon: Package },
+      { label: "Corporate Plans", path: "/admin/corporate-plans", icon: Users },
     ],
   },
 
