@@ -220,6 +220,7 @@ export type Database = {
           distance_km: number | null
           driver_name: string | null
           driver_phone: string | null
+          driver_user_id: string | null
           emergency_request_id: string | null
           hospital_id: string | null
           id: string
@@ -245,6 +246,7 @@ export type Database = {
           distance_km?: number | null
           driver_name?: string | null
           driver_phone?: string | null
+          driver_user_id?: string | null
           emergency_request_id?: string | null
           hospital_id?: string | null
           id?: string
@@ -270,6 +272,7 @@ export type Database = {
           distance_km?: number | null
           driver_name?: string | null
           driver_phone?: string | null
+          driver_user_id?: string | null
           emergency_request_id?: string | null
           hospital_id?: string | null
           id?: string
@@ -1333,6 +1336,41 @@ export type Database = {
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driver_locations: {
+        Row: {
+          created_at: string
+          driver_user_id: string
+          id: string
+          latitude: number
+          longitude: number
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string
+          driver_user_id: string
+          id?: string
+          latitude: number
+          longitude: number
+          trip_id: string
+        }
+        Update: {
+          created_at?: string
+          driver_user_id?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_locations_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "ambulance_trips"
             referencedColumns: ["id"]
           },
         ]
