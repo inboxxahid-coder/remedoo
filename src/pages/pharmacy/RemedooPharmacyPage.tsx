@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, ShoppingCart, Plus, Minus, Pill, X, Upload, BadgeCheck } from "lucide-react";
+import { ArrowLeft, Search, ShoppingCart, Plus, Minus, Pill, X, Upload, BadgeCheck, Info, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
@@ -13,6 +14,7 @@ import { motion } from "framer-motion";
 interface RemedooItem {
   id: string;
   name: string;
+  brand_name: string | null;
   generic_name: string | null;
   category: string;
   price: number;
@@ -22,9 +24,20 @@ interface RemedooItem {
   discount_percent: number | null;
   image_url: string | null;
   description: string | null;
+  dosage_info: string | null;
+  side_effects: string | null;
+  usage_instructions: string | null;
+  drug_category: string | null;
+  manufacturer: string | null;
+  expiry_date: string | null;
 }
 
 interface CartEntry { item: RemedooItem; quantity: number; }
+
+const CATEGORIES = [
+  "All", "Pain Relief", "Antibiotics", "Diabetes", "Heart & BP", "Vitamins & Supplements",
+  "Skin Care", "Eye Care", "Digestive", "Respiratory", "Personal Care", "General",
+];
 
 const RemedooPharmacyPage = () => {
   const navigate = useNavigate();
@@ -33,23 +46,63 @@ const RemedooPharmacyPage = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, CartEntry>>({});
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [detailItem, setDetailItem] = useState<RemedooItem | null>(null);
+  const [deliverySettings, setDeliverySettings] = useState({ base: 30, freeThreshold: 499 });
 
   useEffect(() => {
-    supabase.from("remedoo_pharmacy_inventory").select("*").eq("is_active", true).order("name")
-      .then(({ data }) => { setItems((data as any[]) || []); setLoading(false); });
+    const load = async () => {
+      const [invRes, settRes] = await Promise.all([
+        supabase.from("remedoo_pharmacy_inventory").select("*").eq("is_active", true).order("name"),
+        supabase.from("platform_settings").select("key, value").in("key", ["remedoo_base_delivery_fee", "remedoo_free_delivery_threshold"]),
+      ]);
+      // Filter out expired medicines
+      const now = new Date();
+      const meds = ((invRes.data as any[]) || []).filter(m =>
+        m.stock_quantity > 0 && (!m.expiry_date || new Date(m.expiry_date) > now)
+      );
+      setItems(meds);
+
+      const settings = settRes.data || [];
+      const base = settings.find(s => s.key === "remedoo_base_delivery_fee");
+      const threshold = settings.find(s => s.key === "remedoo_free_delivery_threshold");
+      setDeliverySettings({
+        base: base ? Number(base.value) : 30,
+        freeThreshold: threshold ? Number(threshold.value) : 499,
+      });
+      setLoading(false);
+    };
+    load();
   }, []);
 
   const categories = useMemo(() => {
     const cats = new Set(items.map(i => i.category));
-    return ["All", ...Array.from(cats).sort()];
+    return CATEGORIES.filter(c => c === "All" || cats.has(c));
   }, [items]);
 
   const filtered = useMemo(() => {
     let res = items;
     if (selectedCategory !== "All") res = res.filter(i => i.category === selectedCategory);
-    if (search) res = res.filter(i => i.name.toLowerCase().includes(search.toLowerCase()));
+    if (search) {
+      const q = search.toLowerCase();
+      res = res.filter(i =>
+        i.name.toLowerCase().includes(q) ||
+        (i.generic_name?.toLowerCase().includes(q)) ||
+        (i.brand_name?.toLowerCase().includes(q)) ||
+        (i.manufacturer?.toLowerCase().includes(q))
+      );
+    }
     return res;
   }, [items, search, selectedCategory]);
+
+  // Find alternatives (same generic name, different brand)
+  const getAlternatives = (item: RemedooItem) => {
+    if (!item.generic_name) return [];
+    return items.filter(i =>
+      i.id !== item.id &&
+      i.generic_name?.toLowerCase() === item.generic_name?.toLowerCase() &&
+      i.stock_quantity > 0
+    ).sort((a, b) => a.price - b.price);
+  };
 
   const addToCart = (item: RemedooItem) => {
     setCart(prev => {
@@ -70,6 +123,7 @@ const RemedooPharmacyPage = () => {
   const cartCount = Object.values(cart).reduce((a, b) => a + b.quantity, 0);
   const cartTotal = Object.values(cart).reduce((a, b) => a + b.item.price * b.quantity, 0);
   const hasRx = Object.values(cart).some(c => c.item.requires_prescription);
+  const deliveryFee = cartTotal >= deliverySettings.freeThreshold ? 0 : deliverySettings.base;
 
   const goToCheckout = () => {
     if (cartCount === 0) { toast.error("Cart is empty"); return; }
@@ -89,13 +143,15 @@ const RemedooPharmacyPage = () => {
               <h1 className="text-lg font-bold text-foreground flex items-center gap-1.5">
                 Remedoo Pharmacy <BadgeCheck className="w-4 h-4 text-primary" />
               </h1>
-              <p className="text-[11px] text-muted-foreground">Medicines delivered to your door</p>
+              <p className="text-[11px] text-muted-foreground">
+                Free delivery above ₹{deliverySettings.freeThreshold}
+              </p>
             </div>
           </div>
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search medicines..."
+              placeholder="Search by name, brand, or generic..."
               value={search} onChange={e => setSearch(e.target.value)}
               className="pl-10 pr-4 bg-muted/50 border-border h-11 rounded-xl text-sm"
             />
@@ -125,6 +181,7 @@ const RemedooPharmacyPage = () => {
             <div className="col-span-2 text-center py-16">
               <Pill className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
               <p className="text-muted-foreground font-medium">No medicines found</p>
+              {search && <p className="text-xs text-muted-foreground mt-1">Try searching by generic name or brand</p>}
             </div>
           ) : filtered.map((item, idx) => {
             const inCart = cart[item.id]?.quantity || 0;
@@ -136,13 +193,20 @@ const RemedooPharmacyPage = () => {
                 transition={{ delay: idx * 0.03 }}
                 className="bg-card rounded-xl border border-border p-3 flex flex-col"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between mb-1">
+                  <button onClick={() => setDetailItem(item)} className="flex-1 min-w-0 text-left">
                     <p className="text-xs font-bold text-foreground truncate">{item.name}</p>
+                    {item.brand_name && <p className="text-[10px] text-primary truncate">{item.brand_name}</p>}
                     {item.generic_name && <p className="text-[10px] text-muted-foreground truncate">{item.generic_name}</p>}
+                  </button>
+                  <div className="flex items-center gap-1 shrink-0 ml-1">
+                    {item.requires_prescription && <Badge variant="outline" className="text-[9px]">Rx</Badge>}
+                    <button onClick={() => setDetailItem(item)} className="w-5 h-5 rounded-full bg-muted/50 flex items-center justify-center">
+                      <Info className="w-3 h-3 text-muted-foreground" />
+                    </button>
                   </div>
-                  {item.requires_prescription && <Badge variant="outline" className="text-[9px] shrink-0 ml-1">Rx</Badge>}
                 </div>
+                {item.manufacturer && <p className="text-[9px] text-muted-foreground truncate mb-1">by {item.manufacturer}</p>}
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm font-bold text-foreground">₹{item.price}</span>
                   {item.mrp && item.mrp > item.price && (
@@ -152,7 +216,6 @@ const RemedooPharmacyPage = () => {
                     <Badge className="text-[9px] bg-emerald-100 text-emerald-800">{item.discount_percent}% off</Badge>
                   )}
                 </div>
-                <p className="text-[10px] text-muted-foreground mb-2">{item.stock_quantity > 0 ? `${item.stock_quantity} in stock` : "Out of stock"}</p>
                 {item.stock_quantity > 0 ? (
                   inCart > 0 ? (
                     <div className="flex items-center justify-between bg-primary/10 rounded-lg p-1">
@@ -187,12 +250,125 @@ const RemedooPharmacyPage = () => {
               <div className="text-left">
                 <p className="font-bold text-sm">{cartCount} item{cartCount > 1 ? "s" : ""}</p>
                 {hasRx && <p className="text-[10px] opacity-80 flex items-center gap-1"><Upload className="w-3 h-3" /> Prescription needed</p>}
+                {deliveryFee === 0 && <p className="text-[10px] opacity-80">✓ Free delivery</p>}
               </div>
             </div>
-            <p className="font-bold text-lg">₹{cartTotal.toFixed(0)} →</p>
+            <p className="font-bold text-lg">₹{(cartTotal + deliveryFee).toFixed(0)} →</p>
           </button>
         </div>
       )}
+
+      {/* Medicine Detail Sheet */}
+      <Sheet open={!!detailItem} onOpenChange={() => setDetailItem(null)}>
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-3xl">
+          {detailItem && (
+            <div className="space-y-4 pb-6">
+              <SheetHeader>
+                <SheetTitle className="text-left">{detailItem.name}</SheetTitle>
+              </SheetHeader>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {detailItem.brand_name && <Badge className="text-xs bg-primary/10 text-primary">{detailItem.brand_name}</Badge>}
+                {detailItem.requires_prescription && <Badge variant="outline" className="text-xs">Prescription Required</Badge>}
+                {detailItem.drug_category && <Badge variant="secondary" className="text-xs">{detailItem.drug_category.toUpperCase()}</Badge>}
+                <Badge variant="secondary" className="text-xs">{detailItem.category}</Badge>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-foreground">₹{detailItem.price}</span>
+                {detailItem.mrp && detailItem.mrp > detailItem.price && (
+                  <span className="text-sm text-muted-foreground line-through">MRP ₹{detailItem.mrp}</span>
+                )}
+                {(detailItem.discount_percent || 0) > 0 && (
+                  <Badge className="bg-emerald-100 text-emerald-800">{detailItem.discount_percent}% off</Badge>
+                )}
+              </div>
+
+              {detailItem.generic_name && (
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <p className="text-xs text-muted-foreground">Generic Name</p>
+                  <p className="text-sm font-medium text-foreground">{detailItem.generic_name}</p>
+                </div>
+              )}
+
+              {detailItem.manufacturer && (
+                <div className="bg-muted/50 rounded-xl p-3">
+                  <p className="text-xs text-muted-foreground">Manufacturer</p>
+                  <p className="text-sm font-medium text-foreground">{detailItem.manufacturer}</p>
+                </div>
+              )}
+
+              {detailItem.description && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">Description</p>
+                  <p className="text-sm text-foreground">{detailItem.description}</p>
+                </div>
+              )}
+
+              {detailItem.dosage_info && (
+                <div className="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-3">
+                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">💊 Dosage</p>
+                  <p className="text-sm text-foreground">{detailItem.dosage_info}</p>
+                </div>
+              )}
+
+              {detailItem.usage_instructions && (
+                <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-xl p-3">
+                  <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-1">📋 Usage Instructions</p>
+                  <p className="text-sm text-foreground">{detailItem.usage_instructions}</p>
+                </div>
+              )}
+
+              {detailItem.side_effects && (
+                <div className="bg-amber-50 dark:bg-amber-950/30 rounded-xl p-3">
+                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">⚠️ Side Effects</p>
+                  <p className="text-sm text-foreground">{detailItem.side_effects}</p>
+                </div>
+              )}
+
+              {/* Alternatives */}
+              {(() => {
+                const alts = getAlternatives(detailItem);
+                if (alts.length === 0) return null;
+                return (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">💡 Cheaper Alternatives ({detailItem.generic_name})</p>
+                    <div className="space-y-2">
+                      {alts.slice(0, 3).map(alt => (
+                        <div key={alt.id} className="flex items-center justify-between bg-card border border-border rounded-xl p-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{alt.name}</p>
+                            {alt.brand_name && <p className="text-[10px] text-primary">{alt.brand_name}</p>}
+                            {alt.manufacturer && <p className="text-[10px] text-muted-foreground">{alt.manufacturer}</p>}
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="font-bold text-foreground">₹{alt.price}</span>
+                            {alt.price < detailItem.price && (
+                              <Badge className="text-[9px] bg-emerald-100 text-emerald-800">
+                                Save ₹{detailItem.price - alt.price}
+                              </Badge>
+                            )}
+                            <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => { addToCart(alt); setDetailItem(null); }}>
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Add to cart */}
+              <Button className="w-full h-12 text-base font-bold" onClick={() => { addToCart(detailItem); setDetailItem(null); }}
+                disabled={detailItem.stock_quantity === 0}>
+                <Plus className="w-4 h-4 mr-2" /> Add to Cart — ₹{detailItem.price}
+              </Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
       <BottomNav />
     </div>
   );

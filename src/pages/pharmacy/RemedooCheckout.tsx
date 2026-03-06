@@ -19,13 +19,29 @@ const RemedooCheckout = () => {
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
+  const [deliverySettings, setDeliverySettings] = useState({ base: 30, freeThreshold: 499 });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/login"); return; }
-      supabase.from("profiles").select("address" as any).eq("user_id", session.user.id).single()
-        .then(({ data }) => { if ((data as any)?.address) setAddress((data as any).address); });
-    });
+
+      const [profileRes, settRes] = await Promise.all([
+        supabase.from("profiles").select("address" as any).eq("user_id", session.user.id).single(),
+        supabase.from("platform_settings").select("key, value").in("key", ["remedoo_base_delivery_fee", "remedoo_free_delivery_threshold"]),
+      ]);
+
+      if ((profileRes.data as any)?.address) setAddress((profileRes.data as any).address);
+
+      const settings = settRes.data || [];
+      const base = settings.find(s => s.key === "remedoo_base_delivery_fee");
+      const threshold = settings.find(s => s.key === "remedoo_free_delivery_threshold");
+      setDeliverySettings({
+        base: base ? Number(base.value) : 30,
+        freeThreshold: threshold ? Number(threshold.value) : 499,
+      });
+    };
+    load();
   }, []);
 
   if (!cart || Object.keys(cart).length === 0) {
@@ -38,7 +54,7 @@ const RemedooCheckout = () => {
 
   const items = Object.values(cart);
   const subtotal = items.reduce((a, b) => a + b.item.price * b.quantity, 0);
-  const deliveryFee = subtotal >= 199 ? 0 : 30;
+  const deliveryFee = subtotal >= deliverySettings.freeThreshold ? 0 : deliverySettings.base;
   const total = subtotal + deliveryFee;
 
   const detectLocation = () => {
@@ -51,7 +67,7 @@ const RemedooCheckout = () => {
 
   const placeOrder = async () => {
     if (!address) { toast.error("Please add delivery address"); return; }
-    if (hasRx && !prescriptionFile) { toast.error("Prescription upload required"); return; }
+    if (hasRx && !prescriptionFile) { toast.error("Prescription upload required for Rx medicines"); return; }
     setLoading(true);
 
     const { data: { session } } = await supabase.auth.getSession();
@@ -73,6 +89,8 @@ const RemedooCheckout = () => {
       requires_prescription: c.item.requires_prescription,
     }));
 
+    const orderStatus = hasRx ? "prescription_verification" : "placed";
+
     const { data: order, error } = await supabase.from("remedoo_orders").insert({
       user_id: session.user.id,
       items: orderItems,
@@ -84,7 +102,8 @@ const RemedooCheckout = () => {
       prescription_url: prescriptionUrl,
       delivery_address: address,
       notes,
-      status: hasRx ? "prescription_verification" : "placed",
+      status: orderStatus,
+      prescription_status: hasRx ? "pending" : "not_required",
     } as any).select("id").single();
 
     if (error) { toast.error(error.message); setLoading(false); return; }
@@ -96,7 +115,7 @@ const RemedooCheckout = () => {
       status: "pending",
     } as any);
 
-    toast.success("Order placed successfully!");
+    toast.success(hasRx ? "Order placed — awaiting prescription verification" : "Order placed successfully!");
     navigate("/remedoo-order/" + order!.id);
     setLoading(false);
   };
@@ -118,16 +137,35 @@ const RemedooCheckout = () => {
           <h3 className="font-bold text-sm text-foreground mb-3">Order Summary</h3>
           {items.map(c => (
             <div key={c.item.id} className="flex justify-between text-sm py-1.5 border-b border-border last:border-0">
-              <span className="text-foreground">{c.item.name} x{c.quantity}</span>
+              <span className="text-foreground flex items-center gap-1">
+                {c.item.name} x{c.quantity}
+                {c.item.requires_prescription && <span className="text-[9px] text-amber-600 font-medium">(Rx)</span>}
+              </span>
               <span className="font-semibold text-foreground">₹{(c.item.price * c.quantity).toFixed(0)}</span>
             </div>
           ))}
           <div className="mt-3 pt-2 border-t border-dashed border-border space-y-1 text-sm">
             <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>₹{subtotal.toFixed(0)}</span></div>
-            <div className="flex justify-between text-muted-foreground"><span>Delivery</span><span>{deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}</span></div>
+            <div className="flex justify-between text-muted-foreground">
+              <span>Delivery</span>
+              <span>{deliveryFee === 0 ? <span className="text-emerald-600 font-medium">FREE</span> : `₹${deliveryFee}`}</span>
+            </div>
+            {deliveryFee > 0 && (
+              <p className="text-[10px] text-muted-foreground">Add ₹{(deliverySettings.freeThreshold - subtotal).toFixed(0)} more for free delivery</p>
+            )}
             <div className="flex justify-between font-bold text-foreground text-base"><span>Total</span><span>₹{total.toFixed(0)}</span></div>
           </div>
         </div>
+
+        {/* Prescription Notice */}
+        {hasRx && (
+          <div className="bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-800/50 p-4">
+            <p className="text-sm font-medium text-amber-800 dark:text-amber-400 mb-1">📋 Prescription Verification Required</p>
+            <p className="text-xs text-amber-700 dark:text-amber-500">
+              Some items in your cart require a valid prescription. Your order will be held for pharmacist verification before processing.
+            </p>
+          </div>
+        )}
 
         {/* Address */}
         <div className="bg-card rounded-xl border border-border p-4">
@@ -141,8 +179,8 @@ const RemedooCheckout = () => {
         {/* Prescription */}
         {hasRx && (
           <div className="bg-card rounded-xl border border-border p-4">
-            <Label className="font-bold text-sm flex items-center gap-2"><Upload className="w-4 h-4" /> Upload Prescription</Label>
-            <p className="text-xs text-muted-foreground mt-1 mb-2">Some items require a valid prescription</p>
+            <Label className="font-bold text-sm flex items-center gap-2"><Upload className="w-4 h-4" /> Upload Prescription *</Label>
+            <p className="text-xs text-muted-foreground mt-1 mb-2">Upload a clear image of your prescription. Order will not proceed without approval.</p>
             <Input type="file" accept="image/*,.pdf" onChange={e => setPrescriptionFile(e.target.files?.[0] || null)} />
             {prescriptionFile && <p className="text-xs text-primary mt-1">✓ {prescriptionFile.name}</p>}
           </div>
