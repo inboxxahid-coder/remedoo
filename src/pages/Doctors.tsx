@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { rankDoctors } from "@/lib/doctorRanking";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Star, Search, Heart, MapPin, Navigation, BadgeCheck, SlidersHorizontal, Percent, Stethoscope, X, Clock, IndianRupee } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -100,13 +101,16 @@ const Doctors = () => {
       return matchesSearch && matchesSpec;
     });
 
+    // Add distance data
+    if (location) results = sortByDistance(results, location.latitude, location.longitude);
+
     if (activeFilter === "Rating 4.0+") results = results.filter(d => (d.rating || 0) >= 4);
-    if (activeFilter === "Nearest First" && location) results = sortByDistance(results, location.latitude, location.longitude);
-    else if (location) results = sortByDistance(results, location.latitude, location.longitude);
     if (activeFilter === "Fee: Low-High") results = [...results].sort((a, b) => (a.consultation_fee || 0) - (b.consultation_fee || 0));
-    if (activeFilter === "Experience") results = [...results].sort((a, b) => (b.experience_years || 0) - (a.experience_years || 0));
-    if (activeFilter === "Rating 4.0+" || activeFilter === "Relevance") {
-      results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    else if (activeFilter === "Experience") results = [...results].sort((a, b) => (b.experience_years || 0) - (a.experience_years || 0));
+    else if (activeFilter === "Nearest First" && location) results = sortByDistance(results, location.latitude, location.longitude);
+    else if (activeFilter === "Relevance") {
+      // Smart ranking: composite score of rating + distance + experience + featured
+      results = rankDoctors(results, location?.latitude, location?.longitude);
     }
 
     return results;
