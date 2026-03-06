@@ -8,7 +8,7 @@ import {
   CheckSquare, AlertTriangle, FilePenLine, KeyRound, LayoutGrid, Heart, Zap, Star, CreditCard, Grid3X3,
   ChevronDown, Layers, Settings, BarChart3, Headphones, Bell, Search,
   MessageSquare, Ticket, MapPin, Send, HelpCircle, Crown, Ambulance,
-  FileText, RotateCcw, Receipt, Activity, Truck, Package
+  FileText, RotateCcw, Receipt, Activity, Truck, Package, Brain
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -194,7 +194,16 @@ const navGroups: (NavItem | NavGroup)[] = [
     ],
   },
 
-  // 17. System Settings
+  // 17. Symptom Assistant
+  {
+    label: "Symptom Assistant",
+    icon: Brain,
+    items: [
+      { label: "Symptom Management", path: "/admin/symptom-assistant", icon: Brain },
+    ],
+  },
+
+  // 18. System Settings
   {
     label: "System Settings",
     icon: Settings,

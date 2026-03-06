@@ -1516,6 +1516,24 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_triggers: {
+        Row: {
+          created_at: string | null
+          id: string
+          symptom_keyword: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          symptom_keyword: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          symptom_keyword?: string
+        }
+        Relationships: []
+      }
       faqs: {
         Row: {
           answer: string
@@ -3560,6 +3578,122 @@ export type Database = {
           resolved_by?: string | null
           severity?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      symptom_conversations: {
+        Row: {
+          conversation_data: Json
+          created_at: string | null
+          id: string
+          result_specialization: string | null
+          symptoms_identified: string[] | null
+          user_id: string
+        }
+        Insert: {
+          conversation_data?: Json
+          created_at?: string | null
+          id?: string
+          result_specialization?: string | null
+          symptoms_identified?: string[] | null
+          user_id: string
+        }
+        Update: {
+          conversation_data?: Json
+          created_at?: string | null
+          id?: string
+          result_specialization?: string | null
+          symptoms_identified?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      symptom_questions: {
+        Row: {
+          answer_options: Json | null
+          created_at: string | null
+          id: string
+          question_text: string
+          sort_order: number | null
+          symptom_id: string
+        }
+        Insert: {
+          answer_options?: Json | null
+          created_at?: string | null
+          id?: string
+          question_text: string
+          sort_order?: number | null
+          symptom_id: string
+        }
+        Update: {
+          answer_options?: Json | null
+          created_at?: string | null
+          id?: string
+          question_text?: string
+          sort_order?: number | null
+          symptom_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "symptom_questions_symptom_id_fkey"
+            columns: ["symptom_id"]
+            isOneToOne: false
+            referencedRelation: "symptoms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      symptom_rules: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          priority: number | null
+          recommended_specialization: string
+          rule_name: string
+          symptom_combination: string[]
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          priority?: number | null
+          recommended_specialization: string
+          rule_name: string
+          symptom_combination: string[]
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          priority?: number | null
+          recommended_specialization?: string
+          rule_name?: string
+          symptom_combination?: string[]
+        }
+        Relationships: []
+      }
+      symptoms: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          is_emergency: boolean | null
+          symptom_name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_emergency?: boolean | null
+          symptom_name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_emergency?: boolean | null
+          symptom_name?: string
         }
         Relationships: []
       }
