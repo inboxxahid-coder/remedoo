@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useAdminPermissions } from "@/hooks/useAdminPermissions";
@@ -515,7 +515,9 @@ export default function AdminLayout() {
 
         {/* Page content */}
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          <Outlet />
+          <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-3 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

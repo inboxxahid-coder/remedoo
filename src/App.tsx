@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -207,6 +207,16 @@ const PageLoader = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
   </div>
+);
+
+const InlineLoader = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="w-6 h-6 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
+
+const SL = ({ children }: { children: ReactNode }) => (
+  <Suspense fallback={<InlineLoader />}>{children}</Suspense>
 );
 
 const AppRoutes = () => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -98,7 +98,9 @@ export default function ProviderLayout({ title, subtitle, icon: Icon, navItems, 
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          <Outlet />
+          <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-3 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>
