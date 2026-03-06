@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, MapPin, Navigation, AlertTriangle, Star, Clock, Truck } from "lucide-react";
+import { ArrowLeft, Phone, MapPin, Navigation, AlertTriangle, Star, Clock, Truck, IndianRupee } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import AmbulanceMap from "@/components/patient/AmbulanceMap";
+import { getDistanceKm } from "@/hooks/useGeolocation";
+import { getProviderPricingConfig, calculateAmbulancePrice } from "@/lib/ambulancePricing";
+import { Badge } from "@/components/ui/badge";
 
 const EMERGENCY_NUMBER = "112";
 
@@ -17,6 +19,7 @@ const Emergency = () => {
   const [sosActive, setSosActive] = useState(false);
   const [activeRequest, setActiveRequest] = useState<any>(null);
   const [assignedAmbulance, setAssignedAmbulance] = useState<any>(null);
+  const [pricingMap, setPricingMap] = useState<Record<string, { total: number; breakdown: string; nightCharge: number } | null>>({});
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -31,7 +34,6 @@ const Emergency = () => {
       setLoading(false);
     });
 
-    // Check for active emergency request
     const checkActive = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -52,33 +54,44 @@ const Emergency = () => {
     };
     checkActive();
 
-    // Subscribe to realtime updates
     const channel = supabase
       .channel("emergency-tracking")
       .on("postgres_changes", { event: "*", schema: "public", table: "emergency_requests" }, (payload) => {
         const updated = payload.new as any;
-        if (activeRequest && updated.id === activeRequest.id) {
-          setActiveRequest(updated);
-        }
+        if (activeRequest && updated.id === activeRequest.id) setActiveRequest(updated);
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "ambulances" }, (payload) => {
         const updated = payload.new as any;
-        if (assignedAmbulance && updated.id === assignedAmbulance.id) {
-          setAssignedAmbulance(updated);
-        }
+        if (assignedAmbulance && updated.id === assignedAmbulance.id) setAssignedAmbulance(updated);
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
   }, []);
 
+  // Fetch pricing for each hospital when user location is available
+  useEffect(() => {
+    if (!userLocation || hospitals.length === 0) return;
+    const fetchPricing = async () => {
+      const map: Record<string, any> = {};
+      for (const h of hospitals) {
+        if (!h.latitude || !h.longitude) { map[h.id] = null; continue; }
+        const dist = getDistanceKm(userLocation.lat, userLocation.lng, h.latitude, h.longitude);
+        const { config, ranges } = await getProviderPricingConfig("hospital", h.id);
+        if (!config || !config.service_enabled || config.service_type === "free") {
+          map[h.id] = config?.service_enabled ? { total: 0, breakdown: "Free service", nightCharge: 0 } : null;
+        } else {
+          map[h.id] = calculateAmbulancePrice(config, dist, ranges);
+        }
+      }
+      setPricingMap(map);
+    };
+    fetchPricing();
+  }, [userLocation, hospitals]);
+
   const getDistance = (lat?: number | null, lng?: number | null) => {
     if (!userLocation || !lat || !lng) return null;
-    const R = 6371;
-    const dLat = ((lat - userLocation.lat) * Math.PI) / 180;
-    const dLon = ((lng - userLocation.lng) * Math.PI) / 180;
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos((userLocation.lat * Math.PI) / 180) * Math.cos((lat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-    return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1);
+    return getDistanceKm(userLocation.lat, userLocation.lng, lat, lng).toFixed(1);
   };
 
   const sortedHospitals = [...hospitals].sort((a, b) => {
@@ -92,8 +105,6 @@ const Emergency = () => {
 
   const handleSOS = async () => {
     setSosActive(true);
-
-    // Create emergency request in DB
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       const { data, error } = await supabase.from("emergency_requests").insert({
@@ -102,13 +113,11 @@ const Emergency = () => {
         longitude: userLocation?.lng || null,
         status: "pending",
       }).select().single();
-
       if (!error && data) {
         setActiveRequest(data);
         toast.success("Emergency request sent! Help is on the way.");
       }
     }
-
     window.location.href = `tel:${EMERGENCY_NUMBER}`;
     setTimeout(() => setSosActive(false), 3000);
   };
@@ -163,7 +172,6 @@ const Emergency = () => {
                 )}
               </div>
             )}
-            {/* Live Ambulance Map */}
             {userLocation && assignedAmbulance && (
               <div className="mt-3">
                 <p className="text-xs font-medium text-foreground mb-2">📍 Live Tracking</p>
@@ -228,6 +236,7 @@ const Emergency = () => {
             <div className="space-y-3">
               {sortedHospitals.map((hospital) => {
                 const dist = getDistance(hospital.latitude, hospital.longitude);
+                const pricing = pricingMap[hospital.id];
                 return (
                   <div key={hospital.id} className="bg-card rounded-2xl border border-border p-4 shadow-sm">
                     <div className="flex items-start justify-between mb-2">
@@ -237,11 +246,33 @@ const Emergency = () => {
                       </div>
                       {hospital.icu_available && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success">ICU</span>}
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
-                      {hospital.rating && <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-warning text-warning" />{hospital.rating}</span>}
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+                      {hospital.rating > 0 && <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-warning text-warning" />{hospital.rating}</span>}
                       {dist && <span className="flex items-center gap-0.5"><Navigation className="w-3 h-3" />{dist} km</span>}
                       {hospital.beds != null && hospital.beds > 0 && <span className="flex items-center gap-0.5"><Clock className="w-3 h-3" />{hospital.beds} beds</span>}
                     </div>
+
+                    {/* Ambulance Price Estimate */}
+                    {pricing !== undefined && (
+                      <div className="bg-accent/50 rounded-xl p-2.5 mb-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <IndianRupee className="w-3 h-3" /> Estimated ambulance cost
+                          </span>
+                          {pricing === null ? (
+                            <Badge variant="outline" className="text-xs">No ambulance</Badge>
+                          ) : pricing.total === 0 ? (
+                            <Badge variant="default" className="text-xs bg-success text-success-foreground">Free</Badge>
+                          ) : (
+                            <span className="text-sm font-bold text-foreground">₹{pricing.total}</span>
+                          )}
+                        </div>
+                        {pricing && pricing.nightCharge > 0 && (
+                          <p className="text-[10px] text-muted-foreground mt-1">Includes ₹{pricing.nightCharge} night charge</p>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex gap-2">
                       {hospital.phone && <button onClick={() => window.location.href = `tel:${hospital.phone}`} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emergency text-emergency-foreground text-xs font-semibold"><Phone className="w-3.5 h-3.5" /> Call</button>}
                       {hospital.latitude && hospital.longitude && <button onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`, "_blank")} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"><Navigation className="w-3.5 h-3.5" /> Directions</button>}
