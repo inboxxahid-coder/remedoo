@@ -150,12 +150,13 @@ const BookAppointment = () => {
         // Create a temporary appointment first to get an ID
         const record: any = {
           patient_id: session.user.id,
-          service_type: type,
+          service_type: isVideoConsultation ? "video_consultation" : type,
           appointment_date: date,
           appointment_time: time,
            notes: fullNotes,
           payment_method: "online",
           payment_status: "pending",
+          is_video_consultation: isVideoConsultation,
         };
         if (type === "doctor") record.doctor_id = id;
         else if (type === "hospital") {
@@ -236,12 +237,13 @@ const BookAppointment = () => {
     // Regular booking (at_clinic)
     const record: any = {
       patient_id: session.user.id,
-      service_type: type,
+      service_type: isVideoConsultation ? "video_consultation" : type,
       appointment_date: date,
       appointment_time: time,
       notes: fullNotes,
       payment_method: paymentMethod,
       payment_status: "pending",
+      is_video_consultation: isVideoConsultation,
     };
     if (type === "doctor") record.doctor_id = id;
     else if (type === "hospital") {
