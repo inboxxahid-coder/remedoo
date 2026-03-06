@@ -158,6 +158,9 @@ const LabSupportTickets = lazy(() => import("./pages/lab/LabSupportTickets"));
 const LabReviews = lazy(() => import("./pages/lab/LabReviews"));
 const LabAuditLogs = lazy(() => import("./pages/lab/LabAuditLogs"));
 const LabAnalytics = lazy(() => import("./pages/lab/LabAnalytics"));
+const LabAmbulanceConfig = lazy(() => import("./pages/lab/LabAmbulanceConfig"));
+const LabAmbulanceFleet = lazy(() => import("./pages/lab/LabAmbulanceFleet"));
+const LabAmbulanceTrips = lazy(() => import("./pages/lab/LabAmbulanceTrips"));
 const SupportTickets = lazy(() => import("./pages/SupportTickets"));
 
 const queryClient = new QueryClient({
@@ -387,6 +390,9 @@ const AppRoutes = () => {
         <Route path="appointments" element={<LabAppointments />} />
         <Route path="tests" element={<LabTests />} />
         <Route path="samples" element={<LabSampleCollections />} />
+        <Route path="ambulance-config" element={<LabAmbulanceConfig />} />
+        <Route path="ambulance-fleet" element={<LabAmbulanceFleet />} />
+        <Route path="ambulance-trips" element={<LabAmbulanceTrips />} />
         <Route path="earnings" element={<LabEarnings />} />
         <Route path="notifications" element={<LabNotifications />} />
         <Route path="support-tickets" element={<LabSupportTickets />} />

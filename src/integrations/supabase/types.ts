@@ -159,9 +159,10 @@ export type Database = {
           driver_name: string | null
           driver_phone: string | null
           emergency_request_id: string | null
-          hospital_id: string
+          hospital_id: string | null
           id: string
           is_free: boolean | null
+          lab_id: string | null
           patient_id: string
           payment_method: string | null
           payment_status: string | null
@@ -183,9 +184,10 @@ export type Database = {
           driver_name?: string | null
           driver_phone?: string | null
           emergency_request_id?: string | null
-          hospital_id: string
+          hospital_id?: string | null
           id?: string
           is_free?: boolean | null
+          lab_id?: string | null
           patient_id: string
           payment_method?: string | null
           payment_status?: string | null
@@ -207,9 +209,10 @@ export type Database = {
           driver_name?: string | null
           driver_phone?: string | null
           emergency_request_id?: string | null
-          hospital_id?: string
+          hospital_id?: string | null
           id?: string
           is_free?: boolean | null
+          lab_id?: string | null
           patient_id?: string
           payment_method?: string | null
           payment_status?: string | null
@@ -250,6 +253,20 @@ export type Database = {
             referencedRelation: "hospitals_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ambulance_trips_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulance_trips_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ambulances: {
@@ -263,6 +280,7 @@ export type Database = {
           equipment_details: string | null
           hospital_id: string | null
           id: string
+          lab_id: string | null
           status: string
           updated_at: string
           vehicle_number: string
@@ -278,6 +296,7 @@ export type Database = {
           equipment_details?: string | null
           hospital_id?: string | null
           id?: string
+          lab_id?: string | null
           status?: string
           updated_at?: string
           vehicle_number: string
@@ -293,6 +312,7 @@ export type Database = {
           equipment_details?: string | null
           hospital_id?: string | null
           id?: string
+          lab_id?: string | null
           status?: string
           updated_at?: string
           vehicle_number?: string
@@ -311,6 +331,20 @@ export type Database = {
             columns: ["hospital_id"]
             isOneToOne: false
             referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulances_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulances_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1611,6 +1645,63 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      lab_ambulance_config: {
+        Row: {
+          base_fare: number | null
+          created_at: string
+          emergency_surcharge: number | null
+          id: string
+          lab_id: string
+          minimum_charge: number | null
+          night_surcharge: number | null
+          per_km_charge: number | null
+          service_enabled: boolean | null
+          service_type: string
+          updated_at: string
+        }
+        Insert: {
+          base_fare?: number | null
+          created_at?: string
+          emergency_surcharge?: number | null
+          id?: string
+          lab_id: string
+          minimum_charge?: number | null
+          night_surcharge?: number | null
+          per_km_charge?: number | null
+          service_enabled?: boolean | null
+          service_type?: string
+          updated_at?: string
+        }
+        Update: {
+          base_fare?: number | null
+          created_at?: string
+          emergency_surcharge?: number | null
+          id?: string
+          lab_id?: string
+          minimum_charge?: number | null
+          night_surcharge?: number | null
+          per_km_charge?: number | null
+          service_enabled?: boolean | null
+          service_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_ambulance_config_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: true
+            referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_ambulance_config_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: true
+            referencedRelation: "labs_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lab_sample_collections: {
         Row: {
