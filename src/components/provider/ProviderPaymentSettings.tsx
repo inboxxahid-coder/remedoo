@@ -224,12 +224,6 @@ export default function ProviderPaymentSettings({ providerType, providerId, user
           </div>
         )}
 
-        {paymentMethod === "bank_account" && (
-          <div>
-            <Label>Account Holder Name *</Label>
-            <Input value={holderName} onChange={e => setHolderName(e.target.value)} placeholder="Full name as per bank" className={paymentMethod === "upi" ? "hidden" : ""} />
-          </div>
-        )}
 
         <Button onClick={handleSave} disabled={saving} className="w-full">
           <Save className="w-4 h-4 mr-2" />
