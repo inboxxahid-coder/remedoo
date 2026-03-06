@@ -251,6 +251,10 @@ const AppRoutes = () => {
           <Route path="transactions" element={<AdminTransactions />} />
           <Route path="logs" element={<AdminLoginLogs />} />
           <Route path="analytics" element={<AdminAnalyticsDetailed />} />
+          <Route path="pharmacy-control" element={<AdminPharmacyControl />} />
+          <Route path="remedoo-inventory" element={<AdminRemedooInventory />} />
+          <Route path="remedoo-orders" element={<AdminRemedooOrders />} />
+          <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -296,6 +300,10 @@ const AppRoutes = () => {
       <Route path="/payment-failure" element={<PaymentFailure />} />
       <Route path="/refunds" element={<RefundTracking />} />
       <Route path="/support-tickets" element={<SupportTickets />} />
+      <Route path="/remedoo-pharmacy" element={<RemedooPharmacyPage />} />
+      <Route path="/remedoo-checkout" element={<RemedooCheckout />} />
+      <Route path="/remedoo-order/:id" element={<RemedooOrderTracking />} />
+      <Route path="/delivery-driver" element={<DeliveryDriverDashboard />} />
 
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
@@ -343,6 +351,10 @@ const AppRoutes = () => {
         <Route path="transactions" element={<AdminTransactions />} />
         <Route path="logs" element={<AdminLoginLogs />} />
         <Route path="analytics" element={<AdminAnalyticsDetailed />} />
+        <Route path="pharmacy-control" element={<AdminPharmacyControl />} />
+        <Route path="remedoo-inventory" element={<AdminRemedooInventory />} />
+        <Route path="remedoo-orders" element={<AdminRemedooOrders />} />
+        <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
       </Route>
 
       {/* Doctor routes */}
