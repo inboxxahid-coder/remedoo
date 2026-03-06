@@ -184,6 +184,8 @@ export default function AdminTeam() {
   const openEdit = (member: AdminMember) => {
     setEditMember(member);
     setEditForm({ name: member.name, designation: member.designation, phone: member.phone || "" });
+    setEditPhotoFile(null);
+    setEditPhotoPreview(member.avatar_url || null);
   };
 
   const handleSaveEdit = async () => {
@@ -192,15 +194,24 @@ export default function AdminTeam() {
       return;
     }
     setSaving(true);
+    const updates: Record<string, any> = { name: editForm.name, designation: editForm.designation, phone: editForm.phone || null };
+
+    if (editPhotoFile) {
+      const url = await uploadAvatar(editPhotoFile, editMember.user_id);
+      if (url) updates.avatar_url = url;
+    }
+
     const { error } = await supabase
       .from("admin_team")
-      .update({ name: editForm.name, designation: editForm.designation, phone: editForm.phone || null })
+      .update(updates)
       .eq("id", editMember.id);
     if (error) {
       toast.error("Failed to update details");
     } else {
       toast.success("Admin details updated");
       setEditMember(null);
+      setEditPhotoFile(null);
+      setEditPhotoPreview(null);
       fetchTeam();
     }
     setSaving(false);
