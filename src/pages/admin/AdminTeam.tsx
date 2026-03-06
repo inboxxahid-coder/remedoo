@@ -147,6 +147,11 @@ export default function AdminTeam() {
         return;
       }
 
+      let avatarUrl: string | null = null;
+      if (addPhotoFile) {
+        avatarUrl = await uploadAvatar(addPhotoFile, userId);
+      }
+
       const currentUser = (await supabase.auth.getUser()).data.user;
       const { error: teamError } = await supabase.from("admin_team").insert({
         user_id: userId,
@@ -155,7 +160,8 @@ export default function AdminTeam() {
         designation: form.designation,
         phone: form.phone || null,
         created_by: currentUser?.id,
-      });
+        avatar_url: avatarUrl,
+      } as any);
 
       if (teamError) {
         toast.error("User & role created, but team record failed");
@@ -165,6 +171,8 @@ export default function AdminTeam() {
 
       setShowAdd(false);
       setForm({ name: "", email: "", password: "", designation: "Admin", phone: "" });
+      setAddPhotoFile(null);
+      setAddPhotoPreview(null);
       fetchTeam();
     } catch (err) {
       toast.error("Unexpected error creating admin");
