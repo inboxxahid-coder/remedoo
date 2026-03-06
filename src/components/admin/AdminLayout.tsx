@@ -213,6 +213,7 @@ const navGroups: (NavItem | NavGroup)[] = [
     icon: Settings,
     items: [
       { label: "Branding & Theme", path: "/admin/branding", icon: Palette },
+      { label: "API Keys & Secrets", path: "/admin/api-keys", icon: Key },
       { label: "OTP Settings", path: "/admin/otp-settings", icon: KeyRound },
       { label: "Admin Team", path: "/admin/team", icon: Shield },
       { label: "Platform Settings", path: "/admin/settings", icon: Settings },
