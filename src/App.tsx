@@ -104,6 +104,7 @@ const AdminSymptomAssistant = lazy(() => import("./pages/admin/AdminSymptomAssis
 const AdminHealthcarePackages = lazy(() => import("./pages/admin/AdminHealthcarePackages"));
 const AdminCorporatePlans = lazy(() => import("./pages/admin/AdminCorporatePlans"));
 const AdminFeaturedProviders = lazy(() => import("./pages/admin/AdminFeaturedProviders"));
+const AdminPaymentAccounts = lazy(() => import("./pages/admin/AdminPaymentAccounts"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -376,6 +377,7 @@ const AppRoutes = () => {
           <Route path="healthcare-packages" element={<AdminHealthcarePackages />} />
           <Route path="corporate-plans" element={<AdminCorporatePlans />} />
           <Route path="featured-providers" element={<AdminFeaturedProviders />} />
+          <Route path="payment-accounts" element={<AdminPaymentAccounts />} />
         </Route>
 
       {/* Doctor routes */}
