@@ -2876,6 +2876,59 @@ export type Database = {
           },
         ]
       }
+      payment_change_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          id: string
+          new_details: Json
+          old_details: Json | null
+          payment_account_id: string
+          provider_id: string
+          provider_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          new_details: Json
+          old_details?: Json | null
+          payment_account_id: string
+          provider_id: string
+          provider_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          id?: string
+          new_details?: Json
+          old_details?: Json | null
+          payment_account_id?: string
+          provider_id?: string
+          provider_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_change_requests_payment_account_id_fkey"
+            columns: ["payment_account_id"]
+            isOneToOne: false
+            referencedRelation: "provider_payment_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -3296,6 +3349,72 @@ export type Database = {
           provider_type?: string
           reference_id?: string
           reference_type?: string
+        }
+        Relationships: []
+      }
+      provider_payment_accounts: {
+        Row: {
+          account_holder_name: string | null
+          admin_notes: string | null
+          approval_status: string
+          bank_account_number: string | null
+          bank_name: string | null
+          change_count: number
+          created_at: string
+          id: string
+          ifsc_code: string | null
+          is_active: boolean
+          last_change_at: string | null
+          payment_method: string
+          provider_id: string
+          provider_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string
+          upi_id: string | null
+          user_id: string
+        }
+        Insert: {
+          account_holder_name?: string | null
+          admin_notes?: string | null
+          approval_status?: string
+          bank_account_number?: string | null
+          bank_name?: string | null
+          change_count?: number
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_active?: boolean
+          last_change_at?: string | null
+          payment_method?: string
+          provider_id: string
+          provider_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+          upi_id?: string | null
+          user_id: string
+        }
+        Update: {
+          account_holder_name?: string | null
+          admin_notes?: string | null
+          approval_status?: string
+          bank_account_number?: string | null
+          bank_name?: string | null
+          change_count?: number
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_active?: boolean
+          last_change_at?: string | null
+          payment_method?: string
+          provider_id?: string
+          provider_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+          upi_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -4022,14 +4141,17 @@ export type Database = {
           currency: string | null
           id: string
           metadata: Json | null
+          payment_gateway_response: Json | null
           payment_method: string | null
           payment_status: string | null
+          payment_verification_status: string | null
           platform_commission: number | null
           provider_id: string | null
           provider_payout: number | null
           provider_type: string | null
           reference_id: string | null
           service_type: string
+          transaction_timestamp: string | null
           user_id: string
         }
         Insert: {
@@ -4038,14 +4160,17 @@ export type Database = {
           currency?: string | null
           id?: string
           metadata?: Json | null
+          payment_gateway_response?: Json | null
           payment_method?: string | null
           payment_status?: string | null
+          payment_verification_status?: string | null
           platform_commission?: number | null
           provider_id?: string | null
           provider_payout?: number | null
           provider_type?: string | null
           reference_id?: string | null
           service_type: string
+          transaction_timestamp?: string | null
           user_id: string
         }
         Update: {
@@ -4054,14 +4179,17 @@ export type Database = {
           currency?: string | null
           id?: string
           metadata?: Json | null
+          payment_gateway_response?: Json | null
           payment_method?: string | null
           payment_status?: string | null
+          payment_verification_status?: string | null
           platform_commission?: number | null
           provider_id?: string | null
           provider_payout?: number | null
           provider_type?: string | null
           reference_id?: string | null
           service_type?: string
+          transaction_timestamp?: string | null
           user_id?: string
         }
         Relationships: []
