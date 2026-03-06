@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Phone, MapPin, Navigation, AlertTriangle, Star, Clock, Truck, IndianRupee } from "lucide-react";
+import { ArrowLeft, Phone, MapPin, Navigation, AlertTriangle, Star, Clock, Truck, IndianRupee, User, CheckCircle } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +11,14 @@ import { Badge } from "@/components/ui/badge";
 
 const EMERGENCY_NUMBER = "112";
 
+const TRIP_STAGES = [
+  { key: "assigned", label: "Driver Assigned" },
+  { key: "en_route", label: "Ambulance On the Way" },
+  { key: "arrived", label: "Driver Arrived" },
+  { key: "in_progress", label: "Transport Started" },
+  { key: "completed", label: "Trip Completed" },
+];
+
 const Emergency = () => {
   const navigate = useNavigate();
   const [hospitals, setHospitals] = useState<any[]>([]);
@@ -19,6 +27,8 @@ const Emergency = () => {
   const [sosActive, setSosActive] = useState(false);
   const [activeRequest, setActiveRequest] = useState<any>(null);
   const [assignedAmbulance, setAssignedAmbulance] = useState<any>(null);
+  const [activeTrip, setActiveTrip] = useState<any>(null);
+  const [driverLiveLocation, setDriverLiveLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [pricingMap, setPricingMap] = useState<Record<string, { total: number; breakdown: string; nightCharge: number } | null>>({});
 
   useEffect(() => {
@@ -37,6 +47,8 @@ const Emergency = () => {
     const checkActive = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
+
+      // Check active emergency request
       const { data } = await supabase
         .from("emergency_requests")
         .select("*")
@@ -44,6 +56,7 @@ const Emergency = () => {
         .in("status", ["pending", "dispatched", "en_route"])
         .order("created_at", { ascending: false })
         .limit(1);
+
       if (data && data.length > 0) {
         setActiveRequest(data[0]);
         if (data[0].assigned_ambulance_id) {
@@ -51,11 +64,67 @@ const Emergency = () => {
           if (amb) setAssignedAmbulance(amb);
         }
       }
+
+      // Check active ambulance trip for this patient
+      const { data: tripData } = await supabase
+        .from("ambulance_trips")
+        .select("*")
+        .eq("patient_id", session.user.id)
+        .in("status", ["assigned", "en_route", "arrived", "in_progress"])
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (tripData && tripData.length > 0) {
+        setActiveTrip(tripData[0]);
+        // Get latest driver location
+        const { data: locData } = await supabase
+          .from("driver_locations")
+          .select("latitude, longitude")
+          .eq("trip_id", tripData[0].id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+        if (locData && locData.length > 0) {
+          setDriverLiveLocation({ lat: locData[0].latitude, lng: locData[0].longitude });
+        }
+      }
     };
     checkActive();
+  }, []);
+
+  // Realtime: listen for driver location updates + trip status changes
+  useEffect(() => {
+    if (!activeTrip) return;
 
     const channel = supabase
-      .channel("emergency-tracking")
+      .channel(`patient-tracking-${activeTrip.id}`)
+      .on("postgres_changes", {
+        event: "INSERT", schema: "public", table: "driver_locations",
+        filter: `trip_id=eq.${activeTrip.id}`,
+      }, (payload) => {
+        const loc = payload.new as any;
+        setDriverLiveLocation({ lat: loc.latitude, lng: loc.longitude });
+        // Also update ambulance marker
+        setAssignedAmbulance((prev: any) => prev ? { ...prev, current_latitude: loc.latitude, current_longitude: loc.longitude } : prev);
+      })
+      .on("postgres_changes", {
+        event: "UPDATE", schema: "public", table: "ambulance_trips",
+        filter: `id=eq.${activeTrip.id}`,
+      }, (payload) => {
+        const updated = payload.new as any;
+        setActiveTrip(updated);
+        if (updated.status === "completed" || updated.status === "cancelled") {
+          toast.info(updated.status === "completed" ? "Trip completed!" : "Trip cancelled");
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [activeTrip?.id]);
+
+  // Also listen for emergency request updates
+  useEffect(() => {
+    const channel = supabase
+      .channel("emergency-tracking-main")
       .on("postgres_changes", { event: "*", schema: "public", table: "emergency_requests" }, (payload) => {
         const updated = payload.new as any;
         if (activeRequest && updated.id === activeRequest.id) setActiveRequest(updated);
@@ -65,11 +134,10 @@ const Emergency = () => {
         if (assignedAmbulance && updated.id === assignedAmbulance.id) setAssignedAmbulance(updated);
       })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [activeRequest?.id, assignedAmbulance?.id]);
 
-  // Fetch pricing for each hospital when user location is available
+  // Pricing
   useEffect(() => {
     if (!userLocation || hospitals.length === 0) return;
     const fetchPricing = async () => {
@@ -93,6 +161,14 @@ const Emergency = () => {
     if (!userLocation || !lat || !lng) return null;
     return getDistanceKm(userLocation.lat, userLocation.lng, lat, lng).toFixed(1);
   };
+
+  const driverDistanceToPatient = userLocation && driverLiveLocation
+    ? getDistanceKm(userLocation.lat, userLocation.lng, driverLiveLocation.lat, driverLiveLocation.lng).toFixed(1)
+    : null;
+
+  const estimatedArrivalMinutes = driverDistanceToPatient
+    ? Math.max(1, Math.round(parseFloat(driverDistanceToPatient) * 2.5))
+    : null;
 
   const sortedHospitals = [...hospitals].sort((a, b) => {
     const distA = getDistance(a.latitude, a.longitude);
@@ -123,22 +199,20 @@ const Emergency = () => {
   };
 
   const cancelRequest = async () => {
-    if (!activeRequest) return;
-    await supabase.from("emergency_requests").update({ status: "cancelled" }).eq("id", activeRequest.id);
+    if (activeRequest) {
+      await supabase.from("emergency_requests").update({ status: "cancelled" }).eq("id", activeRequest.id);
+    }
+    if (activeTrip && ["assigned", "en_route"].includes(activeTrip.status)) {
+      await supabase.from("ambulance_trips").update({ status: "cancelled" }).eq("id", activeTrip.id);
+    }
     setActiveRequest(null);
     setAssignedAmbulance(null);
+    setActiveTrip(null);
+    setDriverLiveLocation(null);
     toast.info("Emergency request cancelled");
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "pending": return { text: "Finding ambulance...", color: "text-warning" };
-      case "dispatched": return { text: "Ambulance dispatched!", color: "text-primary" };
-      case "en_route": return { text: "Ambulance en route", color: "text-success" };
-      case "arrived": return { text: "Ambulance arrived!", color: "text-success" };
-      default: return { text: status, color: "text-muted-foreground" };
-    }
-  };
+  const currentStageIndex = activeTrip ? TRIP_STAGES.findIndex(s => s.key === activeTrip.status) : -1;
 
   return (
     <div className="min-h-screen bg-background pb-8">
@@ -151,15 +225,103 @@ const Emergency = () => {
       </div>
 
       <div className="px-5 mt-4 space-y-5">
-        {/* Active Emergency Tracking */}
-        {activeRequest && activeRequest.status !== "cancelled" && activeRequest.status !== "completed" && (
+        {/* ===== LIVE TRACKING SECTION ===== */}
+        {activeTrip && !["completed", "cancelled"].includes(activeTrip.status) && (
+          <div className="bg-card rounded-2xl border-2 border-primary p-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <Truck className="w-5 h-5 text-primary animate-pulse" />
+              <h2 className="font-bold text-foreground">🚑 Live Ambulance Tracking</h2>
+            </div>
+
+            {/* Trip Stage Progress */}
+            <div className="flex items-center gap-1">
+              {TRIP_STAGES.slice(0, -1).map((stage, i) => {
+                const isPast = i < currentStageIndex;
+                const isCurrent = i === currentStageIndex;
+                return (
+                  <div key={stage.key} className="flex items-center flex-1">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                      isPast ? "bg-primary text-primary-foreground" :
+                      isCurrent ? "bg-primary/20 text-primary ring-2 ring-primary" :
+                      "bg-muted text-muted-foreground"
+                    }`}>
+                      {isPast ? <CheckCircle className="w-3.5 h-3.5" /> : i + 1}
+                    </div>
+                    {i < TRIP_STAGES.length - 2 && (
+                      <div className={`flex-1 h-0.5 mx-1 ${isPast ? "bg-primary" : "bg-muted"}`} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-sm font-semibold text-primary text-center">
+              {TRIP_STAGES[currentStageIndex]?.label || activeTrip.status}
+            </p>
+
+            {/* Driver info */}
+            <div className="bg-accent rounded-xl p-3 space-y-2">
+              {activeTrip.driver_name && (
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">{activeTrip.driver_name}</span>
+                </div>
+              )}
+              {activeTrip.driver_phone && (
+                <button onClick={() => window.location.href = `tel:${activeTrip.driver_phone}`} className="flex items-center gap-2 text-sm text-primary font-medium">
+                  <Phone className="w-4 h-4" /> Call Driver: {activeTrip.driver_phone}
+                </button>
+              )}
+              {assignedAmbulance && (
+                <p className="text-xs text-muted-foreground">🚑 {assignedAmbulance.vehicle_number} • {assignedAmbulance.vehicle_type || "BLS"}</p>
+              )}
+            </div>
+
+            {/* Distance & ETA */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-muted/50 rounded-xl p-3 text-center">
+                <Navigation className="w-4 h-4 text-primary mx-auto mb-1" />
+                <p className="text-lg font-bold text-foreground">{driverDistanceToPatient || "—"} km</p>
+                <p className="text-[10px] text-muted-foreground">Distance</p>
+              </div>
+              <div className="bg-muted/50 rounded-xl p-3 text-center">
+                <Clock className="w-4 h-4 text-primary mx-auto mb-1" />
+                <p className="text-lg font-bold text-foreground">{estimatedArrivalMinutes || "—"} min</p>
+                <p className="text-[10px] text-muted-foreground">Est. Arrival</p>
+              </div>
+            </div>
+
+            {/* Live Map */}
+            {userLocation && (driverLiveLocation || (assignedAmbulance?.current_latitude)) && (
+              <div>
+                <p className="text-xs font-medium text-foreground mb-2">📍 Live Location</p>
+                <AmbulanceMap
+                  userLat={userLocation.lat}
+                  userLng={userLocation.lng}
+                  ambulanceLat={driverLiveLocation?.lat || assignedAmbulance?.current_latitude}
+                  ambulanceLng={driverLiveLocation?.lng || assignedAmbulance?.current_longitude}
+                  ambulanceInfo={`🚑 ${assignedAmbulance?.vehicle_number || ""} — ${activeTrip.driver_name || "Driver"}`}
+                />
+              </div>
+            )}
+
+            {/* Cancel */}
+            {["assigned", "en_route"].includes(activeTrip.status) && (
+              <button onClick={cancelRequest} className="w-full py-2 rounded-xl border border-destructive text-destructive text-sm font-medium">
+                Cancel Ambulance Request
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Legacy active request (no trip yet) */}
+        {activeRequest && !activeTrip && activeRequest.status !== "cancelled" && activeRequest.status !== "completed" && (
           <div className="bg-card rounded-2xl border-2 border-emergency p-4 space-y-3">
             <div className="flex items-center gap-2">
               <Truck className="w-5 h-5 text-emergency animate-pulse" />
               <h2 className="font-bold text-foreground">Active Emergency</h2>
             </div>
-            <div className={`text-sm font-semibold ${getStatusLabel(activeRequest.status).color}`}>
-              {getStatusLabel(activeRequest.status).text}
+            <div className="text-sm font-semibold text-warning">
+              Finding ambulance...
             </div>
             {assignedAmbulance && (
               <div className="bg-accent rounded-xl p-3 space-y-1">
@@ -167,22 +329,19 @@ const Emergency = () => {
                 {assignedAmbulance.driver_name && <p className="text-xs text-muted-foreground">Driver: {assignedAmbulance.driver_name}</p>}
                 {assignedAmbulance.driver_phone && (
                   <button onClick={() => window.location.href = `tel:${assignedAmbulance.driver_phone}`} className="text-xs text-primary font-medium">
-                    📞 Call Driver: {assignedAmbulance.driver_phone}
+                    📞 Call Driver
                   </button>
                 )}
               </div>
             )}
-            {userLocation && assignedAmbulance && (
-              <div className="mt-3">
-                <p className="text-xs font-medium text-foreground mb-2">📍 Live Tracking</p>
-                <AmbulanceMap
-                  userLat={userLocation.lat}
-                  userLng={userLocation.lng}
-                  ambulanceLat={assignedAmbulance.current_latitude}
-                  ambulanceLng={assignedAmbulance.current_longitude}
-                  ambulanceInfo={`🚑 ${assignedAmbulance.vehicle_number} — ${assignedAmbulance.driver_name || "Driver"}`}
-                />
-              </div>
+            {userLocation && assignedAmbulance?.current_latitude && (
+              <AmbulanceMap
+                userLat={userLocation.lat}
+                userLng={userLocation.lng}
+                ambulanceLat={assignedAmbulance.current_latitude}
+                ambulanceLng={assignedAmbulance.current_longitude}
+                ambulanceInfo={`🚑 ${assignedAmbulance.vehicle_number}`}
+              />
             )}
             <button onClick={cancelRequest} className="w-full py-2 rounded-xl border border-destructive text-destructive text-sm font-medium">
               Cancel Emergency Request
@@ -251,8 +410,6 @@ const Emergency = () => {
                       {dist && <span className="flex items-center gap-0.5"><Navigation className="w-3 h-3" />{dist} km</span>}
                       {hospital.beds != null && hospital.beds > 0 && <span className="flex items-center gap-0.5"><Clock className="w-3 h-3" />{hospital.beds} beds</span>}
                     </div>
-
-                    {/* Ambulance Price Estimate */}
                     {pricing !== undefined && (
                       <div className="bg-accent/50 rounded-xl p-2.5 mb-3">
                         <div className="flex items-center justify-between">
@@ -272,7 +429,6 @@ const Emergency = () => {
                         )}
                       </div>
                     )}
-
                     <div className="flex gap-2">
                       {hospital.phone && <button onClick={() => window.location.href = `tel:${hospital.phone}`} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emergency text-emergency-foreground text-xs font-semibold"><Phone className="w-3.5 h-3.5" /> Call</button>}
                       {hospital.latitude && hospital.longitude && <button onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`, "_blank")} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"><Navigation className="w-3.5 h-3.5" /> Directions</button>}
