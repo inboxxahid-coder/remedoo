@@ -31,7 +31,7 @@ const QUICK_SYMPTOMS = ["Fever", "Headache", "Chest pain", "Stomach pain", "Coug
 
 export default function SymptomChecker() {
   const navigate = useNavigate();
-  const { latitude, longitude } = useGeolocation();
+  const { location } = useGeolocation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
