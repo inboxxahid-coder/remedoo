@@ -441,7 +441,15 @@ export default function AdminTeam() {
                 <TableBody>
                   {filtered.map((m) => (
                     <TableRow key={m.id}>
-                      <TableCell className="font-medium">{m.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2.5">
+                          <Avatar className="h-8 w-8">
+                            {m.avatar_url ? <AvatarImage src={m.avatar_url} alt={m.name} /> : null}
+                            <AvatarFallback className="text-xs bg-primary/10 text-primary">{m.name.charAt(0).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          {m.name}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-sm">{m.email}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="font-medium">{m.designation}</Badge>
@@ -469,9 +477,15 @@ export default function AdminTeam() {
               {filtered.map((m) => (
                 <div key={m.id} className="p-4 space-y-2">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-foreground">{m.name}</p>
-                      <p className="text-sm text-muted-foreground">{m.email}</p>
+                    <div className="flex items-center gap-2.5">
+                      <Avatar className="h-9 w-9">
+                        {m.avatar_url ? <AvatarImage src={m.avatar_url} alt={m.name} /> : null}
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">{m.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-foreground">{m.name}</p>
+                        <p className="text-sm text-muted-foreground">{m.email}</p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-1">
                       {m.is_active ? (
@@ -503,6 +517,27 @@ export default function AdminTeam() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="relative">
+                <Avatar className="h-20 w-20 border-2 border-dashed border-border">
+                  {addPhotoPreview ? <AvatarImage src={addPhotoPreview} /> : null}
+                  <AvatarFallback className="bg-muted"><Camera className="w-6 h-6 text-muted-foreground" /></AvatarFallback>
+                </Avatar>
+                <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer shadow-md hover:opacity-90">
+                  <Upload className="w-3.5 h-3.5" />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setAddPhotoFile(file);
+                      setAddPhotoPreview(URL.createObjectURL(file));
+                    }
+                    e.target.value = "";
+                  }} />
+                </label>
+              </div>
+              <p className="text-xs text-muted-foreground">Profile Photo (optional)</p>
+            </div>
             <div className="space-y-1.5">
               <Label>Full Name *</Label>
               <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Enter full name" />
