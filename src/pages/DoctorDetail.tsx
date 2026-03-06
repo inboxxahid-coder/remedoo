@@ -114,7 +114,7 @@ const DoctorDetail = () => {
   return (
     <div className="min-h-screen bg-background pb-32">
       {/* Header */}
-      <div className="gradient-primary page-header px-5 pb-28 rounded-b-[2rem] relative overflow-hidden">
+      <div className="gradient-primary page-header px-5 pb-36 rounded-b-[2rem] relative overflow-hidden">
         <motion.div
           animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.1, 0.05] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
@@ -131,7 +131,7 @@ const DoctorDetail = () => {
         </div>
       </div>
 
-      <div className="px-5 -mt-14 space-y-4 relative z-10">
+      <div className="px-5 -mt-20 space-y-4 relative z-10">
         {/* Doctor Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
