@@ -233,12 +233,10 @@ const Doctors = () => {
 
       {/* Doctor listing — Swiggy-style cards */}
       <div className="px-4 space-y-3">
-        {serviceLoading || loading ? (
-          !services.service_doctors_enabled && !serviceLoading ? (
-            <ServiceDisabledBanner serviceName="Doctor Appointments" />
-          ) : (
-            <MedicalLoader text="Finding doctors near you..." />
-          )
+        {!services.service_doctors_enabled ? (
+          <ServiceDisabledBanner serviceName="Doctor Appointments" />
+        ) : loading ? (
+          <MedicalLoader text="Finding doctors near you..." />
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
             <Stethoscope className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />

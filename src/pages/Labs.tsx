@@ -10,6 +10,8 @@ import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolo
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getLabImage } from "@/lib/providerDefaults";
+import { useServiceToggle } from "@/hooks/useServiceToggle";
+import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
 const OFFER_BANNERS = [
   { emoji: "🔬", title: "Flat 30% OFF", subtitle: "On first lab test booking", bg: "from-emerald-500 to-teal-600" },
