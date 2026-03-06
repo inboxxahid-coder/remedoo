@@ -78,6 +78,7 @@ export type Database = {
       }
       admin_team: {
         Row: {
+          avatar_url: string | null
           created_at: string
           created_by: string | null
           designation: string
@@ -90,6 +91,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           created_by?: string | null
           designation?: string
@@ -102,6 +104,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           created_by?: string | null
           designation?: string
