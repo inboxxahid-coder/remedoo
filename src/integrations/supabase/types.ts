@@ -148,6 +148,68 @@ export type Database = {
         }
         Relationships: []
       }
+      ambulance_distance_ranges: {
+        Row: {
+          created_at: string
+          hospital_id: string | null
+          id: string
+          lab_id: string | null
+          max_km: number
+          min_km: number
+          price: number
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string
+          hospital_id?: string | null
+          id?: string
+          lab_id?: string | null
+          max_km?: number
+          min_km?: number
+          price?: number
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string
+          hospital_id?: string | null
+          id?: string
+          lab_id?: string | null
+          max_km?: number
+          min_km?: number
+          price?: number
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambulance_distance_ranges_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulance_distance_ranges_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulance_distance_ranges_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulance_distance_ranges_lab_id_fkey"
+            columns: ["lab_id"]
+            isOneToOne: false
+            referencedRelation: "labs_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ambulance_trips: {
         Row: {
           ambulance_id: string | null
@@ -1370,11 +1432,17 @@ export type Database = {
           base_fare: number | null
           created_at: string
           emergency_surcharge: number | null
+          flat_price: number | null
           hospital_id: string
           id: string
           minimum_charge: number | null
+          night_charge_amount: number | null
+          night_charge_enabled: boolean | null
+          night_charge_end: string | null
+          night_charge_start: string | null
           night_surcharge: number | null
           per_km_charge: number | null
+          pricing_model: string
           service_enabled: boolean | null
           service_type: string
           updated_at: string
@@ -1383,11 +1451,17 @@ export type Database = {
           base_fare?: number | null
           created_at?: string
           emergency_surcharge?: number | null
+          flat_price?: number | null
           hospital_id: string
           id?: string
           minimum_charge?: number | null
+          night_charge_amount?: number | null
+          night_charge_enabled?: boolean | null
+          night_charge_end?: string | null
+          night_charge_start?: string | null
           night_surcharge?: number | null
           per_km_charge?: number | null
+          pricing_model?: string
           service_enabled?: boolean | null
           service_type?: string
           updated_at?: string
@@ -1396,11 +1470,17 @@ export type Database = {
           base_fare?: number | null
           created_at?: string
           emergency_surcharge?: number | null
+          flat_price?: number | null
           hospital_id?: string
           id?: string
           minimum_charge?: number | null
+          night_charge_amount?: number | null
+          night_charge_enabled?: boolean | null
+          night_charge_end?: string | null
+          night_charge_start?: string | null
           night_surcharge?: number | null
           per_km_charge?: number | null
+          pricing_model?: string
           service_enabled?: boolean | null
           service_type?: string
           updated_at?: string
@@ -1651,11 +1731,17 @@ export type Database = {
           base_fare: number | null
           created_at: string
           emergency_surcharge: number | null
+          flat_price: number | null
           id: string
           lab_id: string
           minimum_charge: number | null
+          night_charge_amount: number | null
+          night_charge_enabled: boolean | null
+          night_charge_end: string | null
+          night_charge_start: string | null
           night_surcharge: number | null
           per_km_charge: number | null
+          pricing_model: string
           service_enabled: boolean | null
           service_type: string
           updated_at: string
@@ -1664,11 +1750,17 @@ export type Database = {
           base_fare?: number | null
           created_at?: string
           emergency_surcharge?: number | null
+          flat_price?: number | null
           id?: string
           lab_id: string
           minimum_charge?: number | null
+          night_charge_amount?: number | null
+          night_charge_enabled?: boolean | null
+          night_charge_end?: string | null
+          night_charge_start?: string | null
           night_surcharge?: number | null
           per_km_charge?: number | null
+          pricing_model?: string
           service_enabled?: boolean | null
           service_type?: string
           updated_at?: string
@@ -1677,11 +1769,17 @@ export type Database = {
           base_fare?: number | null
           created_at?: string
           emergency_surcharge?: number | null
+          flat_price?: number | null
           id?: string
           lab_id?: string
           minimum_charge?: number | null
+          night_charge_amount?: number | null
+          night_charge_enabled?: boolean | null
+          night_charge_end?: string | null
+          night_charge_start?: string | null
           night_surcharge?: number | null
           per_km_charge?: number | null
+          pricing_model?: string
           service_enabled?: boolean | null
           service_type?: string
           updated_at?: string
