@@ -10,6 +10,10 @@ interface SearchResult {
   name: string;
   subtitle: string;
   type: "doctor" | "hospital" | "lab" | "pharmacy" | "medicine";
+  extra?: string;
+  price?: number;
+  discount?: number;
+  rating?: number;
 }
 
 const typeConfig = {
@@ -17,7 +21,7 @@ const typeConfig = {
   hospital: { icon: Building2, label: "Hospital", path: (id: string) => `/hospital/${id}` },
   lab: { icon: FlaskConical, label: "Lab", path: (id: string) => `/lab/${id}` },
   pharmacy: { icon: Store, label: "Pharmacy", path: (id: string) => `/pharmacy/${id}` },
-  medicine: { icon: Pill, label: "Medicine", path: (id: string, extra?: string) => extra ? `/pharmacy/${extra}` : "/pharmacies" },
+  medicine: { icon: Pill, label: "Medicine", path: (_id: string, extra?: string) => extra ? `/pharmacy/${extra}` : "/pharmacies" },
 };
 
 const UnifiedSearch = () => {
@@ -51,19 +55,27 @@ const UnifiedSearch = () => {
 
     const fetchAll = async () => {
       const [doctors, hospitals, labs, pharmacies, medicines] = await Promise.all([
-        supabase.from("doctors_public").select("id, name, specialization").ilike("name", pattern).limit(5),
-        supabase.from("hospitals_public").select("id, name, location").ilike("name", pattern).limit(5),
-        supabase.from("labs_public").select("id, name, location").ilike("name", pattern).limit(5),
+        supabase.from("doctors_public").select("id, name, specialization, rating").ilike("name", pattern).order("rating", { ascending: false }).limit(5),
+        supabase.from("hospitals_public").select("id, name, location, rating").ilike("name", pattern).order("rating", { ascending: false }).limit(5),
+        supabase.from("labs_public").select("id, name, location, rating").ilike("name", pattern).order("rating", { ascending: false }).limit(5),
         supabase.from("pharmacies_public").select("id, name, location").ilike("name", pattern).limit(5),
-        supabase.from("medicines").select("id, name, generic_name, category, pharmacy_id").ilike("name", pattern).eq("in_stock", true).limit(5),
+        supabase.from("medicines").select("id, name, generic_name, category, pharmacy_id, price, discount_percent").ilike("name", pattern).eq("in_stock", true).order("price", { ascending: true }).limit(8),
       ]);
 
       const mapped: SearchResult[] = [
-        ...(doctors.data?.map((d) => ({ id: d.id, name: d.name, subtitle: d.specialization || "Doctor", type: "doctor" as const })) || []),
-        ...(hospitals.data?.map((h) => ({ id: h.id, name: h.name, subtitle: h.location || "Hospital", type: "hospital" as const })) || []),
-        ...(labs.data?.map((l) => ({ id: l.id, name: l.name, subtitle: l.location || "Lab", type: "lab" as const })) || []),
+        ...(doctors.data?.map((d) => ({ id: d.id, name: d.name, subtitle: d.specialization || "Doctor", type: "doctor" as const, rating: d.rating })) || []),
+        ...(hospitals.data?.map((h) => ({ id: h.id, name: h.name, subtitle: h.location || "Hospital", type: "hospital" as const, rating: h.rating })) || []),
+        ...(labs.data?.map((l) => ({ id: l.id, name: l.name, subtitle: l.location || "Lab", type: "lab" as const, rating: l.rating })) || []),
         ...(pharmacies.data?.map((p) => ({ id: p.id, name: p.name, subtitle: p.location || "Pharmacy", type: "pharmacy" as const })) || []),
-        ...(medicines.data?.map((m) => ({ id: m.id, name: m.name, subtitle: m.generic_name || m.category || "Medicine", type: "medicine" as const, extra: m.pharmacy_id })) || []),
+        ...(medicines.data?.map((m) => ({
+          id: m.id,
+          name: m.name,
+          subtitle: m.generic_name || m.category || "Medicine",
+          type: "medicine" as const,
+          extra: m.pharmacy_id,
+          price: m.price,
+          discount: m.discount_percent,
+        })) || []),
       ];
 
       setResults(mapped);
@@ -75,7 +87,7 @@ const UnifiedSearch = () => {
     return () => clearTimeout(debounce);
   }, [query]);
 
-  const handleSelect = (r: SearchResult & { extra?: string }) => {
+  const handleSelect = (r: SearchResult) => {
     setOpen(false);
     setQuery("");
     const cfg = typeConfig[r.type];
@@ -84,6 +96,20 @@ const UnifiedSearch = () => {
     } else {
       navigate(cfg.path(r.id));
     }
+  };
+
+  const formatPrice = (price: number, discount?: number) => {
+    if (discount && discount > 0) {
+      const discounted = price - (price * discount / 100);
+      return (
+        <span className="flex items-center gap-1.5">
+          <span className="font-bold text-primary text-xs">₹{discounted.toFixed(0)}</span>
+          <span className="text-[10px] text-muted-foreground line-through">₹{price}</span>
+          <span className="text-[10px] font-semibold text-emerald-600">{discount}% off</span>
+        </span>
+      );
+    }
+    return <span className="font-bold text-primary text-xs">₹{price}</span>;
   };
 
   return (
@@ -108,7 +134,7 @@ const UnifiedSearch = () => {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="absolute top-full mt-2 left-0 right-0 bg-card rounded-2xl shadow-2xl border border-border overflow-hidden max-h-72 overflow-y-auto"
+            className="absolute top-full mt-2 left-0 right-0 bg-card rounded-2xl shadow-2xl border border-border overflow-hidden max-h-80 overflow-y-auto"
           >
             {loading ? (
               <div className="p-4 text-center text-sm text-muted-foreground">Searching…</div>
@@ -127,10 +153,20 @@ const UnifiedSearch = () => {
                     <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Icon className="w-4 h-4 text-primary" />
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-foreground truncate">{r.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{r.subtitle} · {cfg.label}</p>
                     </div>
+                    {r.type === "medicine" && r.price != null && (
+                      <div className="flex-shrink-0 text-right">
+                        {formatPrice(r.price, r.discount)}
+                      </div>
+                    )}
+                    {r.rating != null && r.rating > 0 && r.type !== "medicine" && (
+                      <div className="flex-shrink-0 flex items-center gap-0.5 bg-emerald-500/10 text-emerald-600 text-[11px] font-bold px-1.5 py-0.5 rounded-md">
+                        ★ {Number(r.rating).toFixed(1)}
+                      </div>
+                    )}
                   </button>
                 );
               })
