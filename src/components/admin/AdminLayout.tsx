@@ -81,8 +81,12 @@ const navGroups: (NavItem | NavGroup)[] = [
     label: "Pharmacy Mgmt",
     icon: Pill,
     items: [
+      { label: "Pharmacy Control", path: "/admin/pharmacy-control", icon: Store },
       { label: "Medicines Database", path: "/admin/medicines", icon: Pill },
       { label: "Featured Medicines", path: "/admin/featured-medicines", icon: Star },
+      { label: "Remedoo Inventory", path: "/admin/remedoo-inventory", icon: Package },
+      { label: "Remedoo Orders", path: "/admin/remedoo-orders", icon: ShoppingBag },
+      { label: "Delivery Drivers", path: "/admin/delivery-drivers", icon: Truck },
     ],
   },
 
