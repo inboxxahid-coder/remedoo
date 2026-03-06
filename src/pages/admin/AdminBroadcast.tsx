@@ -66,7 +66,7 @@ export default function AdminBroadcast() {
   };
 
   const audienceBadge = (a: string) => {
-    const labels: Record<string, string> = { all: "All Users", patients: "Patients", doctors: "Doctors", hospitals: "Hospitals" };
+    const labels: Record<string, string> = { all: "All Users", patients: "Patients", doctors: "Doctors", hospitals: "Hospitals", labs: "Labs", pharmacies: "Pharmacies" };
     return <Badge variant="outline" className="capitalize">{labels[a] || a}</Badge>;
   };
 
@@ -91,6 +91,8 @@ export default function AdminBroadcast() {
                     <SelectItem value="patients">Patients Only</SelectItem>
                     <SelectItem value="doctors">Doctors Only</SelectItem>
                     <SelectItem value="hospitals">Hospitals Only</SelectItem>
+                    <SelectItem value="labs">Labs Only</SelectItem>
+                    <SelectItem value="pharmacies">Pharmacies Only</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
