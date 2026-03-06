@@ -8,6 +8,8 @@ import AmbulanceMap from "@/components/patient/AmbulanceMap";
 import { getDistanceKm } from "@/hooks/useGeolocation";
 import { getProviderPricingConfig, calculateAmbulancePrice } from "@/lib/ambulancePricing";
 import { Badge } from "@/components/ui/badge";
+import { useServiceToggle } from "@/hooks/useServiceToggle";
+import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
 const EMERGENCY_NUMBER = "112";
 
