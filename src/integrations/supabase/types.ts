@@ -3153,6 +3153,7 @@ export type Database = {
       }
       remedoo_orders: {
         Row: {
+          cancelled_at: string | null
           delivery_address: string | null
           delivery_fee: number
           id: string
@@ -3161,7 +3162,13 @@ export type Database = {
           payment_method: string
           payment_status: string
           placed_at: string
+          prescription_rejection_reason: string | null
+          prescription_status: string | null
           prescription_url: string | null
+          prescription_verified_at: string | null
+          prescription_verified_by: string | null
+          refund_amount: number | null
+          refund_status: string | null
           status: string
           subtotal: number
           total: number
@@ -3169,6 +3176,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cancelled_at?: string | null
           delivery_address?: string | null
           delivery_fee?: number
           id?: string
@@ -3177,7 +3185,13 @@ export type Database = {
           payment_method?: string
           payment_status?: string
           placed_at?: string
+          prescription_rejection_reason?: string | null
+          prescription_status?: string | null
           prescription_url?: string | null
+          prescription_verified_at?: string | null
+          prescription_verified_by?: string | null
+          refund_amount?: number | null
+          refund_status?: string | null
           status?: string
           subtotal?: number
           total?: number
@@ -3185,6 +3199,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cancelled_at?: string | null
           delivery_address?: string | null
           delivery_fee?: number
           id?: string
@@ -3193,7 +3208,13 @@ export type Database = {
           payment_method?: string
           payment_status?: string
           placed_at?: string
+          prescription_rejection_reason?: string | null
+          prescription_status?: string | null
           prescription_url?: string | null
+          prescription_verified_at?: string | null
+          prescription_verified_by?: string | null
+          refund_amount?: number | null
+          refund_status?: string | null
           status?: string
           subtotal?: number
           total?: number
@@ -3205,63 +3226,87 @@ export type Database = {
       remedoo_pharmacy_inventory: {
         Row: {
           batch_number: string | null
+          brand_name: string | null
           category: string
           created_at: string
           description: string | null
           discount_percent: number | null
+          dosage_info: string | null
+          drug_category: string | null
           expiry_date: string | null
           generic_name: string | null
           id: string
           image_url: string | null
           is_active: boolean
+          low_stock_threshold: number | null
+          manufacturer: string | null
+          manufacturing_date: string | null
           mrp: number | null
           name: string
           price: number
           requires_prescription: boolean
+          side_effects: string | null
           stock_quantity: number
           supplier_contact: string | null
           supplier_name: string | null
           updated_at: string
+          usage_instructions: string | null
         }
         Insert: {
           batch_number?: string | null
+          brand_name?: string | null
           category?: string
           created_at?: string
           description?: string | null
           discount_percent?: number | null
+          dosage_info?: string | null
+          drug_category?: string | null
           expiry_date?: string | null
           generic_name?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
+          low_stock_threshold?: number | null
+          manufacturer?: string | null
+          manufacturing_date?: string | null
           mrp?: number | null
           name: string
           price?: number
           requires_prescription?: boolean
+          side_effects?: string | null
           stock_quantity?: number
           supplier_contact?: string | null
           supplier_name?: string | null
           updated_at?: string
+          usage_instructions?: string | null
         }
         Update: {
           batch_number?: string | null
+          brand_name?: string | null
           category?: string
           created_at?: string
           description?: string | null
           discount_percent?: number | null
+          dosage_info?: string | null
+          drug_category?: string | null
           expiry_date?: string | null
           generic_name?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
+          low_stock_threshold?: number | null
+          manufacturer?: string | null
+          manufacturing_date?: string | null
           mrp?: number | null
           name?: string
           price?: number
           requires_prescription?: boolean
+          side_effects?: string | null
           stock_quantity?: number
           supplier_contact?: string | null
           supplier_name?: string | null
           updated_at?: string
+          usage_instructions?: string | null
         }
         Relationships: []
       }

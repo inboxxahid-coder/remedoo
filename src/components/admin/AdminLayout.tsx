@@ -87,6 +87,7 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Remedoo Inventory", path: "/admin/remedoo-inventory", icon: Package },
       { label: "Remedoo Orders", path: "/admin/remedoo-orders", icon: ShoppingBag },
       { label: "Delivery Drivers", path: "/admin/delivery-drivers", icon: Truck },
+      { label: "Pharmacy Analytics", path: "/admin/pharmacy-analytics", icon: Activity },
     ],
   },
 
