@@ -10,6 +10,8 @@ import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolo
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getDoctorAvatar } from "@/lib/providerDefaults";
+import { useServiceToggle } from "@/hooks/useServiceToggle";
+import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
 const OFFER_BANNERS = [
   { emoji: "🩺", title: "Flat 30% OFF", subtitle: "On first doctor consultation", bg: "from-emerald-500 to-teal-600" },
@@ -22,6 +24,7 @@ const FILTERS = ["Relevance", "Rating 4.0+", "Fee: Low-High", "Experience", "Nea
 const Doctors = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { services, loading: serviceLoading } = useServiceToggle();
   const specFromUrl = searchParams.get("spec") || "All";
   const [doctors, setDoctors] = useState<any[]>([]);
   const [search, setSearch] = useState("");
@@ -230,7 +233,9 @@ const Doctors = () => {
 
       {/* Doctor listing — Swiggy-style cards */}
       <div className="px-4 space-y-3">
-        {loading ? (
+        {!services.service_doctors_enabled ? (
+          <ServiceDisabledBanner serviceName="Doctor Appointments" />
+        ) : loading ? (
           <MedicalLoader text="Finding doctors near you..." />
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">

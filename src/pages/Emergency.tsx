@@ -8,6 +8,8 @@ import AmbulanceMap from "@/components/patient/AmbulanceMap";
 import { getDistanceKm } from "@/hooks/useGeolocation";
 import { getProviderPricingConfig, calculateAmbulancePrice } from "@/lib/ambulancePricing";
 import { Badge } from "@/components/ui/badge";
+import { useServiceToggle } from "@/hooks/useServiceToggle";
+import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
 const EMERGENCY_NUMBER = "112";
 
@@ -21,6 +23,7 @@ const TRIP_STAGES = [
 
 const Emergency = () => {
   const navigate = useNavigate();
+  const { services } = useServiceToggle();
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -213,6 +216,15 @@ const Emergency = () => {
   };
 
   const currentStageIndex = activeTrip ? TRIP_STAGES.findIndex(s => s.key === activeTrip.status) : -1;
+
+  if (!services.service_ambulance_enabled) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <ServiceDisabledBanner serviceName="Ambulance Services" />
+        <BottomNav />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-8">

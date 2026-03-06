@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
+import { useServiceToggle } from "@/hooks/useServiceToggle";
+import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
 const timeSlots = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
 
@@ -16,6 +18,7 @@ const BookAppointment = () => {
   const navigate = useNavigate();
   const { type, id } = useParams<{ type: string; id: string }>();
   const [searchParams] = useSearchParams();
+  const { services } = useServiceToggle();
   const preselectedTestId = searchParams.get("test");
 
   const [providerName, setProviderName] = useState("");
@@ -253,6 +256,11 @@ const BookAppointment = () => {
   };
 
   const today = new Date().toISOString().split("T")[0];
+
+  const serviceKey = type === "doctor" ? "service_doctors_enabled" : type === "lab" ? "service_labs_enabled" : "service_pharmacy_enabled";
+  if (!services[serviceKey as keyof typeof services]) {
+    return <ServiceDisabledBanner serviceName={type === "doctor" ? "Doctor Appointments" : type === "lab" ? "Lab Tests" : "Pharmacy Orders"} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">

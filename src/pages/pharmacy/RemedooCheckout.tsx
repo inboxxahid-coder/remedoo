@@ -70,6 +70,28 @@ const RemedooCheckout = () => {
     if (hasRx && !prescriptionFile) { toast.error("Prescription upload required for Rx medicines"); return; }
     setLoading(true);
 
+    // Stock validation — check all items are still available
+    const itemIds = items.map(c => c.item.id);
+    const { data: stockData } = await supabase
+      .from("remedoo_pharmacy_inventory")
+      .select("id, name, stock_quantity, is_active, expiry_date")
+      .in("id", itemIds);
+
+    const now = new Date();
+    const outOfStock = items.filter(c => {
+      const inv = (stockData || []).find((s: any) => s.id === c.item.id);
+      if (!inv) return true;
+      if (!inv.is_active) return true;
+      if (inv.expiry_date && new Date(inv.expiry_date) <= now) return true;
+      return inv.stock_quantity < c.quantity;
+    });
+
+    if (outOfStock.length > 0) {
+      toast.error(`${outOfStock.map(c => c.item.name).join(", ")} — insufficient stock or unavailable`);
+      setLoading(false);
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { navigate("/login"); return; }
 

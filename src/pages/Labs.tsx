@@ -10,6 +10,8 @@ import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolo
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getLabImage } from "@/lib/providerDefaults";
+import { useServiceToggle } from "@/hooks/useServiceToggle";
+import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
 const OFFER_BANNERS = [
   { emoji: "🔬", title: "Flat 30% OFF", subtitle: "On first lab test booking", bg: "from-emerald-500 to-teal-600" },
@@ -21,6 +23,7 @@ const FILTERS = ["Relevance", "Rating 4.0+", "Most Tests", "Has Offers", "Neares
 
 const Labs = () => {
   const navigate = useNavigate();
+  const { services } = useServiceToggle();
   const [labs, setLabs] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -206,7 +209,9 @@ const Labs = () => {
 
       {/* Lab listing — Swiggy-style cards */}
       <div className="px-4 space-y-3">
-        {loading ? (
+        {!services.service_labs_enabled ? (
+          <ServiceDisabledBanner serviceName="Lab Tests" />
+        ) : loading ? (
           <MedicalLoader text="Finding labs near you..." />
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
