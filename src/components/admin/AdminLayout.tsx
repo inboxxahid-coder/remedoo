@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useAdminPermissions } from "@/hooks/useAdminPermissions";
@@ -230,6 +230,12 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [adminLogo, setAdminLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.from("platform_branding").select("value").eq("key", "admin_logo").maybeSingle()
+      .then(({ data }) => { if (data?.value) setAdminLogo(data.value); });
+  }, []);
 
   const filteredNavGroups = isSuperAdmin
     ? navGroups
@@ -402,9 +408,13 @@ export default function AdminLayout() {
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
-                <Shield className="w-5 h-5 text-primary-foreground" />
-              </div>
+              {adminLogo ? (
+                <img src={adminLogo} alt="Admin Logo" className="w-10 h-10 rounded-xl object-contain" />
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
+                  <Shield className="w-5 h-5 text-primary-foreground" />
+                </div>
+              )}
               <div>
                 <h1 className="text-base font-bold text-foreground">Remedoo</h1>
                 <p className="text-[11px] text-muted-foreground font-medium">Admin Console</p>
