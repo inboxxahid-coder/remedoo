@@ -21,6 +21,7 @@ const categoryConfig: Record<string, { label: string; icon: React.ElementType; d
   general: { label: "General", icon: Building2, description: "Platform name, contact info, and core settings" },
   finance: { label: "Finance", icon: CreditCard, description: "Commission rates, delivery fees, and order limits" },
   appointments: { label: "Appointments", icon: CalendarCheck, description: "Scheduling rules and auto-cancel policies" },
+  pharmacy: { label: "Pharmacy", icon: Settings, description: "Pharmacy mode control (partner vs Remedoo)" },
   emergency: { label: "Emergency", icon: AlertTriangle, description: "Emergency search radius and timeout settings" },
   legal: { label: "Legal", icon: FileText, description: "URLs for terms, privacy, and refund policies" },
   email: { label: "Email", icon: Mail, description: "Gmail SMTP configuration for sending emails (OTP, orders, reports)" },
