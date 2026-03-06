@@ -19,6 +19,7 @@ interface PlatformSetting {
 
 const categoryConfig: Record<string, { label: string; icon: React.ElementType; description: string }> = {
   general: { label: "General", icon: Building2, description: "Platform name, contact info, and core settings" },
+  services: { label: "Service Controls", icon: Settings, description: "Enable or disable platform services globally" },
   finance: { label: "Finance", icon: CreditCard, description: "Commission rates, delivery fees, and order limits" },
   appointments: { label: "Appointments", icon: CalendarCheck, description: "Scheduling rules and auto-cancel policies" },
   pharmacy: { label: "Pharmacy", icon: Settings, description: "Pharmacy mode control (partner vs Remedoo)" },
