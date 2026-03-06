@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Key, Save, Eye, EyeOff, Lock, Timer, ShieldCheck, Loader2, AlertTriangle } from "lucide-react";
+import {
+  Key, Save, Eye, EyeOff, Lock, Timer, ShieldCheck, Loader2,
+  AlertTriangle, CreditCard, MessageSquare, MapPin, Bell, Mail,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -8,13 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ApiKey {
   id: string;
@@ -30,12 +32,69 @@ interface ApiKey {
 
 const SESSION_TIMEOUT_MINUTES = 5;
 
-const categoryLabels: Record<string, { label: string; color: string }> = {
-  payment: { label: "Payment", color: "bg-blue-500/10 text-blue-600" },
-  messaging: { label: "Messaging", color: "bg-green-500/10 text-green-600" },
-  maps: { label: "Maps", color: "bg-orange-500/10 text-orange-600" },
-  general: { label: "General", color: "bg-muted text-muted-foreground" },
+// Integration groups with icons and descriptions
+const integrationGroups: Record<string, {
+  label: string;
+  icon: React.ElementType;
+  color: string;
+  description: string;
+  keys: string[]; // ordered key_names
+}> = {
+  razorpay: {
+    label: "Razorpay Payment Gateway",
+    icon: CreditCard,
+    color: "text-blue-600",
+    description: "Payment processing for appointments, orders, and ambulance trips. Both Key ID and Key Secret are required.",
+    keys: ["RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET"],
+  },
+  whatsapp: {
+    label: "WhatsApp Business API",
+    icon: MessageSquare,
+    color: "text-green-600",
+    description: "Send WhatsApp notifications to patients. Requires Meta Business access token and phone number ID.",
+    keys: ["WHATSAPP_ACCESS_TOKEN", "WHATSAPP_PHONE_NUMBER_ID"],
+  },
+  msg91: {
+    label: "MSG91 SMS Gateway",
+    icon: MessageSquare,
+    color: "text-purple-600",
+    description: "SMS OTP and notifications via MSG91. Auth Key is required; Sender ID and Template ID are optional overrides.",
+    keys: ["MSG91_AUTH_KEY", "MSG91_SENDER_ID", "MSG91_TEMPLATE_ID"],
+  },
+  twilio: {
+    label: "Twilio (SMS & WhatsApp Fallback)",
+    icon: MessageSquare,
+    color: "text-red-600",
+    description: "Alternative SMS/WhatsApp provider. All four fields are required for Twilio integration.",
+    keys: ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER", "TWILIO_WHATSAPP_NUMBER"],
+  },
+  google_maps: {
+    label: "Google Maps",
+    icon: MapPin,
+    color: "text-orange-600",
+    description: "Location services, nearby hospitals, and ambulance tracking. API Key is required.",
+    keys: ["GOOGLE_MAPS_API_KEY"],
+  },
+  push_notifications: {
+    label: "Push Notifications (VAPID)",
+    icon: Bell,
+    color: "text-amber-600",
+    description: "Web push notifications for appointment and order updates. Both public and private keys are required.",
+    keys: ["VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY"],
+  },
+  email_smtp: {
+    label: "Email / SMTP",
+    icon: Mail,
+    color: "text-cyan-600",
+    description: "Email notifications and OTP delivery. Host, Port, Username, Password, and From Email are required.",
+    keys: ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "SMTP_FROM_EMAIL"],
+  },
 };
+
+function maskValue(val: string): string {
+  if (!val || val.length <= 6) return "••••••••";
+  return val.slice(0, 3) + "••••••••" + val.slice(-3);
+}
 
 export default function AdminApiKeys() {
   const [keys, setKeys] = useState<ApiKey[]>([]);
@@ -141,20 +200,17 @@ export default function AdminApiKeys() {
       toast.info("No changes to save");
       return;
     }
-
     const cooldownLeft = getCooldownRemaining(key);
     if (cooldownLeft > 0) {
       toast.error(`Cooldown active. Try again in ${cooldownLeft} minute${cooldownLeft !== 1 ? "s" : ""}.`);
       return;
     }
-
     if (Date.now() > authExpiry) {
       setAuthenticated(false);
       setShowAuthDialog(true);
       toast.error("Session expired. Re-authenticate to continue.");
       return;
     }
-
     setSaving(key.key_name);
     const userId = (await supabase.auth.getUser()).data.user?.id;
     const { error } = await supabase
@@ -165,7 +221,6 @@ export default function AdminApiKeys() {
         changed_by: userId,
       })
       .eq("key_name", key.key_name);
-
     if (error) {
       toast.error(`Failed to save ${key.display_label}`);
     } else {
@@ -181,8 +236,8 @@ export default function AdminApiKeys() {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const groupedKeys = keys.reduce<Record<string, ApiKey[]>>((acc, k) => {
-    (acc[k.category] = acc[k.category] || []).push(k);
+  const keysByName = keys.reduce<Record<string, ApiKey>>((acc, k) => {
+    acc[k.key_name] = k;
     return acc;
   }, {});
 
@@ -270,79 +325,140 @@ export default function AdminApiKeys() {
         </div>
       </div>
 
-      {/* Key Groups */}
-      <div className="space-y-6">
-        {Object.entries(groupedKeys).map(([category, catKeys]) => {
-          const catConfig = categoryLabels[category] || categoryLabels.general;
-          return (
-            <div key={category}>
-              <div className="flex items-center gap-2 mb-3">
-                <Badge className={`${catConfig.color} border-0 text-xs`}>{catConfig.label}</Badge>
-              </div>
-              <div className="space-y-3">
-                {catKeys.map((k) => {
-                  const isRevealed = revealedKeys.has(k.key_name);
-                  const value = editedValues[k.key_name] ?? "";
-                  const isChanged = value !== k.key_value;
-                  const cooldownLeft = getCooldownRemaining(k);
-                  const isSaving = saving === k.key_name;
+      {/* Integration Groups */}
+      <Accordion type="multiple" defaultValue={Object.keys(integrationGroups)} className="space-y-3">
+        {Object.entries(integrationGroups).map(([groupKey, group]) => {
+          const Icon = group.icon;
+          const groupKeys = group.keys.map((kn) => keysByName[kn]).filter(Boolean);
+          const hasAnyValue = groupKeys.some((k) => k.key_value && k.key_value.length > 0);
 
-                  return (
-                    <Card key={k.id} className="p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Label className="text-sm font-medium text-foreground">{k.display_label}</Label>
-                            <code className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{k.key_name}</code>
-                            {isChanged && <Badge variant="secondary" className="text-xs">Modified</Badge>}
+          return (
+            <AccordionItem key={groupKey} value={groupKey} className="border rounded-xl overflow-hidden">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
+                <div className="flex items-center gap-3 text-left">
+                  <div className={`p-1.5 rounded-lg bg-muted ${group.color}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm text-foreground">{group.label}</span>
+                      {hasAnyValue ? (
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-green-100 text-green-700 border-0">
+                          Configured
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-amber-100 text-amber-700 border-0">
+                          Not Set
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{group.description}</p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <div className="space-y-3 pt-1">
+                  {groupKeys.map((k) => {
+                    const isRevealed = revealedKeys.has(k.key_name);
+                    const currentVal = editedValues[k.key_name] ?? "";
+                    const isChanged = currentVal !== k.key_value;
+                    const cooldownLeft = getCooldownRemaining(k);
+                    const isSaving = saving === k.key_name;
+                    const hasValue = k.key_value && k.key_value.length > 0;
+
+                    return (
+                      <Card key={k.id} className="p-3 bg-muted/30">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Label className="text-sm font-medium text-foreground">{k.display_label}</Label>
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono">
+                                {k.key_name}
+                              </Badge>
+                              {k.is_masked && (
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-amber-600 border-amber-300">
+                                  Secret
+                                </Badge>
+                              )}
+                            </div>
+                            {hasValue && !isChanged && (
+                              <span className="text-[10px] text-green-600 font-medium">✓ Set</span>
+                            )}
+                            {isChanged && (
+                              <Badge variant="secondary" className="text-[10px]">Modified</Badge>
+                            )}
                           </div>
+
+                          {/* Current value display */}
+                          {hasValue && !isChanged && (
+                            <div className="flex items-center gap-2 text-xs">
+                              <span className="text-muted-foreground">Current:</span>
+                              <code className="font-mono bg-muted px-2 py-0.5 rounded text-foreground">
+                                {isRevealed ? k.key_value : maskValue(k.key_value)}
+                              </code>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => toggleReveal(k.key_name)}
+                              >
+                                {isRevealed ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Edit input */}
                           <div className="flex items-center gap-2">
                             <Input
-                              type={isRevealed ? "text" : "password"}
-                              value={value}
+                              type={k.is_masked && !isRevealed ? "password" : "text"}
+                              value={currentVal}
                               onChange={(e) => setEditedValues((prev) => ({ ...prev, [k.key_name]: e.target.value }))}
-                              placeholder="Enter key value..."
-                              className="max-w-lg font-mono text-sm"
+                              placeholder={hasValue ? "Enter new value to update..." : "Enter value..."}
+                              className="font-mono text-sm h-9"
                             />
+                            {!hasValue && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0 h-9 w-9"
+                                onClick={() => toggleReveal(k.key_name)}
+                              >
+                                {isRevealed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </Button>
+                            )}
                             <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => toggleReveal(k.key_name)}
-                              className="shrink-0"
+                              onClick={() => handleSaveKey(k)}
+                              disabled={!isChanged || cooldownLeft > 0 || isSaving}
+                              size="sm"
+                              className="gap-1.5 shrink-0 h-9"
                             >
-                              {isRevealed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                              {hasValue ? "Update" : "Save"}
                             </Button>
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+
+                          {/* Meta info */}
+                          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                             {k.last_changed_at && (
                               <span>Last changed: {new Date(k.last_changed_at).toLocaleString()}</span>
                             )}
                             {cooldownLeft > 0 && (
-                              <Badge variant="outline" className="gap-1 text-xs text-amber-600 border-amber-300">
+                              <Badge variant="outline" className="gap-1 text-[10px] text-amber-600 border-amber-300">
                                 <Timer className="w-3 h-3" />
                                 Cooldown: {cooldownLeft}m
                               </Badge>
                             )}
                           </div>
                         </div>
-                        <Button
-                          onClick={() => handleSaveKey(k)}
-                          disabled={!isChanged || cooldownLeft > 0 || isSaving}
-                          size="sm"
-                          className="gap-1.5 shrink-0"
-                        >
-                          {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                          Save
-                        </Button>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
           );
         })}
-      </div>
+      </Accordion>
     </div>
   );
 }
