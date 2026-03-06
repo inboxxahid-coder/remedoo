@@ -48,7 +48,7 @@ const Signup = () => {
         <motion.img
           src={remedooLogo}
           alt="Remedoo"
-          className="w-16 h-16 rounded-2xl shadow-lg mb-4"
+          className="h-12 object-contain mb-4"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
