@@ -107,6 +107,7 @@ const AdminCorporatePlans = lazy(() => import("./pages/admin/AdminCorporatePlans
 const AdminFeaturedProviders = lazy(() => import("./pages/admin/AdminFeaturedProviders"));
 const AdminPaymentAccounts = lazy(() => import("./pages/admin/AdminPaymentAccounts"));
 const AdminBranding = lazy(() => import("./pages/admin/AdminBranding"));
+const AdminApiKeys = lazy(() => import("./pages/admin/AdminApiKeys"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -250,6 +251,7 @@ const AppRoutes = () => {
           <Route path="promo-banners" element={<AdminPromoBanners />} />
           <Route path="category-actions" element={<AdminCategoryActions />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="api-keys" element={<AdminApiKeys />} />
           <Route path="team" element={<AdminTeam />} />
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="coupons" element={<AdminCoupons />} />
@@ -359,6 +361,7 @@ const AppRoutes = () => {
         <Route path="promo-banners" element={<AdminPromoBanners />} />
         <Route path="category-actions" element={<AdminCategoryActions />} />
         <Route path="settings" element={<AdminSettings />} />
+        <Route path="api-keys" element={<AdminApiKeys />} />
         <Route path="team" element={<AdminTeam />} />
         <Route path="reviews" element={<AdminReviews />} />
         <Route path="coupons" element={<AdminCoupons />} />
