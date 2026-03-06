@@ -86,6 +86,12 @@ const AdminServiceAreas = lazy(() => import("./pages/admin/AdminServiceAreas"));
 const AdminBroadcast = lazy(() => import("./pages/admin/AdminBroadcast"));
 const AdminFAQ = lazy(() => import("./pages/admin/AdminFAQ"));
 const AdminSubscriptions = lazy(() => import("./pages/admin/AdminSubscriptions"));
+const AdminAmbulance = lazy(() => import("./pages/admin/AdminAmbulance"));
+const AdminMedicalRecords = lazy(() => import("./pages/admin/AdminMedicalRecords"));
+const AdminRefunds = lazy(() => import("./pages/admin/AdminRefunds"));
+const AdminTransactions = lazy(() => import("./pages/admin/AdminTransactions"));
+const AdminLoginLogs = lazy(() => import("./pages/admin/AdminLoginLogs"));
+const AdminAnalyticsDetailed = lazy(() => import("./pages/admin/AdminAnalyticsDetailed"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
