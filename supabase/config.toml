@@ -17,3 +17,18 @@ verify_jwt = false
 
 [functions.verify-cancellation-otp]
 verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.send-sms]
+verify_jwt = false
+
+[functions.send-whatsapp]
+verify_jwt = false
+
+[functions.admin-create-user]
+verify_jwt = false
+
+[functions.admin-change-email]
+verify_jwt = false
