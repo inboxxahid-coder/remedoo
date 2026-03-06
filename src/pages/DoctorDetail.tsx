@@ -85,13 +85,13 @@ const DoctorDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <div className="gradient-primary page-header px-5 pb-20 rounded-b-[2rem]">
+        <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border px-5 py-3">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
-            <Skeleton className="h-6 w-40 bg-primary-foreground/20" />
+            <button onClick={() => navigate(-1)} className="text-foreground"><ArrowLeft className="w-6 h-6" /></button>
+            <Skeleton className="h-6 w-40" />
           </div>
         </div>
-        <div className="px-5 -mt-12 space-y-4">
+        <div className="px-5 mt-4 space-y-4">
           <Skeleton className="h-48 w-full rounded-2xl" />
           <Skeleton className="h-32 w-full rounded-2xl" />
         </div>
