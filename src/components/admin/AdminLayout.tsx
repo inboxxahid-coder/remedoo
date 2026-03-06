@@ -117,6 +117,16 @@ export default function AdminLayout() {
   };
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(getInitialOpen);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const searchResults = searchQuery.trim().length > 0
+    ? navGroups.flatMap((item) =>
+        isNavGroup(item)
+          ? item.items.filter((i) => i.label.toLowerCase().includes(searchQuery.toLowerCase()))
+          : item.label.toLowerCase().includes(searchQuery.toLowerCase()) ? [item] : []
+      ).slice(0, 8)
+    : [];
 
   if (loading || !isAdmin || permsLoading) {
     return (
