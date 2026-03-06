@@ -392,6 +392,9 @@ function LogoUploadCard({
           </div>
         )}
       </div>
+      <p className="text-[11px] text-muted-foreground">
+        Max <span className="font-medium text-foreground/70">2 MB</span> · PNG, JPG, SVG, WEBP, ICO
+      </p>
       <div className="flex gap-2">
         <label className="flex-1">
           <input
