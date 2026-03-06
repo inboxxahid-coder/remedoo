@@ -55,6 +55,8 @@ export default function AdminTeam() {
   // Edit state
   const [editMember, setEditMember] = useState<AdminMember | null>(null);
   const [editForm, setEditForm] = useState({ name: "", designation: "", phone: "" });
+  const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
+  const [editPhotoPreview, setEditPhotoPreview] = useState<string | null>(null);
 
   // Change email state
   const [emailMember, setEmailMember] = useState<AdminMember | null>(null);
@@ -71,6 +73,17 @@ export default function AdminTeam() {
   const [form, setForm] = useState({
     name: "", email: "", password: "", designation: "Admin", phone: "",
   });
+  const [addPhotoFile, setAddPhotoFile] = useState<File | null>(null);
+  const [addPhotoPreview, setAddPhotoPreview] = useState<string | null>(null);
+
+  const uploadAvatar = async (file: File, userId: string): Promise<string | null> => {
+    const ext = file.name.split(".").pop();
+    const path = `admin/${userId}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (error) return null;
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    return data.publicUrl;
+  };
 
   const fetchTeam = async () => {
     setLoading(true);
