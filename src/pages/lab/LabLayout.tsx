@@ -1,12 +1,15 @@
 import { useProviderAuth } from "@/hooks/useProviderAuth";
 import ProviderLayout from "@/components/provider/ProviderLayout";
-import { FlaskConical, LayoutDashboard, CalendarCheck, User, Settings, TestTube, Droplets, IndianRupee, Bell, MessageSquare, Star, ScrollText, BarChart3 } from "lucide-react";
+import { FlaskConical, LayoutDashboard, CalendarCheck, User, Settings, TestTube, Droplets, IndianRupee, Bell, MessageSquare, Star, ScrollText, BarChart3, Ambulance, Truck, Route } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/lab", icon: LayoutDashboard },
   { label: "Appointments", path: "/lab/appointments", icon: CalendarCheck },
   { label: "Tests", path: "/lab/tests", icon: TestTube },
   { label: "Sample Collections", path: "/lab/samples", icon: Droplets },
+  { label: "Ambulance Config", path: "/lab/ambulance-config", icon: Ambulance },
+  { label: "Ambulance Fleet", path: "/lab/ambulance-fleet", icon: Truck },
+  { label: "Ambulance Trips", path: "/lab/ambulance-trips", icon: Route },
   { label: "Earnings", path: "/lab/earnings", icon: IndianRupee },
   { label: "Notifications", path: "/lab/notifications", icon: Bell },
   { label: "Support Tickets", path: "/lab/support-tickets", icon: MessageSquare },
