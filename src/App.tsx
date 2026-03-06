@@ -227,6 +227,12 @@ const AppRoutes = () => {
           <Route path="broadcast" element={<AdminBroadcast />} />
           <Route path="faq" element={<AdminFAQ />} />
           <Route path="subscriptions" element={<AdminSubscriptions />} />
+          <Route path="ambulance" element={<AdminAmbulance />} />
+          <Route path="medical-records" element={<AdminMedicalRecords />} />
+          <Route path="refunds" element={<AdminRefunds />} />
+          <Route path="transactions" element={<AdminTransactions />} />
+          <Route path="logs" element={<AdminLoginLogs />} />
+          <Route path="analytics" element={<AdminAnalyticsDetailed />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -313,6 +319,12 @@ const AppRoutes = () => {
         <Route path="broadcast" element={<AdminBroadcast />} />
         <Route path="faq" element={<AdminFAQ />} />
         <Route path="subscriptions" element={<AdminSubscriptions />} />
+        <Route path="ambulance" element={<AdminAmbulance />} />
+        <Route path="medical-records" element={<AdminMedicalRecords />} />
+        <Route path="refunds" element={<AdminRefunds />} />
+        <Route path="transactions" element={<AdminTransactions />} />
+        <Route path="logs" element={<AdminLoginLogs />} />
+        <Route path="analytics" element={<AdminAnalyticsDetailed />} />
       </Route>
 
       {/* Doctor routes */}
