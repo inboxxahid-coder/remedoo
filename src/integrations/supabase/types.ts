@@ -498,6 +498,36 @@ export type Database = {
           },
         ]
       }
+      broadcast_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sent_at: string
+          sent_by: string
+          target_audience: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sent_at?: string
+          sent_by: string
+          target_audience?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sent_at?: string
+          sent_by?: string
+          target_audience?: string
+          title?: string
+        }
+        Relationships: []
+      }
       cancellation_otp_settings: {
         Row: {
           email_enabled: boolean
@@ -632,6 +662,98 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      coupon_usage: {
+        Row: {
+          appointment_id: string | null
+          coupon_id: string
+          created_at: string
+          discount_applied: number
+          id: string
+          order_id: string | null
+          user_id: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          coupon_id: string
+          created_at?: string
+          discount_applied?: number
+          id?: string
+          order_id?: string | null
+          user_id: string
+        }
+        Update: {
+          appointment_id?: string | null
+          coupon_id?: string
+          created_at?: string
+          discount_applied?: number
+          id?: string
+          order_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_usage_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          applicable_for: string
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean
+          max_discount_amount: number | null
+          min_order_amount: number | null
+          updated_at: string
+          usage_limit: number | null
+          used_count: number
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          applicable_for?: string
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_discount_amount?: number | null
+          min_order_amount?: number | null
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          applicable_for?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_discount_amount?: number | null
+          min_order_amount?: number | null
+          updated_at?: string
+          usage_limit?: number | null
+          used_count?: number
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: []
       }
       dashboard_category_actions: {
         Row: {
@@ -1152,6 +1274,36 @@ export type Database = {
           response_time_minutes?: number | null
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          question: string
+          sort_order: number | null
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          question: string
+          sort_order?: number | null
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          question?: string
+          sort_order?: number | null
         }
         Relationships: []
       }
@@ -1722,6 +1874,33 @@ export type Database = {
           services?: string[] | null
           user_id?: string | null
           working_hours?: Json | null
+        }
+        Relationships: []
+      }
+      legal_pages: {
+        Row: {
+          content: string
+          id: string
+          slug: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string
+          id?: string
+          slug: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string
+          id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -2452,6 +2631,50 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          plan_id: string
+          provider_id: string
+          provider_type: string
+          starts_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          plan_id: string
+          provider_id: string
+          provider_type: string
+          starts_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          plan_id?: string
+          provider_id?: string
+          provider_type?: string
+          starts_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_wallets: {
         Row: {
           available_balance: number
@@ -2598,6 +2821,7 @@ export type Database = {
       }
       reviews: {
         Row: {
+          admin_notes: string | null
           appointment_id: string | null
           comment: string | null
           created_at: string
@@ -2605,10 +2829,12 @@ export type Database = {
           provider_id: string
           provider_type: string
           rating: number
+          status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          admin_notes?: string | null
           appointment_id?: string | null
           comment?: string | null
           created_at?: string
@@ -2616,10 +2842,12 @@ export type Database = {
           provider_id: string
           provider_type: string
           rating: number
+          status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          admin_notes?: string | null
           appointment_id?: string | null
           comment?: string | null
           created_at?: string
@@ -2627,6 +2855,7 @@ export type Database = {
           provider_id?: string
           provider_type?: string
           rating?: number
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -2636,6 +2865,50 @@ export type Database = {
             columns: ["appointment_id"]
             isOneToOne: false
             referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_areas: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          parent_id: string | null
+          radius_km: number | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          parent_id?: string | null
+          radius_km?: number | null
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          parent_id?: string | null
+          radius_km?: number | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_areas_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "service_areas"
             referencedColumns: ["id"]
           },
         ]
@@ -2673,6 +2946,42 @@ export type Database = {
           title?: string | null
           type?: string
           url?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_days: number
+          features: Json | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          provider_type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+          provider_type?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          provider_type?: string
         }
         Relationships: []
       }

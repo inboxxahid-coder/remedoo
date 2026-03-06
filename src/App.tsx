@@ -80,6 +80,12 @@ const AdminPromoBanners = lazy(() => import("./pages/admin/AdminPromoBanners"));
 const AdminCategoryActions = lazy(() => import("./pages/admin/AdminCategoryActions"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminTeam = lazy(() => import("./pages/admin/AdminTeam"));
+const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
+const AdminCoupons = lazy(() => import("./pages/admin/AdminCoupons"));
+const AdminServiceAreas = lazy(() => import("./pages/admin/AdminServiceAreas"));
+const AdminBroadcast = lazy(() => import("./pages/admin/AdminBroadcast"));
+const AdminFAQ = lazy(() => import("./pages/admin/AdminFAQ"));
+const AdminSubscriptions = lazy(() => import("./pages/admin/AdminSubscriptions"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -209,6 +215,12 @@ const AppRoutes = () => {
           <Route path="category-actions" element={<AdminCategoryActions />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="team" element={<AdminTeam />} />
+          <Route path="reviews" element={<AdminReviews />} />
+          <Route path="coupons" element={<AdminCoupons />} />
+          <Route path="service-areas" element={<AdminServiceAreas />} />
+          <Route path="broadcast" element={<AdminBroadcast />} />
+          <Route path="faq" element={<AdminFAQ />} />
+          <Route path="subscriptions" element={<AdminSubscriptions />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -289,6 +301,12 @@ const AppRoutes = () => {
         <Route path="category-actions" element={<AdminCategoryActions />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="team" element={<AdminTeam />} />
+        <Route path="reviews" element={<AdminReviews />} />
+        <Route path="coupons" element={<AdminCoupons />} />
+        <Route path="service-areas" element={<AdminServiceAreas />} />
+        <Route path="broadcast" element={<AdminBroadcast />} />
+        <Route path="faq" element={<AdminFAQ />} />
+        <Route path="subscriptions" element={<AdminSubscriptions />} />
       </Route>
 
       {/* Doctor routes */}

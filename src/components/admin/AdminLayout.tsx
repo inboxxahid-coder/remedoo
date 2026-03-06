@@ -6,7 +6,8 @@ import {
   LayoutDashboard, Stethoscope, Building2, FlaskConical, Store, CalendarCheck,
   ShoppingBag, Users, Image, Megaphone, LogOut, Shield, Pill, Menu, X,
   CheckSquare, AlertTriangle, FilePenLine, KeyRound, LayoutGrid, Heart, Zap, Star, CreditCard, Grid3X3,
-  ChevronDown, Layers, Settings, BarChart3, Headphones, Bell, Search
+  ChevronDown, Layers, Settings, BarChart3, Headphones, Bell, Search,
+  MessageSquare, Ticket, MapPin, Send, HelpCircle, Crown
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Labs", path: "/admin/labs", icon: FlaskConical },
       { label: "Pharmacies", path: "/admin/pharmacies", icon: Store },
       { label: "Featured Doctors", path: "/admin/featured-doctors", icon: Star },
+      { label: "Reviews", path: "/admin/reviews", icon: MessageSquare },
     ],
   },
   {
@@ -49,6 +51,7 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Edit Requests", path: "/admin/edit-requests", icon: FilePenLine },
       { label: "Support Tickets", path: "/admin/support-tickets", icon: Headphones },
       { label: "Suspicious Activity", path: "/admin/suspicious-activity", icon: AlertTriangle },
+      { label: "Broadcast", path: "/admin/broadcast", icon: Send },
     ],
   },
   {
@@ -66,6 +69,7 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Featured Medicines", path: "/admin/featured-medicines", icon: Star },
       { label: "Promo Banners", path: "/admin/promo-banners", icon: Megaphone },
       { label: "Category Actions", path: "/admin/category-actions", icon: Grid3X3 },
+      { label: "Coupons & Promos", path: "/admin/coupons", icon: Ticket },
     ],
   },
   {
@@ -78,6 +82,9 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "OTP Settings", path: "/admin/otp-settings", icon: KeyRound },
       { label: "Admin Team", path: "/admin/team", icon: Shield },
       { label: "Platform Settings", path: "/admin/settings", icon: Settings },
+      { label: "Service Areas", path: "/admin/service-areas", icon: MapPin },
+      { label: "FAQ & Legal", path: "/admin/faq", icon: HelpCircle },
+      { label: "Subscriptions", path: "/admin/subscriptions", icon: Crown },
     ],
   },
 ];
