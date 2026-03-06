@@ -189,40 +189,40 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="gradient-primary page-header px-5 pb-16 rounded-b-[1.5rem]">
-        <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground">
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border px-5 py-3">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="text-foreground">
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold text-primary-foreground">My Profile</h1>
-        </div>
-
-        {/* Avatar */}
-        <div className="flex flex-col items-center">
-          <div className="relative">
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="w-24 h-24 rounded-full bg-primary-foreground/20 border-4 border-primary-foreground/30 flex items-center justify-center overflow-hidden"
-            >
-              {displayAvatar ? (
-                <img src={displayAvatar} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-3xl font-bold text-primary-foreground">{initials}</span>
-              )}
-            </button>
-            <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-card border-2 border-border flex items-center justify-center shadow-md">
-              {uploading ? <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" /> : <Camera className="w-4 h-4 text-muted-foreground" />}
-            </div>
-          </div>
-          <h2 className="text-lg font-semibold text-primary-foreground mt-3">{form.full_name || "Patient"}</h2>
-          <p className="text-primary-foreground/70 text-sm">{form.email}</p>
+          <h1 className="text-lg font-bold text-foreground">My Profile</h1>
         </div>
       </div>
 
+      {/* Avatar */}
+      <div className="flex flex-col items-center pt-6 pb-4">
+        <div className="relative">
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="w-24 h-24 rounded-full bg-muted border-4 border-border flex items-center justify-center overflow-hidden"
+          >
+            {displayAvatar ? (
+              <img src={displayAvatar} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-3xl font-bold text-foreground">{initials}</span>
+            )}
+          </button>
+          <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-card border-2 border-border flex items-center justify-center shadow-md">
+            {uploading ? <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" /> : <Camera className="w-4 h-4 text-muted-foreground" />}
+          </div>
+        </div>
+        <h2 className="text-lg font-semibold text-foreground mt-3">{form.full_name || "Patient"}</h2>
+        <p className="text-muted-foreground text-sm">{form.email}</p>
+      </div>
+
       {/* Form */}
-      <div className="px-5 -mt-6 space-y-4">
+      <div className="px-5 space-y-4">
         {/* Basic Info */}
         <div className="bg-card rounded-2xl border border-border p-5 space-y-5">
           <div className="space-y-2">

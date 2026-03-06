@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { getRoleRedirectPath } from "@/hooks/useRoleRedirect";
 import { toast } from "sonner";
-import remedooLogo from "@/assets/remedoo-logo.png";
+import remedooLogo from "@/assets/remedoo-logo-transparent.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -74,7 +74,7 @@ const Login = () => {
         <motion.img
           src={remedooLogo}
           alt="Remedoo"
-          className="w-16 h-16 rounded-2xl shadow-lg mb-4"
+          className="h-12 object-contain mb-4"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
