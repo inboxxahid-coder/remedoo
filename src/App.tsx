@@ -96,6 +96,7 @@ const AdminPharmacyControl = lazy(() => import("./pages/admin/AdminPharmacyContr
 const AdminRemedooInventory = lazy(() => import("./pages/admin/AdminRemedooInventory"));
 const AdminRemedooOrders = lazy(() => import("./pages/admin/AdminRemedooOrders"));
 const AdminDeliveryDrivers = lazy(() => import("./pages/admin/AdminDeliveryDrivers"));
+const AdminPharmacyAnalytics = lazy(() => import("./pages/admin/AdminPharmacyAnalytics"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -255,6 +256,7 @@ const AppRoutes = () => {
           <Route path="remedoo-inventory" element={<AdminRemedooInventory />} />
           <Route path="remedoo-orders" element={<AdminRemedooOrders />} />
           <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
+          <Route path="pharmacy-analytics" element={<AdminPharmacyAnalytics />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -354,8 +356,9 @@ const AppRoutes = () => {
         <Route path="pharmacy-control" element={<AdminPharmacyControl />} />
         <Route path="remedoo-inventory" element={<AdminRemedooInventory />} />
         <Route path="remedoo-orders" element={<AdminRemedooOrders />} />
-        <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
-      </Route>
+          <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
+          <Route path="pharmacy-analytics" element={<AdminPharmacyAnalytics />} />
+        </Route>
 
       {/* Doctor routes */}
       <Route path="/doctor" element={<DoctorLayout />}>
