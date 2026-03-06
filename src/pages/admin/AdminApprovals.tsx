@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   CheckCircle2, XCircle, Clock, Stethoscope, Building2, FlaskConical, Store,
   FileText, ExternalLink, ArrowLeft, Phone, MapPin, Mail, Calendar, Star,
-  Briefcase, IndianRupee, User, ClipboardList, RotateCcw
+  Briefcase, IndianRupee, User, ClipboardList, RotateCcw, Ban
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -156,10 +156,29 @@ export default function AdminApprovals() {
     fetchAll();
   };
 
+  const handleSuspend = async () => {
+    if (!selectedProvider || !selectedType) return;
+    setActionLoading(true);
+    const updatePayload: any = { account_status: "suspended" };
+    const { error } = await supabase.from(selectedType).update(updatePayload).eq("id", selectedProvider.id);
+    setActionLoading(false);
+    if (error) { toast.error("Failed to suspend"); return; }
+    toast.success(`${selectedProvider.name} has been suspended`);
+    closeDetail();
+    fetchAll();
+  };
+
   const updateApproval = async (type: ProviderType, id: string, status: string) => {
     const { error } = await supabase.from(type).update({ approval_status: status }).eq("id", id);
     if (error) { toast.error("Update failed"); return; }
     toast.success(`Provider ${status}`);
+    fetchAll();
+  };
+
+  const updateAccountStatus = async (type: ProviderType, id: string, status: string) => {
+    const { error } = await supabase.from(type).update({ account_status: status } as any).eq("id", id);
+    if (error) { toast.error("Update failed"); return; }
+    toast.success(`Account ${status}`);
     fetchAll();
   };
 
@@ -169,6 +188,7 @@ export default function AdminApprovals() {
       case "rejected": return <Badge className="bg-red-500/10 text-red-600 border-red-200">Rejected</Badge>;
       case "pending": return <Badge className="bg-amber-500/10 text-amber-600 border-amber-200">Pending</Badge>;
       case "returned": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Returned</Badge>;
+      case "suspended": return <Badge className="bg-orange-500/10 text-orange-600 border-orange-200">Suspended</Badge>;
       default: return <Badge variant="secondary">{status}</Badge>;
     }
   };
@@ -321,6 +341,28 @@ export default function AdminApprovals() {
             </Button>
           </div>
         )}
+
+        {/* Suspend button for approved providers */}
+        {p.approval_status === "approved" && p.account_status !== "suspended" && (
+          <Button variant="outline" onClick={handleSuspend} disabled={actionLoading} className="w-full gap-1.5 h-11 text-orange-600 border-orange-200 hover:bg-orange-50">
+            <Ban className="w-4 h-4" /> {actionLoading ? "Suspending..." : "Suspend Provider"}
+          </Button>
+        )}
+
+        {p.account_status === "suspended" && (
+          <div className="space-y-2">
+            <Badge className="bg-orange-500/10 text-orange-600 border-orange-200">Account Suspended</Badge>
+            <Button variant="outline" onClick={async () => {
+              setActionLoading(true);
+              await supabase.from(selectedType!).update({ account_status: "active" } as any).eq("id", p.id);
+              setActionLoading(false);
+              toast.success("Account reactivated");
+              closeDetail(); fetchAll();
+            }} disabled={actionLoading} className="w-full gap-1.5 h-11 text-emerald-600 border-emerald-200 hover:bg-emerald-50">
+              <CheckCircle2 className="w-4 h-4" /> Reactivate Account
+            </Button>
+          </div>
+        )}
       </div>
     );
   };
@@ -373,16 +415,22 @@ export default function AdminApprovals() {
                     <p className="text-sm font-medium text-foreground">{p.name}</p>
                     <p className="text-xs text-muted-foreground">{p[subtitleKey] || "—"}</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {statusBadge(p.approval_status)}
+                    {p.account_status === "suspended" && <Badge className="bg-orange-500/10 text-orange-600 border-orange-200 text-xs">Suspended</Badge>}
                     {p.approval_status === "rejected" && (
                       <Button size="sm" variant="outline" onClick={() => updateApproval(type, p.id, "approved")} className="text-xs gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" /> Approve
                       </Button>
                     )}
-                    {p.approval_status === "approved" && (
-                      <Button size="sm" variant="outline" onClick={() => updateApproval(type, p.id, "rejected")} className="text-xs gap-1 text-destructive">
-                        <XCircle className="w-3.5 h-3.5" /> Reject
+                    {p.approval_status === "approved" && p.account_status !== "suspended" && (
+                      <Button size="sm" variant="outline" onClick={() => updateAccountStatus(type, p.id, "suspended")} className="text-xs gap-1 text-orange-600">
+                        <Ban className="w-3.5 h-3.5" /> Suspend
+                      </Button>
+                    )}
+                    {p.account_status === "suspended" && (
+                      <Button size="sm" variant="outline" onClick={() => updateAccountStatus(type, p.id, "active")} className="text-xs gap-1 text-emerald-600">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Reactivate
                       </Button>
                     )}
                   </div>
