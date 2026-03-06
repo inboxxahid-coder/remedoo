@@ -114,24 +114,19 @@ const DoctorDetail = () => {
   return (
     <div className="min-h-screen bg-background pb-32">
       {/* Header */}
-      <div className="gradient-primary page-header px-5 pb-36 rounded-b-[2rem] relative overflow-hidden">
-        <motion.div
-          animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.1, 0.05] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-primary-foreground/5"
-        />
-        <div className="flex items-center justify-between relative z-10">
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border px-5 py-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
-            <h1 className="text-xl font-bold text-primary-foreground">Doctor Profile</h1>
+            <button onClick={() => navigate(-1)} className="text-foreground"><ArrowLeft className="w-6 h-6" /></button>
+            <h1 className="text-lg font-bold text-foreground">Doctor Profile</h1>
           </div>
-          <button onClick={toggleFavorite} className="w-10 h-10 rounded-full bg-primary-foreground/15 flex items-center justify-center">
-            <Heart className={`w-5 h-5 ${isFavorite ? "fill-emergency text-emergency" : "text-primary-foreground"}`} />
+          <button onClick={toggleFavorite} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+            <Heart className={`w-5 h-5 ${isFavorite ? "fill-emergency text-emergency" : "text-muted-foreground"}`} />
           </button>
         </div>
       </div>
 
-      <div className="px-5 -mt-20 space-y-4 relative z-10">
+      <div className="px-5 mt-4 space-y-4 relative z-10">
         {/* Doctor Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
