@@ -257,6 +257,11 @@ const BookAppointment = () => {
 
   const today = new Date().toISOString().split("T")[0];
 
+  const serviceKey = type === "doctor" ? "service_doctors_enabled" : type === "lab" ? "service_labs_enabled" : "service_pharmacy_enabled";
+  if (!services[serviceKey as keyof typeof services]) {
+    return <ServiceDisabledBanner serviceName={type === "doctor" ? "Doctor Appointments" : type === "lab" ? "Lab Tests" : "Pharmacy Orders"} />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="gradient-primary page-header px-5 pb-6 rounded-b-[1.5rem]">

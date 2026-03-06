@@ -217,6 +217,15 @@ const Emergency = () => {
 
   const currentStageIndex = activeTrip ? TRIP_STAGES.findIndex(s => s.key === activeTrip.status) : -1;
 
+  if (!services.service_ambulance_enabled) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <ServiceDisabledBanner serviceName="Ambulance Services" />
+        <BottomNav />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-8">
       <div className="gradient-emergency page-header px-5 pb-6 rounded-b-[1.5rem]">
