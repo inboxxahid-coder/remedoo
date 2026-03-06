@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
+import { useBranding } from "@/hooks/useBranding";
 import MaintenanceModePage from "@/pages/MaintenanceMode";
 
 // Lazy-loaded pages — each becomes a separate chunk
@@ -209,6 +210,7 @@ const PageLoader = () => (
 
 const AppRoutes = () => {
   const { isMaintenanceMode, loading: maintenanceLoading } = useMaintenanceMode();
+  useBranding(); // Apply admin-managed theme colors on mount
 
   if (maintenanceLoading) return <PageLoader />;
 
