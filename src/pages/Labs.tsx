@@ -209,7 +209,9 @@ const Labs = () => {
 
       {/* Lab listing — Swiggy-style cards */}
       <div className="px-4 space-y-3">
-        {loading ? (
+        {!services.service_labs_enabled ? (
+          <ServiceDisabledBanner serviceName="Lab Tests" />
+        ) : loading ? (
           <MedicalLoader text="Finding labs near you..." />
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
