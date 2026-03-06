@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { Ambulance, Truck, MapPin, Clock, Activity, IndianRupee, BarChart3 } from "lucide-react";
+import { Ambulance, Truck, MapPin, Clock, Activity, IndianRupee, BarChart3, Navigation } from "lucide-react";
+import AmbulanceMap from "@/components/patient/AmbulanceMap";
 
 export default function AdminAmbulance() {
   const [ambulances, setAmbulances] = useState<any[]>([]);
@@ -18,6 +18,7 @@ export default function AdminAmbulance() {
   const [labRanges, setLabRanges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [liveLocations, setLiveLocations] = useState<Record<string, { lat: number; lng: number }>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -38,9 +39,39 @@ export default function AdminAmbulance() {
       const allRanges = (rangesRes.data as any[]) || [];
       setHospitalRanges(allRanges.filter((r: any) => r.hospital_id));
       setLabRanges(allRanges.filter((r: any) => r.lab_id));
+
+      // Load live locations for active trips
+      const activeTrips = (tripRes.data || []).filter((t: any) => ["en_route", "arrived", "in_progress"].includes(t.status));
+      const locMap: Record<string, { lat: number; lng: number }> = {};
+      for (const t of activeTrips) {
+        const { data: loc } = await supabase
+          .from("driver_locations")
+          .select("latitude, longitude")
+          .eq("trip_id", t.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+        if (loc && loc.length > 0) locMap[t.id] = { lat: loc[0].latitude, lng: loc[0].longitude };
+      }
+      setLiveLocations(locMap);
       setLoading(false);
     };
     load();
+  }, []);
+
+  // Realtime for live locations
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-driver-tracking")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "driver_locations" }, (payload) => {
+        const loc = payload.new as any;
+        setLiveLocations(prev => ({ ...prev, [loc.trip_id]: { lat: loc.latitude, lng: loc.longitude } }));
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "ambulance_trips" }, (payload) => {
+        const updated = payload.new as any;
+        setTrips(prev => prev.map(t => t.id === updated.id ? { ...t, ...updated } : t));
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const statusColor = (s: string) => {
@@ -49,6 +80,7 @@ export default function AdminAmbulance() {
   };
 
   const completedTrips = trips.filter(t => t.status === "completed");
+  const activeTrips = trips.filter(t => ["assigned", "en_route", "arrived", "in_progress"].includes(t.status));
   const totalRevenue = completedTrips.reduce((s, t) => s + (t.total_fare || 0), 0);
   const avgResponse = completedTrips.filter(t => t.response_time_minutes).reduce((s, t, _, a) => s + (t.response_time_minutes || 0) / a.length, 0);
 
@@ -59,6 +91,7 @@ export default function AdminAmbulance() {
     totalTrips: trips.length,
     activeEmergencies: emergencies.filter(e => e.status === "pending" || e.status === "dispatched").length,
     completedTrips: completedTrips.length,
+    activeTrips: activeTrips.length,
     totalRevenue,
     avgResponse: avgResponse ? avgResponse.toFixed(1) : "—",
   };
@@ -74,7 +107,7 @@ export default function AdminAmbulance() {
         {[
           { label: "Total Fleet", value: stats.totalFleet, icon: Truck },
           { label: "Available", value: stats.available, icon: Activity },
-          { label: "On Duty", value: stats.onDuty, icon: MapPin },
+          { label: "Active Trips", value: stats.activeTrips, icon: Navigation },
           { label: "Active Emergencies", value: stats.activeEmergencies, icon: Ambulance },
           { label: "Total Trips", value: stats.totalTrips, icon: Clock },
           { label: "Completed Trips", value: stats.completedTrips, icon: BarChart3 },
@@ -89,14 +122,54 @@ export default function AdminAmbulance() {
         ))}
       </div>
 
-      <Tabs defaultValue="fleet">
+      <Tabs defaultValue={activeTrips.length > 0 ? "live" : "fleet"}>
         <TabsList className="flex-wrap">
+          {activeTrips.length > 0 && <TabsTrigger value="live">🔴 Live Tracking ({activeTrips.length})</TabsTrigger>}
           <TabsTrigger value="fleet">Fleet ({ambulances.length})</TabsTrigger>
           <TabsTrigger value="trips">Trip Logs ({trips.length})</TabsTrigger>
           <TabsTrigger value="emergencies">Emergencies ({emergencies.length})</TabsTrigger>
           <TabsTrigger value="hospital_pricing">Hospital Pricing</TabsTrigger>
           <TabsTrigger value="lab_pricing">Lab Pricing</TabsTrigger>
         </TabsList>
+
+        {/* Live Tracking Tab */}
+        {activeTrips.length > 0 && (
+          <TabsContent value="live" className="space-y-4 mt-4">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <Navigation className="w-5 h-5 text-primary animate-pulse" /> Active Ambulance Trips
+            </h3>
+            {activeTrips.map(trip => {
+              const loc = liveLocations[trip.id];
+              return (
+                <Card key={trip.id} className="p-4 border-2 border-primary/30 space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-foreground">Trip #{trip.id.slice(0, 8)}</span>
+                      <Badge variant="secondary" className="capitalize">{trip.status.replace("_", " ")}</Badge>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{(trip.hospitals as any)?.name || "—"}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Driver: {trip.driver_name || "—"} {trip.driver_phone ? `(${trip.driver_phone})` : ""} •
+                    {trip.distance_km ? ` ${trip.distance_km} km` : ""} • ₹{trip.total_fare || 0}
+                  </p>
+                  {loc && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">📍 {loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}</p>
+                      <AmbulanceMap
+                        userLat={loc.lat}
+                        userLng={loc.lng}
+                        ambulanceLat={loc.lat}
+                        ambulanceLng={loc.lng}
+                        ambulanceInfo={`🚑 ${trip.driver_name || "Driver"}`}
+                      />
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
+          </TabsContent>
+        )}
 
         {/* Fleet Tab */}
         <TabsContent value="fleet" className="space-y-3 mt-4">
@@ -191,7 +264,6 @@ export default function AdminAmbulance() {
                 {c.pricing_model === "per_km" && <><span>Base: ₹{c.base_fare}</span><span>Per KM: ₹{c.per_km_charge}</span></>}
                 {c.night_charge_enabled && <span>Night: ₹{c.night_charge_amount} ({c.night_charge_start}-{c.night_charge_end})</span>}
               </div>
-              {/* Show ranges for this hospital */}
               {c.pricing_model === "distance_range" && (
                 <div className="mt-2">
                   <p className="text-xs font-medium text-foreground mb-1">Distance Ranges:</p>

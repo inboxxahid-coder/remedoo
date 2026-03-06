@@ -163,6 +163,13 @@ const LabAmbulanceFleet = lazy(() => import("./pages/lab/LabAmbulanceFleet"));
 const LabAmbulanceTrips = lazy(() => import("./pages/lab/LabAmbulanceTrips"));
 const SupportTickets = lazy(() => import("./pages/SupportTickets"));
 
+// Driver Panel
+const DriverLayout = lazy(() => import("./pages/driver/DriverLayout"));
+const DriverDashboard = lazy(() => import("./pages/driver/DriverDashboard"));
+const DriverActiveTrip = lazy(() => import("./pages/driver/DriverActiveTrip"));
+const DriverHistory = lazy(() => import("./pages/driver/DriverHistory"));
+const DriverProfile = lazy(() => import("./pages/driver/DriverProfile"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -401,6 +408,14 @@ const AppRoutes = () => {
         <Route path="analytics" element={<LabAnalytics />} />
         <Route path="profile" element={<LabProfile />} />
         <Route path="settings" element={<LabSettings />} />
+      </Route>
+
+      {/* Driver routes */}
+      <Route path="/driver" element={<DriverLayout />}>
+        <Route index element={<DriverDashboard />} />
+        <Route path="active-trip" element={<DriverActiveTrip />} />
+        <Route path="history" element={<DriverHistory />} />
+        <Route path="profile" element={<DriverProfile />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
