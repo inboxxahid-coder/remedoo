@@ -10,6 +10,7 @@ import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolo
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPharmacyImage } from "@/lib/providerDefaults";
+import { usePharmacyMode } from "@/hooks/usePharmacyMode";
 
 const OFFER_BANNERS = [
   { emoji: "💊", title: "Flat 20% OFF", subtitle: "On first medicine order", bg: "from-emerald-500 to-teal-600" },
@@ -21,6 +22,7 @@ const FILTERS = ["Relevance", "Rating 4.0+", "Delivery Time", "Has Offers", "Nea
 
 const Pharmacies = () => {
   const navigate = useNavigate();
+  const { mode, loading: modeLoading } = usePharmacyMode();
   const [pharmacies, setPharmacies] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -31,6 +33,13 @@ const Pharmacies = () => {
   const [activeFilter, setActiveFilter] = useState("Relevance");
   const [bannerIdx, setBannerIdx] = useState(0);
   const { location } = useGeolocation();
+
+  // Redirect to Remedoo pharmacy page if mode is remedoo
+  useEffect(() => {
+    if (!modeLoading && mode === "remedoo") {
+      navigate("/remedoo-pharmacy", { replace: true });
+    }
+  }, [mode, modeLoading, navigate]);
 
   // Auto-rotate banners
   useEffect(() => {

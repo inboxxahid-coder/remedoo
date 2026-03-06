@@ -92,6 +92,10 @@ const AdminRefunds = lazy(() => import("./pages/admin/AdminRefunds"));
 const AdminTransactions = lazy(() => import("./pages/admin/AdminTransactions"));
 const AdminLoginLogs = lazy(() => import("./pages/admin/AdminLoginLogs"));
 const AdminAnalyticsDetailed = lazy(() => import("./pages/admin/AdminAnalyticsDetailed"));
+const AdminPharmacyControl = lazy(() => import("./pages/admin/AdminPharmacyControl"));
+const AdminRemedooInventory = lazy(() => import("./pages/admin/AdminRemedooInventory"));
+const AdminRemedooOrders = lazy(() => import("./pages/admin/AdminRemedooOrders"));
+const AdminDeliveryDrivers = lazy(() => import("./pages/admin/AdminDeliveryDrivers"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -143,6 +147,10 @@ const PharmacySupportTickets = lazy(() => import("./pages/pharmacy/PharmacySuppo
 const PharmacyReviews = lazy(() => import("./pages/pharmacy/PharmacyReviews"));
 const PharmacyAuditLogs = lazy(() => import("./pages/pharmacy/PharmacyAuditLogs"));
 const PharmacyAnalytics = lazy(() => import("./pages/pharmacy/PharmacyAnalytics"));
+const RemedooPharmacyPage = lazy(() => import("./pages/pharmacy/RemedooPharmacyPage"));
+const RemedooCheckout = lazy(() => import("./pages/pharmacy/RemedooCheckout"));
+const RemedooOrderTracking = lazy(() => import("./pages/pharmacy/RemedooOrderTracking"));
+const DeliveryDriverDashboard = lazy(() => import("./pages/pharmacy/DeliveryDriverDashboard"));
 
 // Lab Panel
 const LabLayout = lazy(() => import("./pages/lab/LabLayout"));
@@ -243,6 +251,10 @@ const AppRoutes = () => {
           <Route path="transactions" element={<AdminTransactions />} />
           <Route path="logs" element={<AdminLoginLogs />} />
           <Route path="analytics" element={<AdminAnalyticsDetailed />} />
+          <Route path="pharmacy-control" element={<AdminPharmacyControl />} />
+          <Route path="remedoo-inventory" element={<AdminRemedooInventory />} />
+          <Route path="remedoo-orders" element={<AdminRemedooOrders />} />
+          <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -288,6 +300,10 @@ const AppRoutes = () => {
       <Route path="/payment-failure" element={<PaymentFailure />} />
       <Route path="/refunds" element={<RefundTracking />} />
       <Route path="/support-tickets" element={<SupportTickets />} />
+      <Route path="/remedoo-pharmacy" element={<RemedooPharmacyPage />} />
+      <Route path="/remedoo-checkout" element={<RemedooCheckout />} />
+      <Route path="/remedoo-order/:id" element={<RemedooOrderTracking />} />
+      <Route path="/delivery-driver" element={<DeliveryDriverDashboard />} />
 
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
@@ -335,6 +351,10 @@ const AppRoutes = () => {
         <Route path="transactions" element={<AdminTransactions />} />
         <Route path="logs" element={<AdminLoginLogs />} />
         <Route path="analytics" element={<AdminAnalyticsDetailed />} />
+        <Route path="pharmacy-control" element={<AdminPharmacyControl />} />
+        <Route path="remedoo-inventory" element={<AdminRemedooInventory />} />
+        <Route path="remedoo-orders" element={<AdminRemedooOrders />} />
+        <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
       </Route>
 
       {/* Doctor routes */}
