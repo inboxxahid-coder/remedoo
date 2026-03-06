@@ -45,6 +45,7 @@ const LabReportDetail = lazy(() => import("./pages/LabReportDetail"));
 const PaymentFailure = lazy(() => import("./pages/PaymentFailure"));
 const RefundTracking = lazy(() => import("./pages/RefundTracking"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const SymptomChecker = lazy(() => import("./pages/SymptomChecker"));
 
 // Admin
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
@@ -97,6 +98,7 @@ const AdminRemedooInventory = lazy(() => import("./pages/admin/AdminRemedooInven
 const AdminRemedooOrders = lazy(() => import("./pages/admin/AdminRemedooOrders"));
 const AdminDeliveryDrivers = lazy(() => import("./pages/admin/AdminDeliveryDrivers"));
 const AdminPharmacyAnalytics = lazy(() => import("./pages/admin/AdminPharmacyAnalytics"));
+const AdminSymptomAssistant = lazy(() => import("./pages/admin/AdminSymptomAssistant"));
 
 // Doctor Panel
 const DoctorLayout = lazy(() => import("./pages/doctor/DoctorLayout"));
@@ -256,7 +258,8 @@ const AppRoutes = () => {
           <Route path="remedoo-inventory" element={<AdminRemedooInventory />} />
           <Route path="remedoo-orders" element={<AdminRemedooOrders />} />
           <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
-          <Route path="pharmacy-analytics" element={<AdminPharmacyAnalytics />} />
+           <Route path="pharmacy-analytics" element={<AdminPharmacyAnalytics />} />
+          <Route path="symptom-assistant" element={<AdminSymptomAssistant />} />
         </Route>
         <Route path="*" element={<MaintenanceModePage />} />
       </Routes>
@@ -302,6 +305,7 @@ const AppRoutes = () => {
       <Route path="/payment-failure" element={<PaymentFailure />} />
       <Route path="/refunds" element={<RefundTracking />} />
       <Route path="/support-tickets" element={<SupportTickets />} />
+      <Route path="/symptom-checker" element={<SymptomChecker />} />
       <Route path="/remedoo-pharmacy" element={<RemedooPharmacyPage />} />
       <Route path="/remedoo-checkout" element={<RemedooCheckout />} />
       <Route path="/remedoo-order/:id" element={<RemedooOrderTracking />} />
@@ -357,7 +361,8 @@ const AppRoutes = () => {
         <Route path="remedoo-inventory" element={<AdminRemedooInventory />} />
         <Route path="remedoo-orders" element={<AdminRemedooOrders />} />
           <Route path="delivery-drivers" element={<AdminDeliveryDrivers />} />
-          <Route path="pharmacy-analytics" element={<AdminPharmacyAnalytics />} />
+           <Route path="pharmacy-analytics" element={<AdminPharmacyAnalytics />} />
+          <Route path="symptom-assistant" element={<AdminSymptomAssistant />} />
         </Route>
 
       {/* Doctor routes */}
