@@ -583,6 +583,26 @@ export default function AdminTeam() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="relative">
+                <Avatar className="h-20 w-20 border-2 border-dashed border-border">
+                  {(editPhotoFile ? URL.createObjectURL(editPhotoFile) : editPhotoPreview) ? (
+                    <AvatarImage src={editPhotoFile ? URL.createObjectURL(editPhotoFile) : (editPhotoPreview || "")} />
+                  ) : null}
+                  <AvatarFallback className="bg-muted"><Camera className="w-6 h-6 text-muted-foreground" /></AvatarFallback>
+                </Avatar>
+                <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer shadow-md hover:opacity-90">
+                  <Upload className="w-3.5 h-3.5" />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setEditPhotoFile(file);
+                    e.target.value = "";
+                  }} />
+                </label>
+              </div>
+              <p className="text-xs text-muted-foreground">Profile Photo</p>
+            </div>
             <div className="space-y-1.5">
               <Label>Full Name *</Label>
               <Input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
