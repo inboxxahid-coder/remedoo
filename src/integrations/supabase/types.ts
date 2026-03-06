@@ -1118,6 +1118,111 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_drivers: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          license_number: string | null
+          license_url: string | null
+          name: string
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          vehicle_number: string | null
+          vehicle_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          license_number?: string | null
+          license_url?: string | null
+          name: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          vehicle_number?: string | null
+          vehicle_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          license_number?: string | null
+          license_url?: string | null
+          name?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_number?: string | null
+          vehicle_type?: string | null
+        }
+        Relationships: []
+      }
+      delivery_orders: {
+        Row: {
+          created_at: string
+          delivered_at: string | null
+          delivery_address: string | null
+          driver_id: string | null
+          driver_latitude: number | null
+          driver_longitude: number | null
+          estimated_delivery_minutes: number | null
+          id: string
+          order_id: string
+          pickup_address: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          driver_id?: string | null
+          driver_latitude?: number | null
+          driver_longitude?: number | null
+          estimated_delivery_minutes?: number | null
+          id?: string
+          order_id: string
+          pickup_address?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          driver_id?: string | null
+          driver_latitude?: number | null
+          driver_longitude?: number | null
+          estimated_delivery_minutes?: number | null
+          id?: string
+          order_id?: string
+          pickup_address?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_orders_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_orders_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "remedoo_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           created_at: string
@@ -3045,6 +3150,120 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      remedoo_orders: {
+        Row: {
+          delivery_address: string | null
+          delivery_fee: number
+          id: string
+          items: Json
+          notes: string | null
+          payment_method: string
+          payment_status: string
+          placed_at: string
+          prescription_url: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          delivery_address?: string | null
+          delivery_fee?: number
+          id?: string
+          items?: Json
+          notes?: string | null
+          payment_method?: string
+          payment_status?: string
+          placed_at?: string
+          prescription_url?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          delivery_address?: string | null
+          delivery_fee?: number
+          id?: string
+          items?: Json
+          notes?: string | null
+          payment_method?: string
+          payment_status?: string
+          placed_at?: string
+          prescription_url?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      remedoo_pharmacy_inventory: {
+        Row: {
+          batch_number: string | null
+          category: string
+          created_at: string
+          description: string | null
+          discount_percent: number | null
+          expiry_date: string | null
+          generic_name: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          mrp: number | null
+          name: string
+          price: number
+          requires_prescription: boolean
+          stock_quantity: number
+          supplier_contact: string | null
+          supplier_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          batch_number?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          expiry_date?: string | null
+          generic_name?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          mrp?: number | null
+          name: string
+          price?: number
+          requires_prescription?: boolean
+          stock_quantity?: number
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          batch_number?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number | null
+          expiry_date?: string | null
+          generic_name?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          mrp?: number | null
+          name?: string
+          price?: number
+          requires_prescription?: boolean
+          stock_quantity?: number
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       reviews: {
         Row: {
