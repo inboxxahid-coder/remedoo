@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2, Pencil, KeyRound, Mail, Lock
+  Search, Plus, UserCheck, UserX, MoreHorizontal, Shield, Loader2, Trash2, Pencil, KeyRound, Mail, Lock, Upload, X, Camera
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import AdminPermissionsDialog from "@/components/admin/AdminPermissionsDialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const DESIGNATIONS = [
   "Super Admin",
@@ -41,6 +42,7 @@ interface AdminMember {
   phone: string | null;
   is_active: boolean;
   created_at: string;
+  avatar_url: string | null;
 }
 
 export default function AdminTeam() {
@@ -53,6 +55,8 @@ export default function AdminTeam() {
   // Edit state
   const [editMember, setEditMember] = useState<AdminMember | null>(null);
   const [editForm, setEditForm] = useState({ name: "", designation: "", phone: "" });
+  const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
+  const [editPhotoPreview, setEditPhotoPreview] = useState<string | null>(null);
 
   // Change email state
   const [emailMember, setEmailMember] = useState<AdminMember | null>(null);
@@ -69,6 +73,17 @@ export default function AdminTeam() {
   const [form, setForm] = useState({
     name: "", email: "", password: "", designation: "Admin", phone: "",
   });
+  const [addPhotoFile, setAddPhotoFile] = useState<File | null>(null);
+  const [addPhotoPreview, setAddPhotoPreview] = useState<string | null>(null);
+
+  const uploadAvatar = async (file: File, userId: string): Promise<string | null> => {
+    const ext = file.name.split(".").pop();
+    const path = `admin/${userId}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (error) return null;
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    return data.publicUrl;
+  };
 
   const fetchTeam = async () => {
     setLoading(true);
@@ -132,6 +147,11 @@ export default function AdminTeam() {
         return;
       }
 
+      let avatarUrl: string | null = null;
+      if (addPhotoFile) {
+        avatarUrl = await uploadAvatar(addPhotoFile, userId);
+      }
+
       const currentUser = (await supabase.auth.getUser()).data.user;
       const { error: teamError } = await supabase.from("admin_team").insert({
         user_id: userId,
@@ -140,7 +160,8 @@ export default function AdminTeam() {
         designation: form.designation,
         phone: form.phone || null,
         created_by: currentUser?.id,
-      });
+        avatar_url: avatarUrl,
+      } as any);
 
       if (teamError) {
         toast.error("User & role created, but team record failed");
@@ -150,6 +171,8 @@ export default function AdminTeam() {
 
       setShowAdd(false);
       setForm({ name: "", email: "", password: "", designation: "Admin", phone: "" });
+      setAddPhotoFile(null);
+      setAddPhotoPreview(null);
       fetchTeam();
     } catch (err) {
       toast.error("Unexpected error creating admin");
@@ -161,6 +184,8 @@ export default function AdminTeam() {
   const openEdit = (member: AdminMember) => {
     setEditMember(member);
     setEditForm({ name: member.name, designation: member.designation, phone: member.phone || "" });
+    setEditPhotoFile(null);
+    setEditPhotoPreview(member.avatar_url || null);
   };
 
   const handleSaveEdit = async () => {
@@ -169,15 +194,24 @@ export default function AdminTeam() {
       return;
     }
     setSaving(true);
+    const updates: Record<string, any> = { name: editForm.name, designation: editForm.designation, phone: editForm.phone || null };
+
+    if (editPhotoFile) {
+      const url = await uploadAvatar(editPhotoFile, editMember.user_id);
+      if (url) updates.avatar_url = url;
+    }
+
     const { error } = await supabase
       .from("admin_team")
-      .update({ name: editForm.name, designation: editForm.designation, phone: editForm.phone || null })
+      .update(updates)
       .eq("id", editMember.id);
     if (error) {
       toast.error("Failed to update details");
     } else {
       toast.success("Admin details updated");
       setEditMember(null);
+      setEditPhotoFile(null);
+      setEditPhotoPreview(null);
       fetchTeam();
     }
     setSaving(false);
@@ -407,7 +441,15 @@ export default function AdminTeam() {
                 <TableBody>
                   {filtered.map((m) => (
                     <TableRow key={m.id}>
-                      <TableCell className="font-medium">{m.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2.5">
+                          <Avatar className="h-8 w-8">
+                            {m.avatar_url ? <AvatarImage src={m.avatar_url} alt={m.name} /> : null}
+                            <AvatarFallback className="text-xs bg-primary/10 text-primary">{m.name.charAt(0).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          {m.name}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-sm">{m.email}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="font-medium">{m.designation}</Badge>
@@ -435,9 +477,15 @@ export default function AdminTeam() {
               {filtered.map((m) => (
                 <div key={m.id} className="p-4 space-y-2">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-foreground">{m.name}</p>
-                      <p className="text-sm text-muted-foreground">{m.email}</p>
+                    <div className="flex items-center gap-2.5">
+                      <Avatar className="h-9 w-9">
+                        {m.avatar_url ? <AvatarImage src={m.avatar_url} alt={m.name} /> : null}
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">{m.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-foreground">{m.name}</p>
+                        <p className="text-sm text-muted-foreground">{m.email}</p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-1">
                       {m.is_active ? (
@@ -469,6 +517,27 @@ export default function AdminTeam() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="relative">
+                <Avatar className="h-20 w-20 border-2 border-dashed border-border">
+                  {addPhotoPreview ? <AvatarImage src={addPhotoPreview} /> : null}
+                  <AvatarFallback className="bg-muted"><Camera className="w-6 h-6 text-muted-foreground" /></AvatarFallback>
+                </Avatar>
+                <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer shadow-md hover:opacity-90">
+                  <Upload className="w-3.5 h-3.5" />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setAddPhotoFile(file);
+                      setAddPhotoPreview(URL.createObjectURL(file));
+                    }
+                    e.target.value = "";
+                  }} />
+                </label>
+              </div>
+              <p className="text-xs text-muted-foreground">Profile Photo (optional)</p>
+            </div>
             <div className="space-y-1.5">
               <Label>Full Name *</Label>
               <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Enter full name" />
@@ -514,6 +583,26 @@ export default function AdminTeam() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="relative">
+                <Avatar className="h-20 w-20 border-2 border-dashed border-border">
+                  {(editPhotoFile ? URL.createObjectURL(editPhotoFile) : editPhotoPreview) ? (
+                    <AvatarImage src={editPhotoFile ? URL.createObjectURL(editPhotoFile) : (editPhotoPreview || "")} />
+                  ) : null}
+                  <AvatarFallback className="bg-muted"><Camera className="w-6 h-6 text-muted-foreground" /></AvatarFallback>
+                </Avatar>
+                <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer shadow-md hover:opacity-90">
+                  <Upload className="w-3.5 h-3.5" />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setEditPhotoFile(file);
+                    e.target.value = "";
+                  }} />
+                </label>
+              </div>
+              <p className="text-xs text-muted-foreground">Profile Photo</p>
+            </div>
             <div className="space-y-1.5">
               <Label>Full Name *</Label>
               <Input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
