@@ -29,6 +29,9 @@ const BookAppointment = () => {
   const [paymentMethod, setPaymentMethod] = useState<"at_clinic" | "online">("at_clinic");
   const [loading, setLoading] = useState(false);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [isVideoConsultation, setIsVideoConsultation] = useState(false);
+  const [videoConsultationFee, setVideoConsultationFee] = useState<number | null>(null);
+  const [videoEnabled, setVideoEnabled] = useState(false);
 
   // Lab test selection
   const [labTests, setLabTests] = useState<Tables<"lab_tests">[]>([]);
@@ -47,8 +50,12 @@ const BookAppointment = () => {
       if (data) setProviderName(data.name);
 
       if (type === "doctor") {
-        const { data: docData } = await supabase.from("doctors").select("consultation_fee").eq("id", id).single();
+        const { data: docData } = await supabase.from("doctors").select("consultation_fee, video_consultation_enabled, video_consultation_fee").eq("id", id).single();
         if (docData?.consultation_fee) setConsultationFee(docData.consultation_fee);
+        if (docData?.video_consultation_enabled) {
+          setVideoEnabled(true);
+          setVideoConsultationFee(docData.video_consultation_fee || docData.consultation_fee);
+        }
       }
 
       if (type === "hospital") {
