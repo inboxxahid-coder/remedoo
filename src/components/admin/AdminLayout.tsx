@@ -8,7 +8,7 @@ import {
   CheckSquare, AlertTriangle, FilePenLine, KeyRound, LayoutGrid, Heart, Zap, Star, CreditCard, Grid3X3,
   ChevronDown, Layers, Settings, BarChart3, Headphones, Bell, Search,
   MessageSquare, Ticket, MapPin, Send, HelpCircle, Crown, Ambulance,
-  FileText, RotateCcw, Receipt, Activity, Truck, Package, Brain, Palette
+  FileText, RotateCcw, Receipt, Activity, Truck, Package, Brain, Palette, Key
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
