@@ -18,6 +18,7 @@ const BookAppointment = () => {
   const navigate = useNavigate();
   const { type, id } = useParams<{ type: string; id: string }>();
   const [searchParams] = useSearchParams();
+  const { services } = useServiceToggle();
   const preselectedTestId = searchParams.get("test");
 
   const [providerName, setProviderName] = useState("");

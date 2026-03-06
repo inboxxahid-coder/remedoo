@@ -23,6 +23,7 @@ const TRIP_STAGES = [
 
 const Emergency = () => {
   const navigate = useNavigate();
+  const { services } = useServiceToggle();
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
