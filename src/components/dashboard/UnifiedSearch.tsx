@@ -13,10 +13,10 @@ interface SearchResult {
 }
 
 const typeConfig = {
-  doctor: { icon: Stethoscope, label: "Doctor", path: (id: string) => `/book/doctor/${id}` },
-  hospital: { icon: Building2, label: "Hospital", path: () => "/hospitals" },
-  lab: { icon: FlaskConical, label: "Lab", path: () => "/labs" },
-  pharmacy: { icon: Store, label: "Pharmacy", path: () => "/pharmacies" },
+  doctor: { icon: Stethoscope, label: "Doctor", path: (id: string) => `/doctor/${id}` },
+  hospital: { icon: Building2, label: "Hospital", path: (id: string) => `/hospital/${id}` },
+  lab: { icon: FlaskConical, label: "Lab", path: (id: string) => `/lab/${id}` },
+  pharmacy: { icon: Store, label: "Pharmacy", path: (id: string) => `/pharmacy/${id}` },
   medicine: { icon: Pill, label: "Medicine", path: (id: string, extra?: string) => extra ? `/pharmacy/${extra}` : "/pharmacies" },
 };
 
