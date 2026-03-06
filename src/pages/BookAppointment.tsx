@@ -294,6 +294,19 @@ const BookAppointment = () => {
           </div>
         )}
 
+        {/* Video Consultation Toggle */}
+        {type === "doctor" && videoEnabled && (
+          <div className="bg-card rounded-2xl border border-border p-4 mb-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-sm text-foreground">📹 Video Consultation</p>
+                <p className="text-xs text-muted-foreground">Consult online from home{videoConsultationFee ? ` · ₹${videoConsultationFee}` : ""}</p>
+              </div>
+              <Switch checked={isVideoConsultation} onCheckedChange={setIsVideoConsultation} />
+            </div>
+          </div>
+        )}
+
         {/* Doctor Selection for Hospital Booking */}
         {type === "hospital" && hospitalDoctors.length > 0 && (
           <div className="bg-card rounded-2xl border border-border p-4 mb-4 shadow-sm space-y-2">
