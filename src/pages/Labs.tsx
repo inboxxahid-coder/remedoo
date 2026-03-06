@@ -23,6 +23,7 @@ const FILTERS = ["Relevance", "Rating 4.0+", "Most Tests", "Has Offers", "Neares
 
 const Labs = () => {
   const navigate = useNavigate();
+  const { services } = useServiceToggle();
   const [labs, setLabs] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
