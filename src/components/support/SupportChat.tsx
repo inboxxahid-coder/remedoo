@@ -176,7 +176,7 @@ export default function SupportChat({
     setNewMsg("");
     setShowQuickReplies(false);
 
-    if (isAdmin && ticketStatus === "open") {
+    if (isAdmin && liveStatus === "open") {
       await supabase.from("support_tickets").update({ status: "in_progress" }).eq("id", ticketId);
     }
   };
