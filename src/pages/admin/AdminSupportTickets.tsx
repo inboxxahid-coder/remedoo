@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { MessageSquare, Filter, Clock, Users, Stethoscope, Building2, FlaskConical, Pill } from "lucide-react";
+import { MessageSquare, Filter, Clock, Users, Stethoscope, Building2, FlaskConical, Pill, Search } from "lucide-react";
 import SupportChat from "@/components/support/SupportChat";
 
 const BRANCHES = [
@@ -27,6 +28,7 @@ export default function AdminSupportTickets() {
   const [branch, setBranch] = useState("all");
   const [chatTicket, setChatTicket] = useState<any>(null);
   const [userId, setUserId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const load = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -40,7 +42,13 @@ export default function AdminSupportTickets() {
 
   const filtered = tickets
     .filter(t => statusFilter === "all" || t.status === statusFilter)
-    .filter(t => branch === "all" || (t.sender_type || "patient") === branch);
+    .filter(t => branch === "all" || (t.sender_type || "patient") === branch)
+    .filter(t => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.trim().toLowerCase();
+      const ticketNum = String(t.ticket_number || "");
+      return ticketNum.includes(q) || (t.subject || "").toLowerCase().includes(q) || (t.description || "").toLowerCase().includes(q);
+    });
 
   const getCountForBranch = (b: string) => {
     if (b === "all") return tickets.filter(t => t.status === "open" || t.status === "in_progress").length;
@@ -94,6 +102,17 @@ export default function AdminSupportTickets() {
         <Badge variant="outline">{tickets.filter(t => t.status === "open" || t.status === "in_progress").length} active</Badge>
       </div>
 
+      {/* Search */}
+      <div className="relative w-full sm:w-80">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by ticket #, subject..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
       {/* Branch Tabs */}
       <Tabs value={branch} onValueChange={setBranch}>
         <TabsList className="w-full flex-wrap h-auto gap-1 p-1">
@@ -131,6 +150,7 @@ export default function AdminSupportTickets() {
               <div className="flex items-start justify-between flex-wrap gap-3">
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded text-primary font-bold">#{t.ticket_number}</span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full capitalize">
                       {senderIcon(t.sender_type || "patient")}
                       {t.sender_type || "patient"}
@@ -159,6 +179,8 @@ export default function AdminSupportTickets() {
             <SupportChat
               ticketId={chatTicket.id}
               ticketSubject={chatTicket.subject}
+              ticketDescription={chatTicket.description}
+              ticketNumber={chatTicket.ticket_number}
               ticketStatus={chatTicket.status}
               currentUserId={userId}
               isAdmin

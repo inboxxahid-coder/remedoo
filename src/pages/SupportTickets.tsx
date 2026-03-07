@@ -37,7 +37,6 @@ export default function PatientSupportTickets() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    // Check for existing open ticket
     const { data: existing } = await supabase.from("support_tickets").select("id").eq("user_id", session.user.id).in("status", ["open", "in_progress"]).limit(1);
     if (existing && existing.length > 0) { toast.error("You already have an open query. Please wait for it to be resolved."); return; }
 
@@ -75,7 +74,7 @@ export default function PatientSupportTickets() {
     <div className="space-y-6 pb-24">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <MessageSquare className="w-6 h-6 text-primary" /> Support
+          <MessageSquare className="w-6 h-6 text-primary" /> My Queries
         </h1>
         {!hasOpenTicket && (
           <Button size="sm" onClick={() => setDialogOpen(true)}>
@@ -98,6 +97,7 @@ export default function PatientSupportTickets() {
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded text-primary font-bold">#{t.ticket_number}</span>
                   <p className="font-semibold text-foreground">{t.subject}</p>
                   <Badge variant={statusColor(t.status)}>{t.status.replace("_", " ")}</Badge>
                 </div>
@@ -137,6 +137,8 @@ export default function PatientSupportTickets() {
             <SupportChat
               ticketId={chatTicket.id}
               ticketSubject={chatTicket.subject}
+              ticketDescription={chatTicket.description}
+              ticketNumber={chatTicket.ticket_number}
               ticketStatus={chatTicket.status}
               currentUserId={userId}
               onClose={() => setChatTicket(null)}
