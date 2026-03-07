@@ -17,6 +17,7 @@ import BottomNav from "@/components/BottomNav";
 export default function PatientSupportTickets() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAuth, setIsAuth] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ subject: "", description: "", category: "general", priority: "medium" });
   const [saving, setSaving] = useState(false);
@@ -27,7 +28,11 @@ export default function PatientSupportTickets() {
 
   const load = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    setIsAuth(!!session);
+    if (!session) {
+      setLoading(false);
+      return;
+    }
     setUserId(session.user.id);
     const { data } = await supabase.from("support_tickets").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
     setTickets(data || []);
@@ -49,7 +54,7 @@ export default function PatientSupportTickets() {
   const handleSubmit = async () => {
     if (!form.subject.trim() || !form.description.trim()) { toast.error("Subject and description required"); return; }
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) { toast.error("Please login to create a ticket"); navigate("/login", { replace: true }); return; }
 
     const { data: existing } = await supabase.from("support_tickets").select("id").eq("user_id", session.user.id).in("status", ["open", "in_progress"]).limit(1);
     if (existing && existing.length > 0) { toast.error("You already have an open query. Please wait for it to be resolved."); return; }
@@ -118,7 +123,7 @@ export default function PatientSupportTickets() {
             <p className="text-xs text-muted-foreground">{tickets.length} total queries</p>
           </div>
           {!hasOpenTicket && (
-            <Button size="sm" onClick={() => setDialogOpen(true)} className="text-xs">
+            <Button size="sm" onClick={() => { if (!isAuth) { toast.error("Please login to create a ticket"); navigate("/login", { replace: true }); return; } setDialogOpen(true); }} className="text-xs" disabled={!isAuth && loading === false}>
               <Plus className="w-4 h-4 mr-1" /> New
             </Button>
           )}
@@ -144,18 +149,18 @@ export default function PatientSupportTickets() {
               {search ? "No queries match your search" : "No queries yet. Need help? Create a ticket."}
             </p>
             {!search && !hasOpenTicket && (
-              <Button size="sm" onClick={() => setDialogOpen(true)} className="mt-4">
+              <Button size="sm" onClick={() => { if (!isAuth) { toast.error("Please login to create a ticket"); navigate("/login", { replace: true }); return; } setDialogOpen(true); }} className="mt-4" disabled={!isAuth && loading === false}>
                 <Plus className="w-4 h-4 mr-1" /> Create Query
               </Button>
             )}
           </Card>
         ) : (
-          filtered.map(t => (
-            <Card
-              key={t.id}
-              className="p-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
-              onClick={() => setChatTicket(t)}
-            >
+           filtered.map(t => (
+             <Card
+               key={t.id}
+               className={`p-4 ${isAuth ? "cursor-pointer hover:shadow-md" : "cursor-not-allowed opacity-60"} transition-shadow active:scale-[0.98]`}
+               onClick={() => { if (!isAuth) { toast.error("Please login to view queries"); navigate("/login", { replace: true }); return; } setChatTicket(t); }}
+             >
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-bold">#{t.ticket_number}</span>
