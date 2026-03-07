@@ -43,6 +43,7 @@ interface SupportChatProps {
   onClose?: () => void;
   onCloseTicket?: () => void;
   onViewAllQueries?: () => void;
+  onStatusChange?: (newStatus: string) => void;
 }
 
 export default function SupportChat({
@@ -56,6 +57,7 @@ export default function SupportChat({
   onClose,
   onCloseTicket,
   onViewAllQueries,
+  onStatusChange,
 }: SupportChatProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMsg, setNewMsg] = useState("");
@@ -64,9 +66,13 @@ export default function SupportChat({
   const [closeCountdown, setCloseCountdown] = useState(0);
   const [adminCloseWarning, setAdminCloseWarning] = useState(false);
   const [showQuickReplies, setShowQuickReplies] = useState(false);
+  const [liveStatus, setLiveStatus] = useState(ticketStatus);
   const bottomRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const isClosed = ticketStatus === "resolved" || ticketStatus === "closed";
+  const isClosed = liveStatus === "resolved" || liveStatus === "closed";
+
+  // Sync liveStatus when prop changes
+  useEffect(() => { setLiveStatus(ticketStatus); }, [ticketStatus]);
 
   const quickReplies = isAdmin ? ADMIN_QUICK_REPLIES : PATIENT_QUICK_REPLIES;
 
@@ -106,8 +112,19 @@ export default function SupportChat({
         }
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "support_ticket_messages", filter: `ticket_id=eq.${ticketId}` }, () => {
-        // Refresh on updates (read status etc)
         loadMessages();
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "support_tickets", filter: `id=eq.${ticketId}` }, (payload: any) => {
+        const newStatus = payload.new?.status;
+        if (newStatus) {
+          setLiveStatus(newStatus);
+          onStatusChange?.(newStatus);
+          if (newStatus === "resolved" || newStatus === "closed") {
+            setClosing(false);
+            setCloseCountdown(0);
+            if (timerRef.current) clearInterval(timerRef.current);
+          }
+        }
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -159,7 +176,7 @@ export default function SupportChat({
     setNewMsg("");
     setShowQuickReplies(false);
 
-    if (isAdmin && ticketStatus === "open") {
+    if (isAdmin && liveStatus === "open") {
       await supabase.from("support_tickets").update({ status: "in_progress" }).eq("id", ticketId);
     }
   };
@@ -211,7 +228,7 @@ export default function SupportChat({
             )}
             <h3 className="text-sm font-bold truncate">{ticketSubject}</h3>
           </div>
-          <p className="text-[10px] opacity-75 capitalize">{ticketStatus.replace("_", " ")}</p>
+          <p className="text-[10px] opacity-75 capitalize">{liveStatus.replace("_", " ")}</p>
         </div>
         <div className="flex items-center gap-1">
           {onViewAllQueries && (
