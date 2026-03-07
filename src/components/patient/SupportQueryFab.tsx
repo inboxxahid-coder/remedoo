@@ -53,6 +53,7 @@ export default function SupportQueryFab() {
       description: description.trim(),
       category: "general",
       priority: "medium",
+      sender_type: "patient",
     }).select().single();
     setLoading(false);
 

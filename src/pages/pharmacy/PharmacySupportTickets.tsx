@@ -39,7 +39,7 @@ export default function PharmacySupportTickets() {
     setSaving(true);
     const { error } = await supabase.from("support_tickets").insert({
       user_id: session.user.id, subject: form.subject, description: form.description,
-      category: form.category, priority: form.priority,
+      category: form.category, priority: form.priority, sender_type: "pharmacy",
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
