@@ -1,0 +1,1 @@
+ALTER TABLE public.support_ticket_messages ADD COLUMN IF NOT EXISTS is_read BOOLEAN NOT NULL DEFAULT false;
