@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Stethoscope, Building2, ShoppingBag, CalendarCheck, Store, AlertTriangle, IndianRupee, FlaskConical, Clock, TrendingUp, ArrowRight, CheckSquare } from "lucide-react";
+import { Users, Stethoscope, Building2, ShoppingBag, CalendarCheck, Store, AlertTriangle, IndianRupee, FlaskConical, Clock, TrendingUp, ArrowRight, CheckSquare, Download } from "lucide-react";
 import PlatformHealthAnalytics from "@/components/admin/PlatformHealthAnalytics";
 import { motion } from "framer-motion";
 
