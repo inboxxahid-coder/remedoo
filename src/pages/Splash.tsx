@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
 const icons = ["💊", "🩺", "🏥", "❤️", "💉", "🧬", "🧪"];
 const letters = "Remedoo".split("");
@@ -40,9 +41,15 @@ const Splash = () => {
   useEffect(() => {
     const t1 = setTimeout(() => setMorphed(true), 1000);
     const t2 = setTimeout(() => setShowTagline(true), 2200);
-    const t3 = setTimeout(() => {
+    const t3 = setTimeout(async () => {
       const hasOnboarded = localStorage.getItem("remedoo_onboarded");
-      navigate(hasOnboarded ? "/login" : "/onboarding", { replace: true });
+      if (!hasOnboarded) {
+        navigate("/onboarding", { replace: true });
+        return;
+      }
+      // If already logged in, go straight to dashboard
+      const { data: { session } } = await supabase.auth.getSession();
+      navigate(session ? "/dashboard" : "/login", { replace: true });
     }, 3400);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [navigate]);
