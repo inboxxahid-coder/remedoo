@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Users, Stethoscope, Building2, ShoppingBag, CalendarCheck, Store, AlertTriangle, IndianRupee, FlaskConical, Clock, TrendingUp, ArrowRight, CheckSquare, Download } from "lucide-react";
 import PlatformHealthAnalytics from "@/components/admin/PlatformHealthAnalytics";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { downloadDemoCredentialsPdf } from "@/lib/generateDemoCredentialsPdf";
 
 interface StatCard {
   label: string;
