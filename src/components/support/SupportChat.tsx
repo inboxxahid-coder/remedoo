@@ -228,7 +228,7 @@ export default function SupportChat({
             )}
             <h3 className="text-sm font-bold truncate">{ticketSubject}</h3>
           </div>
-          <p className="text-[10px] opacity-75 capitalize">{ticketStatus.replace("_", " ")}</p>
+          <p className="text-[10px] opacity-75 capitalize">{liveStatus.replace("_", " ")}</p>
         </div>
         <div className="flex items-center gap-1">
           {onViewAllQueries && (
