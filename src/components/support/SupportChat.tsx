@@ -96,10 +96,18 @@ export default function SupportChat({
     const channel = supabase
       .channel(`ticket-${ticketId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "support_ticket_messages", filter: `ticket_id=eq.${ticketId}` }, (payload) => {
-        setMessages((prev) => [...prev, payload.new]);
+        setMessages((prev) => {
+          // Avoid duplicates
+          if (prev.some(m => m.id === payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
         if (payload.new.sender_id !== currentUserId) {
           supabase.from("support_ticket_messages").update({ is_read: true } as any).eq("id", payload.new.id).then();
         }
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "support_ticket_messages", filter: `ticket_id=eq.${ticketId}` }, () => {
+        // Refresh on updates (read status etc)
+        loadMessages();
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
