@@ -15,6 +15,7 @@ import SupportChat from "@/components/support/SupportChat";
 export default function PharmacySupportTickets() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAuth, setIsAuth] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ subject: "", description: "", category: "general", priority: "medium" });
   const [saving, setSaving] = useState(false);
@@ -23,7 +24,8 @@ export default function PharmacySupportTickets() {
 
   const load = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    setIsAuth(!!session);
+    if (!session) { setLoading(false); return; }
     setUserId(session.user.id);
     const { data } = await supabase.from("support_tickets").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
     setTickets(data || []);
@@ -35,7 +37,7 @@ export default function PharmacySupportTickets() {
   const handleSubmit = async () => {
     if (!form.subject.trim() || !form.description.trim()) { toast.error("Subject and description required"); return; }
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) { toast.error("Please login to create a ticket"); return; }
     setSaving(true);
     const { error } = await supabase.from("support_tickets").insert({
       user_id: session.user.id, subject: form.subject, description: form.description,
@@ -68,14 +70,14 @@ export default function PharmacySupportTickets() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><MessageSquare className="w-6 h-6 text-primary" /> Support Tickets</h1>
-        <Button size="sm" onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-1" /> New Ticket</Button>
+        <Button size="sm" onClick={() => { if (!isAuth) { toast.error("Please login to create a ticket"); return; } setDialogOpen(true); }} disabled={!isAuth}><Plus className="w-4 h-4 mr-1" /> New Ticket</Button>
       </div>
       {tickets.length === 0 ? (
         <Card className="p-12 text-center"><p className="text-muted-foreground">No support tickets yet.</p></Card>
       ) : (
         <div className="space-y-3">
           {tickets.map(t => (
-            <Card key={t.id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setChatTicket(t)}>
+            <Card key={t.id} className={`p-4 ${isAuth ? "cursor-pointer hover:shadow-md" : "cursor-not-allowed opacity-60"} transition-shadow`} onClick={() => { if (!isAuth) { toast.error("Please login to view queries"); return; } setChatTicket(t); }}>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded text-primary font-bold">#{t.ticket_number}</span>
                 <p className="font-semibold text-foreground">{t.subject}</p>
