@@ -4054,6 +4054,7 @@ export type Database = {
           priority: string
           resolved_at: string | null
           resolved_by: string | null
+          sender_type: string
           status: string
           subject: string
           updated_at: string
@@ -4068,6 +4069,7 @@ export type Database = {
           priority?: string
           resolved_at?: string | null
           resolved_by?: string | null
+          sender_type?: string
           status?: string
           subject: string
           updated_at?: string
@@ -4082,6 +4084,7 @@ export type Database = {
           priority?: string
           resolved_at?: string | null
           resolved_by?: string | null
+          sender_type?: string
           status?: string
           subject?: string
           updated_at?: string

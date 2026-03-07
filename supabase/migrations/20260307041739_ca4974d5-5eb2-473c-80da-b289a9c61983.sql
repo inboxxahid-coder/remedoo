@@ -1,0 +1,1 @@
+ALTER TABLE public.support_tickets ADD COLUMN sender_type TEXT NOT NULL DEFAULT 'patient';
