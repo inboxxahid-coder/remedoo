@@ -152,6 +152,8 @@ export default function SupportQueryFab() {
             <SupportChat
               ticketId={openTicket.id}
               ticketSubject={openTicket.subject}
+              ticketDescription={openTicket.description}
+              ticketNumber={openTicket.ticket_number}
               ticketStatus={openTicket.status}
               currentUserId={userId}
               onClose={() => setChatOpen(false)}

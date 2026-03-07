@@ -77,6 +77,7 @@ export default function DoctorSupportTickets() {
           {tickets.map(t => (
             <Card key={t.id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setChatTicket(t)}>
               <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded text-primary font-bold">#{t.ticket_number}</span>
                 <p className="font-semibold text-foreground">{t.subject}</p>
                 <Badge variant={statusColor(t.status)}>{t.status.replace("_", " ")}</Badge>
               </div>
@@ -106,7 +107,7 @@ export default function DoctorSupportTickets() {
       <Dialog open={!!chatTicket} onOpenChange={(o) => { if (!o) setChatTicket(null); }}>
         <DialogContent className="p-0 max-w-lg h-[70vh] flex flex-col overflow-hidden">
           {chatTicket && (
-            <SupportChat ticketId={chatTicket.id} ticketSubject={chatTicket.subject} ticketStatus={chatTicket.status} currentUserId={userId}
+            <SupportChat ticketId={chatTicket.id} ticketSubject={chatTicket.subject} ticketDescription={chatTicket.description} ticketNumber={chatTicket.ticket_number} ticketStatus={chatTicket.status} currentUserId={userId}
               onClose={() => setChatTicket(null)}
               onCloseTicket={chatTicket.status !== "resolved" && chatTicket.status !== "closed" ? handleCloseTicket : undefined}
             />
