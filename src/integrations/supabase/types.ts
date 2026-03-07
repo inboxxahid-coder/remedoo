@@ -4057,6 +4057,7 @@ export type Database = {
           sender_type: string
           status: string
           subject: string
+          ticket_number: number
           updated_at: string
           user_id: string
         }
@@ -4072,6 +4073,7 @@ export type Database = {
           sender_type?: string
           status?: string
           subject: string
+          ticket_number?: number
           updated_at?: string
           user_id: string
         }
@@ -4087,6 +4089,7 @@ export type Database = {
           sender_type?: string
           status?: string
           subject?: string
+          ticket_number?: number
           updated_at?: string
           user_id?: string
         }
