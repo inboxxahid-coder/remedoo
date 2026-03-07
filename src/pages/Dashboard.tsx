@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, FileText, Microscope, Ambulance, MapPin, Clock, Percent, Zap, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -120,6 +121,7 @@ const PROMO_BANNERS_FALLBACK = [
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const guardedNavigate = useGuardedNavigate();
   const [user, setUser] = useState<SupaUser | null>(null);
   const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);

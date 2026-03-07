@@ -1,6 +1,7 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Home, Building2, FlaskConical, Store, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 
 const tabs = [
   { icon: Home, label: "Home", path: "/dashboard" },
@@ -11,7 +12,7 @@ const tabs = [
 ];
 
 const BottomNav = () => {
-  const navigate = useNavigate();
+  const guardedNavigate = useGuardedNavigate();
   const { pathname } = useLocation();
   const activeIndex = tabs.findIndex((t) => pathname === t.path || pathname.startsWith(t.path + "/"));
 
