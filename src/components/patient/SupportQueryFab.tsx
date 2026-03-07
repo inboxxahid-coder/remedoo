@@ -139,7 +139,11 @@ export default function SupportQueryFab() {
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => { setView("list"); setOpen(true); }}
+            onClick={async () => {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (!session) { toast.info("Please login to access support"); navigate("/login", { replace: true }); return; }
+              setView("list"); setOpen(true);
+            }}
             className="fixed bottom-20 right-4 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
           >
             <MessageSquarePlus className="w-6 h-6" />
