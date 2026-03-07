@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { MessageSquare, Plus, Clock } from "lucide-react";
+import { MessageSquare, Plus, Clock, ArrowLeft, Search } from "lucide-react";
 import SupportChat from "@/components/support/SupportChat";
+import { useNavigate } from "react-router-dom";
+import BottomNav from "@/components/BottomNav";
 
 export default function PatientSupportTickets() {
   const [tickets, setTickets] = useState<any[]>([]);
@@ -20,6 +22,8 @@ export default function PatientSupportTickets() {
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState("");
   const [chatTicket, setChatTicket] = useState<any>(null);
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   const load = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -31,6 +35,16 @@ export default function PatientSupportTickets() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Realtime updates
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel("patient-tickets-page")
+      .on("postgres_changes", { event: "*", schema: "public", table: "support_tickets" }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [userId]);
 
   const handleSubmit = async () => {
     if (!form.subject.trim() || !form.description.trim()) { toast.error("Subject and description required"); return; }
@@ -68,48 +82,87 @@ export default function PatientSupportTickets() {
 
   const hasOpenTicket = tickets.some(t => t.status === "open" || t.status === "in_progress");
 
+  const filtered = tickets.filter(t => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      (t.ticket_number?.toString() || "").includes(q) ||
+      (t.subject || "").toLowerCase().includes(q) ||
+      (t.status || "").toLowerCase().includes(q)
+    );
+  });
+
   if (loading) return <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   return (
-    <div className="space-y-6 pb-24">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <MessageSquare className="w-6 h-6 text-primary" /> My Queries
-        </h1>
-        {!hasOpenTicket && (
-          <Button size="sm" onClick={() => setDialogOpen(true)}>
-            <Plus className="w-4 h-4 mr-1" /> New Ticket
-          </Button>
-        )}
+    <div className="pb-24">
+      {/* Header */}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted">
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <div className="flex-1">
+            <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-primary" /> My Queries
+            </h1>
+            <p className="text-xs text-muted-foreground">{tickets.length} total queries</p>
+          </div>
+          {!hasOpenTicket && (
+            <Button size="sm" onClick={() => setDialogOpen(true)} className="text-xs">
+              <Plus className="w-4 h-4 mr-1" /> New
+            </Button>
+          )}
+        </div>
+        {/* Search */}
+        <div className="mt-3 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by ticket #, subject..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-9 h-9 text-sm"
+          />
+        </div>
       </div>
 
-      {tickets.length === 0 ? (
-        <Card className="p-12 text-center">
-          <p className="text-muted-foreground">No support tickets. Need help? Create a ticket.</p>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {tickets.map(t => (
+      {/* Ticket List */}
+      <div className="px-4 pt-4 space-y-3">
+        {filtered.length === 0 ? (
+          <Card className="p-12 text-center">
+            <MessageSquare className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
+            <p className="text-muted-foreground text-sm">
+              {search ? "No queries match your search" : "No queries yet. Need help? Create a ticket."}
+            </p>
+            {!search && !hasOpenTicket && (
+              <Button size="sm" onClick={() => setDialogOpen(true)} className="mt-4">
+                <Plus className="w-4 h-4 mr-1" /> Create Query
+              </Button>
+            )}
+          </Card>
+        ) : (
+          filtered.map(t => (
             <Card
               key={t.id}
-              className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+              className="p-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
               onClick={() => setChatTicket(t)}
             >
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded text-primary font-bold">#{t.ticket_number}</span>
-                  <p className="font-semibold text-foreground">{t.subject}</p>
-                  <Badge variant={statusColor(t.status)}>{t.status.replace("_", " ")}</Badge>
+                  <span className="font-mono text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-bold">#{t.ticket_number}</span>
+                  <Badge variant={statusColor(t.status)} className="text-[10px]">{t.status.replace("_", " ")}</Badge>
+                  <Badge variant="outline" className="text-[10px] capitalize">{t.category}</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground line-clamp-1">{t.description}</p>
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <p className="font-semibold text-foreground text-sm">{t.subject}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2">{t.description}</p>
+                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
                   <Clock className="w-3 h-3" /> {new Date(t.created_at).toLocaleString()}
                 </p>
               </div>
             </Card>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
 
       {/* New ticket dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -130,9 +183,9 @@ export default function PatientSupportTickets() {
         </DialogContent>
       </Dialog>
 
-      {/* Chat dialog */}
-      <Dialog open={!!chatTicket} onOpenChange={(o) => { if (!o) setChatTicket(null); }}>
-        <DialogContent className="p-0 max-w-lg h-[70vh] flex flex-col overflow-hidden">
+      {/* Chat dialog - larger */}
+      <Dialog open={!!chatTicket} onOpenChange={(o) => { if (!o) { setChatTicket(null); load(); } }}>
+        <DialogContent className="p-0 max-w-2xl h-[85vh] flex flex-col overflow-hidden">
           {chatTicket && (
             <SupportChat
               ticketId={chatTicket.id}
@@ -141,12 +194,15 @@ export default function PatientSupportTickets() {
               ticketNumber={chatTicket.ticket_number}
               ticketStatus={chatTicket.status}
               currentUserId={userId}
-              onClose={() => setChatTicket(null)}
+              onClose={() => { setChatTicket(null); load(); }}
               onCloseTicket={chatTicket.status !== "resolved" && chatTicket.status !== "closed" ? handleCloseTicket : undefined}
+              onViewAllQueries={() => { setChatTicket(null); }}
             />
           )}
         </DialogContent>
       </Dialog>
+
+      <BottomNav />
     </div>
   );
 }

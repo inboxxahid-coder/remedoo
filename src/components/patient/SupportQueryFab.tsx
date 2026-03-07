@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageSquarePlus, Send, X, ChevronLeft, MessageSquare } from "lucide-react";
+import { MessageSquarePlus, Send, X, ChevronLeft, MessageSquare, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import SupportChat from "@/components/support/SupportChat";
 
 export default function SupportQueryFab() {
@@ -22,6 +23,7 @@ export default function SupportQueryFab() {
   const [chatTicket, setChatTicket] = useState<any>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [view, setView] = useState<"list" | "new">("list");
+  const navigate = useNavigate();
 
   const loadTickets = async () => {
     setChecking(true);
@@ -35,7 +37,6 @@ export default function SupportQueryFab() {
       .order("created_at", { ascending: false });
     setTickets(data || []);
     setChecking(false);
-    // Count unread: tickets with unread admin messages
     if (data) {
       await countUnread(session.user.id, data);
     }
@@ -58,7 +59,6 @@ export default function SupportQueryFab() {
 
   useEffect(() => { loadTickets(); }, []);
 
-  // Realtime for new messages
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
@@ -164,9 +164,20 @@ export default function SupportQueryFab() {
                 <h3 className="text-sm font-bold">{view === "list" ? "My Queries" : "New Query"}</h3>
                 <p className="text-[10px] opacity-75">{view === "list" ? `${tickets.length} total queries` : "Raise a query, our team will help"}</p>
               </div>
-              <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                {view === "list" && (
+                  <button
+                    onClick={() => { setOpen(false); navigate("/support-tickets"); }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10"
+                    title="View All Queries"
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                )}
+                <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {view === "list" ? (
@@ -181,7 +192,7 @@ export default function SupportQueryFab() {
                   </div>
                 ) : (
                   <div className="divide-y divide-border">
-                    {tickets.map(t => (
+                    {tickets.slice(0, 5).map(t => (
                       <button
                         key={t.id}
                         className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors"
@@ -197,11 +208,16 @@ export default function SupportQueryFab() {
                     ))}
                   </div>
                 )}
-                {!hasOpenTicket && tickets.length > 0 && (
-                  <div className="p-3 border-t border-border">
+                <div className="p-3 border-t border-border space-y-2">
+                  {tickets.length > 5 && (
+                    <Button size="sm" variant="outline" onClick={() => { setOpen(false); navigate("/support-tickets"); }} className="w-full text-xs">
+                      View All {tickets.length} Queries
+                    </Button>
+                  )}
+                  {!hasOpenTicket && (
                     <Button size="sm" onClick={() => setView("new")} className="w-full text-xs">+ New Query</Button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             ) : (
               <div className="p-4 space-y-3">
@@ -224,9 +240,9 @@ export default function SupportQueryFab() {
         )}
       </AnimatePresence>
 
-      {/* Chat Dialog */}
+      {/* Chat Dialog - Larger */}
       <Dialog open={chatOpen} onOpenChange={(o) => { if (!o) { setChatOpen(false); loadTickets(); } }}>
-        <DialogContent className="p-0 max-w-lg h-[70vh] flex flex-col overflow-hidden">
+        <DialogContent className="p-0 max-w-2xl h-[85vh] flex flex-col overflow-hidden">
           {chatTicket && (
             <SupportChat
               ticketId={chatTicket.id}
@@ -237,6 +253,7 @@ export default function SupportQueryFab() {
               currentUserId={userId}
               onClose={() => { setChatOpen(false); loadTickets(); }}
               onCloseTicket={chatTicket.status !== "resolved" && chatTicket.status !== "closed" ? handleCloseTicket : undefined}
+              onViewAllQueries={() => { setChatOpen(false); setOpen(false); navigate("/support-tickets"); }}
             />
           )}
         </DialogContent>
