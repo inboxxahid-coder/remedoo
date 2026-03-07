@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { MessageSquare, Plus, Clock } from "lucide-react";
+import SupportChat from "@/components/support/SupportChat";
 
 export default function LabSupportTickets() {
   const [tickets, setTickets] = useState<any[]>([]);
@@ -17,10 +18,13 @@ export default function LabSupportTickets() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ subject: "", description: "", category: "general", priority: "medium" });
   const [saving, setSaving] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [chatTicket, setChatTicket] = useState<any>(null);
 
   const load = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
+    setUserId(session.user.id);
     const { data } = await supabase.from("support_tickets").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
     setTickets(data || []);
     setLoading(false);
@@ -33,12 +37,24 @@ export default function LabSupportTickets() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     setSaving(true);
-    const { error } = await supabase.from("support_tickets").insert({ user_id: session.user.id, subject: form.subject, description: form.description, category: form.category, priority: form.priority });
+    const { error } = await supabase.from("support_tickets").insert({
+      user_id: session.user.id, subject: form.subject, description: form.description,
+      category: form.category, priority: form.priority, sender_type: "lab",
+    });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Ticket submitted");
     setDialogOpen(false);
     setForm({ subject: "", description: "", category: "general", priority: "medium" });
+    load();
+  };
+
+  const handleCloseTicket = async () => {
+    if (!chatTicket) return;
+    const { error } = await supabase.from("support_tickets").update({ status: "closed" }).eq("id", chatTicket.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Query closed");
+    setChatTicket(null);
     load();
   };
 
@@ -59,11 +75,13 @@ export default function LabSupportTickets() {
       ) : (
         <div className="space-y-3">
           {tickets.map(t => (
-            <Card key={t.id} className="p-4 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap"><p className="font-semibold text-foreground">{t.subject}</p><Badge variant={statusColor(t.status)}>{t.status.replace("_", " ")}</Badge></div>
-              <p className="text-sm text-muted-foreground">{t.description}</p>
+            <Card key={t.id} className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setChatTicket(t)}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-semibold text-foreground">{t.subject}</p>
+                <Badge variant={statusColor(t.status)}>{t.status.replace("_", " ")}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground line-clamp-1">{t.description}</p>
               <p className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(t.created_at).toLocaleString()}</p>
-              {t.admin_response && (<div className="mt-2 p-3 bg-primary/5 rounded-lg"><p className="text-xs font-medium text-primary">Admin Response:</p><p className="text-sm text-foreground">{t.admin_response}</p></div>)}
             </Card>
           ))}
         </div>
@@ -80,6 +98,16 @@ export default function LabSupportTickets() {
             </div>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button><Button onClick={handleSubmit} disabled={saving}>{saving ? "Submitting..." : "Submit Ticket"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!chatTicket} onOpenChange={(o) => { if (!o) setChatTicket(null); }}>
+        <DialogContent className="p-0 max-w-lg h-[70vh] flex flex-col overflow-hidden">
+          {chatTicket && (
+            <SupportChat ticketId={chatTicket.id} ticketSubject={chatTicket.subject} ticketStatus={chatTicket.status} currentUserId={userId}
+              onClose={() => setChatTicket(null)}
+              onCloseTicket={chatTicket.status !== "resolved" && chatTicket.status !== "closed" ? handleCloseTicket : undefined}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
