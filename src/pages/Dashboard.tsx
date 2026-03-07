@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, FileText, Microscope, Ambulance, MapPin, Clock, Percent, Zap, type LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -120,6 +121,7 @@ const PROMO_BANNERS_FALLBACK = [
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const guardedNavigate = useGuardedNavigate();
   const [user, setUser] = useState<SupaUser | null>(null);
   const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
   const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
@@ -319,7 +321,7 @@ const Dashboard = () => {
               <AnimatedLogo />
               <motion.button
                 whileTap={{ scale: 0.9 }}
-                onClick={() => navigate("/notifications")}
+                onClick={() => guardedNavigate("/notifications")}
                 className="relative w-10 h-10 rounded-full flex items-center justify-center"
               >
                 <Bell className="w-6 h-6 text-white" strokeWidth={1.8} />
@@ -399,7 +401,7 @@ const Dashboard = () => {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.05 + idx * 0.04 }}
                           whileTap={{ scale: 0.92 }}
-                          onClick={() => navigate(cat.path)}
+                          onClick={() => guardedNavigate(cat.path)}
                           className="flex flex-col items-center gap-1.5"
                         >
                           <div className={`w-14 h-14 rounded-2xl ${cat.bg_color || cat.bg} flex items-center justify-center shadow-sm`}>
@@ -450,7 +452,7 @@ const Dashboard = () => {
                           initial={{ opacity: 0, x: 30 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.1 }}
-                          onClick={() => slide.target_link && navigate(slide.target_link)}
+                          onClick={() => slide.target_link && guardedNavigate(slide.target_link)}
                           className="flex-shrink-0 w-[85vw] max-w-[360px] rounded-2xl overflow-hidden relative snap-start cursor-pointer"
                           style={{ minHeight: 150 }}
                         >
@@ -490,7 +492,7 @@ const Dashboard = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + idx * 0.05 }}
                         whileTap={{ scale: 0.96 }}
-                        onClick={() => navigate(item.path)}
+                        onClick={() => guardedNavigate(item.path)}
                         className="flex-shrink-0 flex items-center gap-2.5 bg-card border border-border rounded-xl px-3.5 py-2.5 shadow-sm min-w-[140px]"
                       >
                         <div className={`w-9 h-9 rounded-lg ${item.bg} flex items-center justify-center`}>
@@ -511,7 +513,7 @@ const Dashboard = () => {
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-base font-bold text-foreground">Upcoming Appointments</h2>
                       {upcomingAppts > 0 && (
-                        <button onClick={() => navigate("/appointments")} className="text-xs font-semibold text-primary">See all</button>
+                        <button onClick={() => guardedNavigate("/appointments")} className="text-xs font-semibold text-primary">See all</button>
                       )}
                     </div>
                     {upcomingAppointments.length > 0 ? (
@@ -529,7 +531,7 @@ const Dashboard = () => {
                             <motion.div
                               key={apt.id}
                               whileTap={{ scale: 0.98 }}
-                              onClick={() => navigate(`/appointment/${apt.id}`)}
+                              onClick={() => guardedNavigate(`/appointment/${apt.id}`)}
                               className="bg-card rounded-2xl border border-border p-3.5 flex items-center gap-3 cursor-pointer shadow-sm"
                             >
                               <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -555,7 +557,7 @@ const Dashboard = () => {
                       <div className="bg-card rounded-2xl border border-border p-5 text-center shadow-sm">
                         <Calendar className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">No upcoming appointments</p>
-                        <button onClick={() => navigate("/doctors")} className="text-xs text-primary font-semibold mt-2 hover:underline">Book Now →</button>
+                        <button onClick={() => guardedNavigate("/doctors")} className="text-xs text-primary font-semibold mt-2 hover:underline">Book Now →</button>
                       </div>
                     )}
                   </motion.div>
@@ -566,7 +568,7 @@ const Dashboard = () => {
                   <div className="px-4">
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-base font-bold text-foreground">Popular Doctors</h2>
-                      <button onClick={() => navigate("/doctors")} className="text-xs font-semibold text-primary">See all</button>
+                      <button onClick={() => guardedNavigate("/doctors")} className="text-xs font-semibold text-primary">See all</button>
                     </div>
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
                       {topDoctors.map((doc, idx) => (
@@ -575,7 +577,7 @@ const Dashboard = () => {
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.3 + idx * 0.05 }}
-                          onClick={() => navigate(`/doctor/${doc.id}`)}
+                          onClick={() => guardedNavigate(`/doctor/${doc.id}`)}
                           className="flex-shrink-0 w-[140px] bg-card rounded-2xl border border-border overflow-hidden snap-start shadow-sm"
                         >
                           <div className="h-24 bg-muted flex items-center justify-center overflow-hidden">
@@ -608,7 +610,7 @@ const Dashboard = () => {
                   <div className="px-4">
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-base font-bold text-foreground">Popular Hospitals</h2>
-                      <button onClick={() => navigate("/hospitals")} className="text-xs font-semibold text-primary">See all</button>
+                      <button onClick={() => guardedNavigate("/hospitals")} className="text-xs font-semibold text-primary">See all</button>
                     </div>
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
                       {popularHospitals.map((hosp: any, idx: number) => (
@@ -617,7 +619,7 @@ const Dashboard = () => {
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.35 + idx * 0.05 }}
-                          onClick={() => navigate(`/hospital/${hosp.id}`)}
+                          onClick={() => guardedNavigate(`/hospital/${hosp.id}`)}
                           className="flex-shrink-0 w-[260px] bg-card rounded-2xl border border-border overflow-hidden snap-start shadow-sm"
                         >
                           <div className="h-28 bg-muted relative overflow-hidden">
@@ -659,7 +661,7 @@ const Dashboard = () => {
                   <div className="px-4">
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-base font-bold text-foreground">Popular Medicines</h2>
-                      <button onClick={() => navigate("/pharmacies")} className="text-xs font-semibold text-primary">See all</button>
+                      <button onClick={() => guardedNavigate("/pharmacies")} className="text-xs font-semibold text-primary">See all</button>
                     </div>
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
                       {popularMedicines.map((med, idx) => {
@@ -670,7 +672,7 @@ const Dashboard = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.4 + idx * 0.05 }}
-                            onClick={() => navigate(`/pharmacy/${med.pharmacy_id}`)}
+                            onClick={() => guardedNavigate(`/pharmacy/${med.pharmacy_id}`)}
                             className="flex-shrink-0 w-[130px] bg-card rounded-2xl border border-border p-3 text-center snap-start shadow-sm relative"
                           >
                             {med.discount_percent && med.discount_percent > 0 && (
@@ -703,7 +705,7 @@ const Dashboard = () => {
                   <div className="px-4">
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-base font-bold text-foreground">Health Packages</h2>
-                      <button onClick={() => navigate("/labs")} className="text-xs font-semibold text-primary">See all</button>
+                      <button onClick={() => guardedNavigate("/labs")} className="text-xs font-semibold text-primary">See all</button>
                     </div>
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
                       {featuredPackages.map((pkg: any, idx: number) => {
@@ -717,7 +719,7 @@ const Dashboard = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.42 + idx * 0.05 }}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate("/labs")}
+                            onClick={() => guardedNavigate("/labs")}
                             className="flex-shrink-0 w-[180px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start shadow-sm relative overflow-hidden"
                           >
                             {hasDiscount && (
@@ -743,7 +745,7 @@ const Dashboard = () => {
                 <div className="px-4">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-base font-bold text-foreground">Pharmacy Benefits</h2>
-                    <button onClick={() => navigate("/pharmacies")} className="text-xs font-semibold text-primary">See all</button>
+                    <button onClick={() => guardedNavigate("/pharmacies")} className="text-xs font-semibold text-primary">See all</button>
                   </div>
                   {pharmacyOffers.length > 0 ? (
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
@@ -754,7 +756,7 @@ const Dashboard = () => {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.45 + idx * 0.05 }}
                           whileTap={{ scale: 0.97 }}
-                          onClick={() => navigate(`/pharmacy/${ph.id}`)}
+                          onClick={() => guardedNavigate(`/pharmacy/${ph.id}`)}
                           className="flex-shrink-0 w-[180px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start shadow-sm relative overflow-hidden"
                         >
                           {ph.maxDiscount > 0 && (
@@ -827,7 +829,7 @@ const Dashboard = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 + idx * 0.04 }}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate(item.path)}
+                            onClick={() => guardedNavigate(item.path)}
                             className="bg-card rounded-2xl border border-border p-4 text-left shadow-sm relative overflow-hidden"
                           >
                             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
@@ -854,7 +856,7 @@ const Dashboard = () => {
                           <motion.button
                             key={svc.id}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate(svc.path)}
+                            onClick={() => guardedNavigate(svc.path)}
                             className="bg-card rounded-2xl p-3.5 border border-border text-left shadow-sm"
                           >
                             <div className={`w-9 h-9 rounded-xl ${svc.bg_color} flex items-center justify-center mb-2`}>
