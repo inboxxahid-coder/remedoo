@@ -672,7 +672,7 @@ const Dashboard = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.4 + idx * 0.05 }}
-                            onClick={() => navigate(`/pharmacy/${med.pharmacy_id}`)}
+                            onClick={() => guardedNavigate(`/pharmacy/${med.pharmacy_id}`)}
                             className="flex-shrink-0 w-[130px] bg-card rounded-2xl border border-border p-3 text-center snap-start shadow-sm relative"
                           >
                             {med.discount_percent && med.discount_percent > 0 && (
@@ -705,7 +705,7 @@ const Dashboard = () => {
                   <div className="px-4">
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-base font-bold text-foreground">Health Packages</h2>
-                      <button onClick={() => navigate("/labs")} className="text-xs font-semibold text-primary">See all</button>
+                      <button onClick={() => guardedNavigate("/labs")} className="text-xs font-semibold text-primary">See all</button>
                     </div>
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
                       {featuredPackages.map((pkg: any, idx: number) => {
@@ -719,7 +719,7 @@ const Dashboard = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.42 + idx * 0.05 }}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate("/labs")}
+                            onClick={() => guardedNavigate("/labs")}
                             className="flex-shrink-0 w-[180px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start shadow-sm relative overflow-hidden"
                           >
                             {hasDiscount && (
@@ -745,7 +745,7 @@ const Dashboard = () => {
                 <div className="px-4">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-base font-bold text-foreground">Pharmacy Benefits</h2>
-                    <button onClick={() => navigate("/pharmacies")} className="text-xs font-semibold text-primary">See all</button>
+                    <button onClick={() => guardedNavigate("/pharmacies")} className="text-xs font-semibold text-primary">See all</button>
                   </div>
                   {pharmacyOffers.length > 0 ? (
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
@@ -756,7 +756,7 @@ const Dashboard = () => {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.45 + idx * 0.05 }}
                           whileTap={{ scale: 0.97 }}
-                          onClick={() => navigate(`/pharmacy/${ph.id}`)}
+                          onClick={() => guardedNavigate(`/pharmacy/${ph.id}`)}
                           className="flex-shrink-0 w-[180px] bg-card rounded-2xl border border-border p-3.5 text-left snap-start shadow-sm relative overflow-hidden"
                         >
                           {ph.maxDiscount > 0 && (
@@ -829,7 +829,7 @@ const Dashboard = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 + idx * 0.04 }}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate(item.path)}
+                            onClick={() => guardedNavigate(item.path)}
                             className="bg-card rounded-2xl border border-border p-4 text-left shadow-sm relative overflow-hidden"
                           >
                             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
@@ -856,7 +856,7 @@ const Dashboard = () => {
                           <motion.button
                             key={svc.id}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => navigate(svc.path)}
+                            onClick={() => guardedNavigate(svc.path)}
                             className="bg-card rounded-2xl p-3.5 border border-border text-left shadow-sm"
                           >
                             <div className={`w-9 h-9 rounded-xl ${svc.bg_color} flex items-center justify-center mb-2`}>
