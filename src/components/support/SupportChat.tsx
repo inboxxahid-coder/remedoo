@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, X, Timer, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Send, X, Timer, AlertTriangle, ShieldAlert, List } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -42,6 +42,7 @@ interface SupportChatProps {
   isAdmin?: boolean;
   onClose?: () => void;
   onCloseTicket?: () => void;
+  onViewAllQueries?: () => void;
 }
 
 export default function SupportChat({
@@ -54,6 +55,7 @@ export default function SupportChat({
   isAdmin = false,
   onClose,
   onCloseTicket,
+  onViewAllQueries,
 }: SupportChatProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMsg, setNewMsg] = useState("");
@@ -76,7 +78,6 @@ export default function SupportChat({
       .order("created_at", { ascending: true });
     setMessages(data || []);
 
-    // Mark messages as read
     if (data && data.length > 0) {
       const unreadIds = data
         .filter(m => m.sender_id !== currentUserId && !(m as any).is_read)
@@ -96,7 +97,6 @@ export default function SupportChat({
       .channel(`ticket-${ticketId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "support_ticket_messages", filter: `ticket_id=eq.${ticketId}` }, (payload) => {
         setMessages((prev) => [...prev, payload.new]);
-        // Auto-mark as read if chat is open
         if (payload.new.sender_id !== currentUserId) {
           supabase.from("support_ticket_messages").update({ is_read: true } as any).eq("id", payload.new.id).then();
         }
@@ -118,7 +118,6 @@ export default function SupportChat({
     if (!msgText || isClosed) return;
     setSending(true);
 
-    // Get admin name for join line
     let senderName: string | null = null;
     if (isAdmin) {
       const { data: adminData } = await supabase
@@ -129,7 +128,6 @@ export default function SupportChat({
       senderName = adminData?.name || null;
     }
 
-    // Check if this is admin's first message in this ticket - insert join message
     if (isAdmin && senderName) {
       const existingAdminMsgs = messages.filter(m => m.sender_id === currentUserId && m.sender_role === "admin");
       if (existingAdminMsgs.length === 0) {
@@ -163,7 +161,6 @@ export default function SupportChat({
       setAdminCloseWarning(true);
       return;
     }
-    // Patient: start 25s countdown
     setClosing(true);
     setCloseCountdown(25);
     timerRef.current = setInterval(() => {
@@ -208,11 +205,22 @@ export default function SupportChat({
           </div>
           <p className="text-[10px] opacity-75 capitalize">{ticketStatus.replace("_", " ")}</p>
         </div>
-        {onClose && (
-          <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">
-            <X className="w-4 h-4" />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {onViewAllQueries && (
+            <button
+              onClick={onViewAllQueries}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary-foreground/10 transition-colors"
+              title="View All Queries"
+            >
+              <List className="w-4 h-4" />
+            </button>
+          )}
+          {onClose && (
+            <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary-foreground/10 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Messages */}
@@ -230,7 +238,6 @@ export default function SupportChat({
           <p className="text-xs text-muted-foreground text-center py-8">No messages yet. Start the conversation.</p>
         )}
         {messages.map((m) => {
-          // System messages (join notifications)
           if (m.sender_role === "system") {
             return (
               <div key={m.id} className="flex justify-center py-1">
@@ -281,7 +288,6 @@ export default function SupportChat({
         </div>
       ) : (
         <div className="shrink-0 p-3 border-t border-border space-y-2">
-          {/* Quick Replies */}
           {showQuickReplies && (
             <div className="flex flex-wrap gap-1.5 pb-1">
               {quickReplies.map((qr) => (
