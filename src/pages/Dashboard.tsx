@@ -83,6 +83,7 @@ import type { User as SupaUser } from "@supabase/supabase-js";
 import type { Tables } from "@/integrations/supabase/types";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import BottomNav from "@/components/BottomNav";
+import SymptomChatWidget from "@/components/patient/SymptomChatWidget";
 import { Skeleton } from "@/components/ui/skeleton";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
 
@@ -909,6 +910,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <SymptomChatWidget />
       <BottomNav />
     </SidebarProvider>
   );
