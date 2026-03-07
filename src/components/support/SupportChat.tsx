@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, X, Timer, AlertTriangle, ShieldAlert, List } from "lucide-react";
@@ -59,6 +60,7 @@ export default function SupportChat({
   onViewAllQueries,
   onStatusChange,
 }: SupportChatProps) {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMsg, setNewMsg] = useState("");
   const [sending, setSending] = useState(false);
@@ -305,7 +307,7 @@ export default function SupportChat({
       ) : !currentUserId ? (
         <div className="shrink-0 p-3 text-center border-t border-border bg-muted/50">
           <p className="text-xs text-muted-foreground mb-2">Please log in to send messages</p>
-          <Button size="sm" variant="outline" className="text-xs">Go to Login</Button>
+          <Button size="sm" variant="outline" className="text-xs" onClick={() => { onClose?.(); navigate("/login", { replace: true }); }}>Go to Login</Button>
         </div>
       ) : (
         <div className="shrink-0 p-3 border-t border-border space-y-2">
