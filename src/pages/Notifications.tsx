@@ -191,7 +191,7 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="gradient-primary page-header px-5 pb-6 rounded-b-[2rem]">
+      <div className="gradient-primary px-5 pt-[max(env(safe-area-inset-top,0px),12px)] pb-6 rounded-b-[2rem]">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
