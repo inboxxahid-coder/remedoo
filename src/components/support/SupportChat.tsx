@@ -302,6 +302,11 @@ export default function SupportChat({
             </div>
           </div>
         </div>
+      ) : !currentUserId ? (
+        <div className="shrink-0 p-3 text-center border-t border-border bg-muted/50">
+          <p className="text-xs text-muted-foreground mb-2">Please log in to send messages</p>
+          <Button size="sm" variant="outline" className="text-xs">Go to Login</Button>
+        </div>
       ) : (
         <div className="shrink-0 p-3 border-t border-border space-y-2">
           {showQuickReplies && (
