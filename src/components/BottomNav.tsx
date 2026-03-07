@@ -24,7 +24,7 @@ const BottomNav = () => {
           return (
             <motion.button
               key={tab.path}
-              onClick={() => navigate(tab.path)}
+              onClick={() => guardedNavigate(tab.path)}
               whileTap={{ scale: 0.85 }}
               className="relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full z-10"
             >
