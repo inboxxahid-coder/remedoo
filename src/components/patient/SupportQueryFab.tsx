@@ -96,7 +96,16 @@ export default function SupportQueryFab() {
     }).select().single();
     setLoading(false);
 
-    if (error) { toast.error(error.message); return; }
+    if (error || !data) { toast.error(error?.message || "Failed to create ticket"); return; }
+
+    // Send subject + description as the first chat message
+    await supabase.from("support_ticket_messages").insert({
+      ticket_id: data.id,
+      sender_id: session.user.id,
+      sender_role: "user",
+      message: `📋 **${subject.trim()}**\n\n${description.trim()}`,
+    });
+
     toast.success("Support query submitted!");
     setSubject("");
     setDescription("");

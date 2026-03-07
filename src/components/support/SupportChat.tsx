@@ -96,10 +96,18 @@ export default function SupportChat({
     const channel = supabase
       .channel(`ticket-${ticketId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "support_ticket_messages", filter: `ticket_id=eq.${ticketId}` }, (payload) => {
-        setMessages((prev) => [...prev, payload.new]);
+        setMessages((prev) => {
+          // Avoid duplicates
+          if (prev.some(m => m.id === payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
         if (payload.new.sender_id !== currentUserId) {
           supabase.from("support_ticket_messages").update({ is_read: true } as any).eq("id", payload.new.id).then();
         }
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "support_ticket_messages", filter: `ticket_id=eq.${ticketId}` }, () => {
+        // Refresh on updates (read status etc)
+        loadMessages();
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -225,15 +233,6 @@ export default function SupportChat({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-muted/30 min-h-0">
-        {isAdmin && ticketDescription && (
-          <div className="flex justify-center">
-            <div className="max-w-[90%] px-3 py-2 rounded-xl bg-accent/50 border border-border text-xs text-center space-y-1">
-              <p className="font-semibold text-foreground">{ticketSubject}</p>
-              <p className="text-muted-foreground whitespace-pre-wrap">{ticketDescription}</p>
-              {ticketNumber && <p className="text-[10px] text-muted-foreground font-mono">Ticket #{ticketNumber}</p>}
-            </div>
-          </div>
-        )}
         {messages.length === 0 && !isAdmin && (
           <p className="text-xs text-muted-foreground text-center py-8">No messages yet. Start the conversation.</p>
         )}

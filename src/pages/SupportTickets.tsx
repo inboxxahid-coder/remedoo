@@ -55,12 +55,21 @@ export default function PatientSupportTickets() {
     if (existing && existing.length > 0) { toast.error("You already have an open query. Please wait for it to be resolved."); return; }
 
     setSaving(true);
-    const { error } = await supabase.from("support_tickets").insert({
+    const { data: newTicket, error } = await supabase.from("support_tickets").insert({
       user_id: session.user.id, subject: form.subject, description: form.description,
       category: form.category, priority: form.priority, sender_type: "patient",
-    });
+    }).select().single();
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error || !newTicket) { toast.error(error?.message || "Failed"); return; }
+
+    // Send subject + description as the first chat message
+    await supabase.from("support_ticket_messages").insert({
+      ticket_id: newTicket.id,
+      sender_id: session.user.id,
+      sender_role: "user",
+      message: `📋 **${form.subject.trim()}**\n\n${form.description.trim()}`,
+    });
+
     toast.success("Ticket submitted");
     setDialogOpen(false);
     setForm({ subject: "", description: "", category: "general", priority: "medium" });
