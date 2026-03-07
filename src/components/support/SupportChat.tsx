@@ -79,12 +79,12 @@ export default function SupportChat({
     // Mark messages as read
     if (data && data.length > 0) {
       const unreadIds = data
-        .filter(m => m.sender_id !== currentUserId && !m.is_read)
+        .filter(m => m.sender_id !== currentUserId && !(m as any).is_read)
         .map(m => m.id);
       if (unreadIds.length > 0) {
         await supabase
           .from("support_ticket_messages")
-          .update({ is_read: true })
+          .update({ is_read: true } as any)
           .in("id", unreadIds);
       }
     }
@@ -98,7 +98,7 @@ export default function SupportChat({
         setMessages((prev) => [...prev, payload.new]);
         // Auto-mark as read if chat is open
         if (payload.new.sender_id !== currentUserId) {
-          supabase.from("support_ticket_messages").update({ is_read: true }).eq("id", payload.new.id).then();
+          supabase.from("support_ticket_messages").update({ is_read: true } as any).eq("id", payload.new.id).then();
         }
       })
       .subscribe();

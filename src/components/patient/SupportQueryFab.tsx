@@ -50,7 +50,7 @@ export default function SupportQueryFab() {
         .select("*", { count: "exact", head: true })
         .eq("ticket_id", t.id)
         .eq("sender_role", "admin")
-        .eq("is_read", false);
+        .eq("is_read", false as any);
       count += (msgCount || 0);
     }
     setUnreadCount(count);
