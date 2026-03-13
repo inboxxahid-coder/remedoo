@@ -363,6 +363,7 @@ const AppRoutes = () => {
         <Route path="payouts" element={<AdminPayouts />} />
         <Route path="support-tickets" element={<AdminSupportTickets />} />
         <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
+        <Route path="sessions" element={<AdminSessions />} />
         <Route path="quick-actions" element={<AdminQuickActions />} />
         <Route path="services" element={<AdminServices />} />
         <Route path="health-tips" element={<AdminHealthTips />} />
