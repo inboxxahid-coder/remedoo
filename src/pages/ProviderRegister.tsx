@@ -128,146 +128,108 @@ const ProviderRegister = () => {
     }
 
     setLoading(true);
-    const config = providerOptions.find((p) => p.type === selectedType)!;
 
-    // 1. Sign up
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: fullName },
-      },
-    });
+    try {
+      // 1. Sign up (returns userId even before email confirmation)
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: { full_name: fullName },
+        },
+      });
 
-    if (signUpError) {
-      const msg = signUpError.message.toLowerCase();
-      if (msg.includes("already") || msg.includes("registered") || msg.includes("exists") || msg.includes("unique")) {
-        toast.error("This email is already registered. Please use a different email or sign in.");
+      if (signUpError) {
+        const msg = signUpError.message.toLowerCase();
+        if (msg.includes("already") || msg.includes("registered") || msg.includes("exists") || msg.includes("unique")) {
+          toast.error("This email is already registered. Please use a different email or sign in.");
+        } else {
+          toast.error(signUpError.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      const userId = signUpData.user?.id;
+      if (!userId) {
+        toast.success("Check your email for a confirmation link!");
+        navigate("/login", { replace: true });
+        setLoading(false);
+        return;
+      }
+
+      // 2. Build provider data (without files — those go via FormData)
+      toast.info("Uploading documents & registering...");
+
+      const providerData: Record<string, any> = {
+        name: providerName,
+        phone,
+      };
+
+      if (selectedType === "doctor") {
+        providerData.specialization = specialization;
+        providerData.bio = bio;
+        if (gender) providerData.gender = gender;
+      }
+      providerData.location = location;
+      if (latitude) providerData.latitude = Number(latitude);
+      if (longitude) providerData.longitude = Number(longitude);
+
+      // 3. Build FormData for edge function (handles file uploads + provider creation with service role)
+      const formData = new FormData();
+      formData.append("user_id", userId);
+      formData.append("provider_type", selectedType);
+      formData.append("provider_data", JSON.stringify(providerData));
+
+      // Attach files
+      formData.append("file_license", licenseFile);
+      if (gstFile) formData.append("file_gst", gstFile);
+      if (certificateFile) formData.append("file_certificate", certificateFile);
+      if (photoFile) formData.append("file_photo", photoFile);
+      
+      const additionalDocFiles = [additionalDoc1, additionalDoc2, additionalDoc3];
+      additionalDocFiles.forEach((file, i) => {
+        if (file) formData.append(`file_additional_${i}`, file);
+      });
+
+      // 4. Call edge function (uses service role — works without active session)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/register-provider`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${supabaseKey}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        toast.error(result.error || "Registration failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      // 5. Try to sign in (will work if email auto-confirm is on, otherwise user needs to verify)
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (signInError) {
+        // Email confirmation required — provider record & role are already created
+        toast.success("Registration submitted! Please verify your email, then log in.");
+        navigate("/login", { replace: true });
       } else {
-        toast.error(signUpError.message);
+        toast.success("Registration submitted! Your account is pending admin approval.");
+        navigate("/pending-approval", { replace: true });
       }
-      setLoading(false);
-      return;
-    }
-
-    const userId = signUpData.user?.id;
-    if (!userId) {
-      toast.success("Check your email for a confirmation link!");
-      navigate("/login", { replace: true });
-      setLoading(false);
-      return;
-    }
-
-    // 2. Sign in to get session (for RLS)
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    if (signInError) {
-      toast.success("Account created! Please confirm your email, then log in.");
-      navigate("/login", { replace: true });
-      setLoading(false);
-      return;
-    }
-
-    // 3. Upload all documents in parallel
-    toast.info("Uploading documents...");
-
-    const uploadPromises: Promise<{ key: string; url: string | null }>[] = [];
-
-    uploadPromises.push(uploadFile(userId, licenseFile, "license").then(url => ({ key: "license_url", url })));
-
-    if (gstFile) {
-      uploadPromises.push(uploadFile(userId, gstFile, "gst").then(url => ({ key: "gst_url", url })));
-    }
-
-    if (certificateFile) {
-      uploadPromises.push(uploadFile(userId, certificateFile, "certificate").then(url => ({ key: "certificate_url", url })));
-    }
-
-    if (photoFile) {
-      uploadPromises.push(uploadFile(userId, photoFile, "photo").then(url => ({ key: "image_url", url })));
-    }
-
-    const additionalDocUrls: string[] = [];
-    const additionalDocFiles = [additionalDoc1, additionalDoc2, additionalDoc3].filter(Boolean) as File[];
-    for (let i = 0; i < additionalDocFiles.length; i++) {
-      uploadPromises.push(
-        uploadFile(userId, additionalDocFiles[i], `doc_${i}`).then(url => {
-          if (url) additionalDocUrls.push(url);
-          return { key: "_additional", url };
-        })
-      );
-    }
-
-    const uploadResults = await Promise.all(uploadPromises);
-
-    const failedUploads = uploadResults.filter(r => r.key !== "_additional" && r.url === null && r.key === "license_url");
-    if (failedUploads.length > 0) {
-      toast.error("Failed to upload license document. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    // 4. Build provider record
-    let providerData: Record<string, any> = {
-      name: providerName,
-      phone,
-      user_id: userId,
-      approval_status: "pending",
-    };
-
-    // Add uploaded file URLs
-    for (const result of uploadResults) {
-      if (result.key !== "_additional" && result.url) {
-        providerData[result.key] = result.url;
-      }
-    }
-    if (additionalDocUrls.length > 0) {
-      providerData.additional_docs_urls = additionalDocUrls;
-    }
-
-    if (selectedType === "doctor") {
-      providerData.specialization = specialization;
-      providerData.bio = bio;
-      if (gender) providerData.gender = gender;
-    }
-    providerData.location = location;
-    if (latitude) providerData.latitude = Number(latitude);
-    if (longitude) providerData.longitude = Number(longitude);
-
-    // 5. Insert provider record
-    let providerError: any = null;
-    if (selectedType === "doctor") {
-      const { error } = await supabase.from("doctors").insert(providerData as any);
-      providerError = error;
-    } else if (selectedType === "hospital") {
-      const { error } = await supabase.from("hospitals").insert(providerData as any);
-      providerError = error;
-    } else if (selectedType === "lab") {
-      const { error } = await supabase.from("labs").insert(providerData as any);
-      providerError = error;
-    } else if (selectedType === "pharmacy") {
-      const { error } = await supabase.from("pharmacies").insert(providerData as any);
-      providerError = error;
-    }
-
-    if (providerError) {
-      console.error("Provider insert error:", providerError);
-      toast.error("Failed to create provider profile. " + providerError.message);
-      setLoading(false);
-      return;
-    }
-
-    // 6. Assign role
-    const { error: roleError } = await supabase
-      .from("user_roles")
-      .insert({ user_id: userId, role: config.roleKey as any });
-
-    if (roleError) {
-      console.error("Role insert error:", roleError);
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      toast.error("Something went wrong. Please try again.");
     }
 
     setLoading(false);
-    navigate("/pending-approval", { replace: true });
   };
 
   const getPhotoLabel = () => {
