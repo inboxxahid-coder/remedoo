@@ -34,6 +34,7 @@ export const ALL_ADMIN_PAGES = [
   { path: "/admin/otp-settings", label: "OTP Settings", group: "Finance & Settings" },
   { path: "/admin/team", label: "Admin Team", group: "Finance & Settings" },
   { path: "/admin/settings", label: "Platform Settings", group: "Finance & Settings" },
+  { path: "/admin/sessions", label: "Session Management", group: "Security & Logs" },
 ];
 
 export function useAdminPermissions() {
