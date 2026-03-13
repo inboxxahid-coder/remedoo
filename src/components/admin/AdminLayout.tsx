@@ -65,6 +65,7 @@ const navGroups: (NavItem | NavGroup)[] = [
       { label: "Users", path: "/admin/users", icon: Users },
       { label: "Support Tickets", path: "/admin/support-tickets", icon: Headphones },
       { label: "Suspicious Activity", path: "/admin/suspicious-activity", icon: AlertTriangle },
+      { label: "Session Management", path: "/admin/sessions", icon: Shield },
     ],
   },
 
