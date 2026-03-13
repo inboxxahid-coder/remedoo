@@ -73,6 +73,7 @@ const AdminRevenueDashboard = lazy(() => import("./pages/admin/AdminRevenueDashb
 const AdminPayouts = lazy(() => import("./pages/admin/AdminPayouts"));
 const AdminSupportTickets = lazy(() => import("./pages/admin/AdminSupportTickets"));
 const AdminSuspiciousActivity = lazy(() => import("./pages/admin/AdminSuspiciousActivity"));
+const AdminSessions = lazy(() => import("./pages/admin/AdminSessions"));
 const AdminQuickActions = lazy(() => import("./pages/admin/AdminQuickActions"));
 const AdminServices = lazy(() => import("./pages/admin/AdminServices"));
 const AdminHealthTips = lazy(() => import("./pages/admin/AdminHealthTips"));
@@ -251,6 +252,7 @@ const AppRoutes = () => {
           <Route path="payouts" element={<AdminPayouts />} />
           <Route path="support-tickets" element={<AdminSupportTickets />} />
           <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
+          <Route path="sessions" element={<AdminSessions />} />
           <Route path="quick-actions" element={<AdminQuickActions />} />
           <Route path="services" element={<AdminServices />} />
           <Route path="health-tips" element={<AdminHealthTips />} />
@@ -361,6 +363,7 @@ const AppRoutes = () => {
         <Route path="payouts" element={<AdminPayouts />} />
         <Route path="support-tickets" element={<AdminSupportTickets />} />
         <Route path="suspicious-activity" element={<AdminSuspiciousActivity />} />
+        <Route path="sessions" element={<AdminSessions />} />
         <Route path="quick-actions" element={<AdminQuickActions />} />
         <Route path="services" element={<AdminServices />} />
         <Route path="health-tips" element={<AdminHealthTips />} />
