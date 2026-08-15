@@ -224,6 +224,11 @@ const AppRoutes = () => {
   const { isMaintenanceMode, loading: maintenanceLoading } = useMaintenanceMode();
   useBranding(); // Apply admin-managed theme colors on mount
 
+  // Warm the most-visited patient screens once the browser is idle
+  useEffect(() => {
+    prefetchPatientRoutes();
+  }, []);
+
   if (maintenanceLoading) return <PageLoader />;
 
   // If maintenance mode is on, only allow admin routes
