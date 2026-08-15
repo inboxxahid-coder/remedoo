@@ -87,6 +87,8 @@ import BottomNav from "@/components/BottomNav";
 import SupportQueryFab from "@/components/patient/SupportQueryFab";
 import { Skeleton } from "@/components/ui/skeleton";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
+import { readDashboardCache, writeDashboardCache } from "@/lib/dashboardCache";
+
 
 const iconMap: Record<string, LucideIcon> = {
   Calendar, AlertTriangle, Pill, Heart, Bell, Star, Stethoscope, Building2,
