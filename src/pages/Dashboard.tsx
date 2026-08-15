@@ -75,8 +75,9 @@ const AnimatedLogo = () => {
   );
 };
 
-import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
-import HealthTipsCards from "@/components/dashboard/HealthTipsCards";
+const NearbyHospitalsMap = lazy(() => import("@/components/dashboard/NearbyHospitalsMap"));
+const HealthTipsCards = lazy(() => import("@/components/dashboard/HealthTipsCards"));
+
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
