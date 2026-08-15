@@ -122,34 +122,36 @@ const PROMO_BANNERS_FALLBACK = [
 const Dashboard = () => {
   const navigate = useNavigate();
   const guardedNavigate = useGuardedNavigate();
+  const cached = useRef(readDashboardCache()).current;
   const [user, setUser] = useState<SupaUser | null>(null);
-  const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
-  const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
-  const [ads, setAds] = useState<Tables<"ads">[]>([]);
-  const [popularMedicines, setPopularMedicines] = useState<(Tables<"medicines"> & { pharmacy_name?: string })[]>([]);
-  const [quickActions, setQuickActions] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
+  const [slides, setSlides] = useState<Tables<"slider_media">[]>(cached?.slides ?? []);
+  const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>(cached?.topDoctors ?? []);
+  const [ads, setAds] = useState<Tables<"ads">[]>(cached?.ads ?? []);
+  const [popularMedicines, setPopularMedicines] = useState<(Tables<"medicines"> & { pharmacy_name?: string })[]>(cached?.popularMedicines ?? []);
+  const [quickActions, setQuickActions] = useState<any[]>(cached?.quickActions ?? []);
+  const [services, setServices] = useState<any[]>(cached?.services ?? []);
   const [unreadCount, setUnreadCount] = useState(0);
   const [upcomingAppts, setUpcomingAppts] = useState(0);
   const [recentOrders, setRecentOrders] = useState(0);
   const [activeOrders, setActiveOrders] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!cached);
   const [pullDistance, setPullDistance] = useState(0);
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
   const [prescriptionCount, setPrescriptionCount] = useState(0);
   const [labReportCount, setLabReportCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
-  const [popularHospitals, setPopularHospitals] = useState<any[]>([]);
-  const [featuredPackages, setFeaturedPackages] = useState<any[]>([]);
-  const [pharmacyOffers, setPharmacyOffers] = useState<any[]>([]);
-  const [infoCards, setInfoCards] = useState<any[]>([]);
-  const [quickAccessItems, setQuickAccessItems] = useState<any[]>([]);
+  const [popularHospitals, setPopularHospitals] = useState<any[]>(cached?.popularHospitals ?? []);
+  const [featuredPackages, setFeaturedPackages] = useState<any[]>(cached?.featuredPackages ?? []);
+  const [pharmacyOffers, setPharmacyOffers] = useState<any[]>(cached?.pharmacyOffers ?? []);
+  const [infoCards, setInfoCards] = useState<any[]>(cached?.infoCards ?? []);
+  const [quickAccessItems, setQuickAccessItems] = useState<any[]>(cached?.quickAccessItems ?? []);
   const [promoIdx, setPromoIdx] = useState(0);
-  const [promoBanners, setPromoBanners] = useState<any[]>([]);
-  const [categoryActions, setCategoryActions] = useState<any[]>([]);
+  const [promoBanners, setPromoBanners] = useState<any[]>(cached?.promoBanners ?? []);
+  const [categoryActions, setCategoryActions] = useState<any[]>(cached?.categoryActions ?? []);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
 
   useRealtimeNotifications();
 
