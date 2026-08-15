@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import { Calendar, AlertTriangle, Pill, Heart, Bell, Star, Menu, X, ChevronRight, Stethoscope, Building2, FlaskConical, Store, TrendingUp, Activity, ShoppingBag, ClipboardList, RefreshCw, IndianRupee, Tag, Dumbbell, Brain, Sun, Wind, Moon, Apple, Droplets, FileText, Microscope, Ambulance, MapPin, Clock, Percent, Zap, type LucideIcon } from "lucide-react";
@@ -75,8 +75,9 @@ const AnimatedLogo = () => {
   );
 };
 
-import NearbyHospitalsMap from "@/components/dashboard/NearbyHospitalsMap";
-import HealthTipsCards from "@/components/dashboard/HealthTipsCards";
+const NearbyHospitalsMap = lazy(() => import("@/components/dashboard/NearbyHospitalsMap"));
+const HealthTipsCards = lazy(() => import("@/components/dashboard/HealthTipsCards"));
+
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,6 +88,8 @@ import BottomNav from "@/components/BottomNav";
 import SupportQueryFab from "@/components/patient/SupportQueryFab";
 import { Skeleton } from "@/components/ui/skeleton";
 import UnifiedSearch from "@/components/dashboard/UnifiedSearch";
+import { readDashboardCache, writeDashboardCache } from "@/lib/dashboardCache";
+
 
 const iconMap: Record<string, LucideIcon> = {
   Calendar, AlertTriangle, Pill, Heart, Bell, Star, Stethoscope, Building2,
@@ -122,34 +125,36 @@ const PROMO_BANNERS_FALLBACK = [
 const Dashboard = () => {
   const navigate = useNavigate();
   const guardedNavigate = useGuardedNavigate();
+  const cached = useRef(readDashboardCache()).current;
   const [user, setUser] = useState<SupaUser | null>(null);
-  const [slides, setSlides] = useState<Tables<"slider_media">[]>([]);
-  const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>([]);
-  const [ads, setAds] = useState<Tables<"ads">[]>([]);
-  const [popularMedicines, setPopularMedicines] = useState<(Tables<"medicines"> & { pharmacy_name?: string })[]>([]);
-  const [quickActions, setQuickActions] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
+  const [slides, setSlides] = useState<Tables<"slider_media">[]>(cached?.slides ?? []);
+  const [topDoctors, setTopDoctors] = useState<Tables<"doctors">[]>(cached?.topDoctors ?? []);
+  const [ads, setAds] = useState<Tables<"ads">[]>(cached?.ads ?? []);
+  const [popularMedicines, setPopularMedicines] = useState<(Tables<"medicines"> & { pharmacy_name?: string })[]>(cached?.popularMedicines ?? []);
+  const [quickActions, setQuickActions] = useState<any[]>(cached?.quickActions ?? []);
+  const [services, setServices] = useState<any[]>(cached?.services ?? []);
   const [unreadCount, setUnreadCount] = useState(0);
   const [upcomingAppts, setUpcomingAppts] = useState(0);
   const [recentOrders, setRecentOrders] = useState(0);
   const [activeOrders, setActiveOrders] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!cached);
   const [pullDistance, setPullDistance] = useState(0);
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
   const [prescriptionCount, setPrescriptionCount] = useState(0);
   const [labReportCount, setLabReportCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
-  const [popularHospitals, setPopularHospitals] = useState<any[]>([]);
-  const [featuredPackages, setFeaturedPackages] = useState<any[]>([]);
-  const [pharmacyOffers, setPharmacyOffers] = useState<any[]>([]);
-  const [infoCards, setInfoCards] = useState<any[]>([]);
-  const [quickAccessItems, setQuickAccessItems] = useState<any[]>([]);
+  const [popularHospitals, setPopularHospitals] = useState<any[]>(cached?.popularHospitals ?? []);
+  const [featuredPackages, setFeaturedPackages] = useState<any[]>(cached?.featuredPackages ?? []);
+  const [pharmacyOffers, setPharmacyOffers] = useState<any[]>(cached?.pharmacyOffers ?? []);
+  const [infoCards, setInfoCards] = useState<any[]>(cached?.infoCards ?? []);
+  const [quickAccessItems, setQuickAccessItems] = useState<any[]>(cached?.quickAccessItems ?? []);
   const [promoIdx, setPromoIdx] = useState(0);
-  const [promoBanners, setPromoBanners] = useState<any[]>([]);
-  const [categoryActions, setCategoryActions] = useState<any[]>([]);
+  const [promoBanners, setPromoBanners] = useState<any[]>(cached?.promoBanners ?? []);
+  const [categoryActions, setCategoryActions] = useState<any[]>(cached?.categoryActions ?? []);
   const touchStartY = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
 
   useRealtimeNotifications();
 
@@ -160,48 +165,83 @@ const Dashboard = () => {
     return () => clearInterval(t);
   }, [activeBanners.length]);
 
-  const fetchAllData = useCallback(async () => {
+  const cacheRef = useRef<Record<string, any>>(cached ?? {});
+  const saveCache = useCallback((patch: Record<string, any>) => {
+    cacheRef.current = { ...cacheRef.current, ...patch };
+    writeDashboardCache(cacheRef.current);
+  }, []);
+
+  // Phase 1 — above-the-fold content only (tiny payloads, paints instantly)
+  const fetchCriticalData = useCallback(async () => {
     try {
-      const [slidesRes, doctorsRes, adsRes, medsRes, qaRes, svcRes, hospitalsRes, packagesRes, pharmacyOffersRes, infoCardsRes, quickAccessRes, promoBannersRes, catActionsRes] = await Promise.all([
+      const [qaRes, catActionsRes, promoBannersRes, slidesRes, quickAccessRes, infoCardsRes, svcRes] = await Promise.all([
+        supabase.from("dashboard_quick_actions").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_category_actions").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_promo_banners").select("*").eq("active", true).order("sort_order"),
         supabase.from("slider_media").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_quick_access").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_info_cards").select("*").eq("active", true).order("sort_order"),
+        supabase.from("dashboard_services").select("*").eq("active", true).order("sort_order"),
+      ]);
+      const patch: Record<string, any> = {};
+      if (qaRes.data) { setQuickActions(qaRes.data); patch.quickActions = qaRes.data; }
+      if (catActionsRes.data) { setCategoryActions(catActionsRes.data); patch.categoryActions = catActionsRes.data; }
+      if (promoBannersRes.data) { setPromoBanners(promoBannersRes.data); patch.promoBanners = promoBannersRes.data; }
+      if (slidesRes.data) { setSlides(slidesRes.data); patch.slides = slidesRes.data; }
+      if (quickAccessRes.data) { setQuickAccessItems(quickAccessRes.data); patch.quickAccessItems = quickAccessRes.data; }
+      if (infoCardsRes.data) { setInfoCards(infoCardsRes.data); patch.infoCards = infoCardsRes.data; }
+      if (svcRes.data) { setServices(svcRes.data); patch.services = svcRes.data; }
+      saveCache(patch);
+    } catch (error) {
+      console.error("Dashboard critical fetch error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [saveCache]);
+
+  // Phase 2 — below-the-fold listings, loaded after first paint
+  const fetchSecondaryData = useCallback(async () => {
+    try {
+      const [doctorsRes, adsRes, medsRes, hospitalsRes, packagesRes, pharmacyOffersRes] = await Promise.all([
         supabase.from("doctors").select("*, hospitals!left(is_government)").eq("is_featured", true).order("featured_sort_order").limit(10),
         supabase.from("ads").select("*").eq("active", true),
         supabase.from("medicines").select("*, pharmacies(name)").eq("is_featured", true).eq("in_stock", true).order("featured_sort_order").limit(10),
-        supabase.from("dashboard_quick_actions").select("*").eq("active", true).order("sort_order"),
-        supabase.from("dashboard_services").select("*").eq("active", true).order("sort_order"),
         supabase.from("hospitals").select("id, name, location, rating, image_url, total_beds, is_government").eq("approval_status", "approved").order("rating", { ascending: false }).limit(5),
         supabase.from("lab_test_packages").select("*, labs(name)").eq("is_active", true).order("created_at", { ascending: false }).limit(6),
         supabase.from("pharmacies").select("id, name, location, rating, image_url").eq("approval_status", "approved").order("rating", { ascending: false }).limit(6),
-        supabase.from("dashboard_info_cards").select("*").eq("active", true).order("sort_order"),
-        supabase.from("dashboard_quick_access").select("*").eq("active", true).order("sort_order"),
-        supabase.from("dashboard_promo_banners").select("*").eq("active", true).order("sort_order"),
-        supabase.from("dashboard_category_actions").select("*").eq("active", true).order("sort_order"),
       ]);
-      if (slidesRes.data) setSlides(slidesRes.data);
+      const patch: Record<string, any> = {};
       if (doctorsRes.data) {
         const nonGovtDoctors = doctorsRes.data.filter((d: any) => !d.hospitals?.is_government);
         if (nonGovtDoctors.length > 0) {
           setTopDoctors(nonGovtDoctors);
+          patch.topDoctors = nonGovtDoctors;
         } else {
           const fallback = await supabase.from("doctors").select("*, hospitals!left(is_government)").order("rating", { ascending: false }).limit(10);
-          setTopDoctors((fallback.data || []).filter((d: any) => !d.hospitals?.is_government).slice(0, 5));
+          const list = (fallback.data || []).filter((d: any) => !d.hospitals?.is_government).slice(0, 5);
+          setTopDoctors(list);
+          patch.topDoctors = list;
         }
       }
-      if (adsRes.data) setAds(adsRes.data);
+      if (adsRes.data) { setAds(adsRes.data); patch.ads = adsRes.data; }
       if (medsRes.data) {
         if (medsRes.data.length > 0) {
-          setPopularMedicines(medsRes.data.map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name })));
+          const list = medsRes.data.map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name }));
+          setPopularMedicines(list);
+          patch.popularMedicines = list;
         } else {
           const fallback = await supabase.from("medicines").select("*, pharmacies(name)").eq("in_stock", true).order("created_at", { ascending: false }).limit(10);
-          setPopularMedicines((fallback.data || []).map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name })));
+          const list = (fallback.data || []).map((m: any) => ({ ...m, pharmacy_name: m.pharmacies?.name }));
+          setPopularMedicines(list);
+          patch.popularMedicines = list;
         }
       }
-      if (qaRes.data) setQuickActions(qaRes.data);
-      if (svcRes.data) setServices(svcRes.data);
-      if (hospitalsRes.data) setPopularHospitals(hospitalsRes.data);
-      if (packagesRes.data) setFeaturedPackages(packagesRes.data.map((p: any) => ({ ...p, lab_name: p.labs?.name })));
-      if (infoCardsRes.data) setInfoCards(infoCardsRes.data);
-      if (quickAccessRes.data) setQuickAccessItems(quickAccessRes.data);
+      if (hospitalsRes.data) { setPopularHospitals(hospitalsRes.data); patch.popularHospitals = hospitalsRes.data; }
+      if (packagesRes.data) {
+        const list = packagesRes.data.map((p: any) => ({ ...p, lab_name: p.labs?.name }));
+        setFeaturedPackages(list);
+        patch.featuredPackages = list;
+      }
 
       if (pharmacyOffersRes.data && pharmacyOffersRes.data.length > 0) {
         const pharmacyIds = pharmacyOffersRes.data.map((p: any) => p.id);
@@ -219,10 +259,19 @@ const Dashboard = () => {
           return { ...ph, offerCount: meds.length, maxDiscount, topOffers: meds.slice(0, 3) };
         });
         setPharmacyOffers(pharmaciesWithOffers);
+        patch.pharmacyOffers = pharmaciesWithOffers;
       }
+      saveCache(patch);
+    } catch (error) {
+      console.error("Dashboard secondary fetch error:", error);
+    }
+  }, [saveCache]);
 
+  // Personal counts — user-specific, never cached
+  const fetchUserData = useCallback(async () => {
+    try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { setIsLoading(false); return; }
+      if (!session) return;
       const userId = session.user.id;
       const today = new Date().toISOString().split("T")[0];
       const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
@@ -246,11 +295,13 @@ const Dashboard = () => {
       setLabReportCount(labRepRes.count ?? 0);
       setFavoritesCount(favRes.count ?? 0);
     } catch (error) {
-      console.error("Dashboard fetch error:", error);
-    } finally {
-      setIsLoading(false);
+      console.error("Dashboard user fetch error:", error);
     }
   }, []);
+
+  const fetchAllData = useCallback(async () => {
+    await Promise.all([fetchCriticalData(), fetchSecondaryData(), fetchUserData()]);
+  }, [fetchCriticalData, fetchSecondaryData, fetchUserData]);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -266,19 +317,28 @@ const Dashboard = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
-    fetchAllData();
+
+    // Paint first, then hydrate the rest without blocking the first frame
+    fetchCriticalData();
+    fetchUserData();
+    const idle = (window as any).requestIdleCallback
+      ? (window as any).requestIdleCallback(() => fetchSecondaryData(), { timeout: 1200 })
+      : window.setTimeout(() => fetchSecondaryData(), 120);
 
     const notifChannel = supabase
       .channel("dashboard-badge")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => fetchAllData())
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications" }, () => fetchAllData())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, () => fetchUserData())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications" }, () => fetchUserData())
       .subscribe();
 
     return () => {
       subscription.unsubscribe();
       supabase.removeChannel(notifChannel);
+      if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idle);
+      else clearTimeout(idle);
     };
-  }, [navigate, fetchAllData]);
+  }, [fetchCriticalData, fetchSecondaryData, fetchUserData]);
+
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -873,13 +933,18 @@ const Dashboard = () => {
 
                 {/* ===== HEALTH TIPS ===== */}
                 <div className="px-4">
-                  <HealthTipsCards />
+                  <Suspense fallback={<Skeleton className="h-28 w-full rounded-2xl" />}>
+                    <HealthTipsCards />
+                  </Suspense>
                 </div>
 
                 {/* ===== NEARBY HOSPITALS MAP ===== */}
                 <div className="px-4">
-                  <NearbyHospitalsMap />
+                  <Suspense fallback={<Skeleton className="h-40 w-full rounded-2xl" />}>
+                    <NearbyHospitalsMap />
+                  </Suspense>
                 </div>
+
 
                 {/* ===== ADS ===== */}
                 {ads.length > 0 && (
