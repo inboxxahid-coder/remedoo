@@ -67,7 +67,7 @@ export default function MedicineDetailSheet({ medicine: m, open, onClose, cartQt
             {/* Image / Visual */}
             <div className="h-44 bg-gradient-to-br from-accent/60 to-accent/20 flex items-center justify-center relative mx-4 rounded-2xl mt-2 overflow-hidden">
               {m.image_url ? (
-                <img src={m.image_url} alt={m.name} className="w-full h-full object-cover" />
+                <img loading="lazy" decoding="async" src={m.image_url} alt={m.name} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-6xl">{getCategoryIcon(m.category)}</span>
               )}

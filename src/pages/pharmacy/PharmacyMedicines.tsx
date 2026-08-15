@@ -116,7 +116,7 @@ export default function PharmacyMedicines() {
 
                 <div className="h-20 bg-gradient-to-br from-accent/60 to-accent/20 flex items-center justify-center relative overflow-hidden">
                   {m.image_url ? (
-                    <img src={m.image_url} alt={m.name} className="w-full h-full object-cover" />
+                    <img loading="lazy" decoding="async" src={m.image_url} alt={m.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="text-2xl">{getCategoryIcon(m.category)}</span>

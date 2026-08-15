@@ -596,7 +596,7 @@ const Dashboard = () => {
                             >
                               <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
                                 {doc?.image_url ? (
-                                  <img src={doc.image_url} alt={doc.name} className="w-12 h-12 rounded-xl object-cover" />
+                                  <img loading="lazy" decoding="async" src={doc.image_url} alt={doc.name} className="w-12 h-12 rounded-xl object-cover" />
                                 ) : (
                                   <Stethoscope className="w-5 h-5 text-primary" />
                                 )}
@@ -642,7 +642,7 @@ const Dashboard = () => {
                         >
                           <div className="h-24 bg-muted flex items-center justify-center overflow-hidden">
                             {doc.image_url ? (
-                              <img src={doc.image_url} alt={doc.name} className="w-full h-full object-cover" />
+                              <img loading="lazy" decoding="async" src={doc.image_url} alt={doc.name} className="w-full h-full object-cover" />
                             ) : (
                               <Stethoscope className="w-8 h-8 text-muted-foreground/40" />
                             )}

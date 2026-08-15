@@ -238,7 +238,7 @@ const Pharmacies = () => {
               >
                 {/* Top image/banner area */}
                 <div className="relative h-32 bg-gradient-to-br from-primary/10 via-accent/30 to-primary/5 flex items-center justify-center overflow-hidden">
-                  <img src={getPharmacyImage(p.image_url)} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img loading="lazy" decoding="async" src={getPharmacyImage(p.image_url)} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
 
                   {/* Favorite button */}
                   <button
