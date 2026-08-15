@@ -932,13 +932,18 @@ const Dashboard = () => {
 
                 {/* ===== HEALTH TIPS ===== */}
                 <div className="px-4">
-                  <HealthTipsCards />
+                  <Suspense fallback={<Skeleton className="h-28 w-full rounded-2xl" />}>
+                    <HealthTipsCards />
+                  </Suspense>
                 </div>
 
                 {/* ===== NEARBY HOSPITALS MAP ===== */}
                 <div className="px-4">
-                  <NearbyHospitalsMap />
+                  <Suspense fallback={<Skeleton className="h-40 w-full rounded-2xl" />}>
+                    <NearbyHospitalsMap />
+                  </Suspense>
                 </div>
+
 
                 {/* ===== ADS ===== */}
                 {ads.length > 0 && (
