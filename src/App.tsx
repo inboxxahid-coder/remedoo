@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import { useBranding } from "@/hooks/useBranding";
 import MaintenanceModePage from "@/pages/MaintenanceMode";
+import { prefetchPatientRoutes } from "@/lib/prefetchRoutes";
 
 // Lazy-loaded pages — each becomes a separate chunk
 const Splash = lazy(() => import("./pages/Splash"));
