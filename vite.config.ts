@@ -54,6 +54,26 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
+          {
+            // Remote images (storage buckets, CDNs) — often carry query strings
+            urlPattern: /\/storage\/v1\/object\/public\/.*/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "remote-images",
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            // Public catalog reads — serve instantly from cache on slow networks
+            urlPattern: /\/rest\/v1\/(dashboard_[a-z_]+|slider_media|ads|doctors|hospitals|hospitals_public|pharmacies|labs|medicines|lab_test_packages|app_settings|branding[a-z_]*)\?/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "catalog-api",
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 120, maxAgeSeconds: 60 * 30 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
         ],
       },
       manifest: {
