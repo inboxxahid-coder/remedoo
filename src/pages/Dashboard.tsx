@@ -518,7 +518,7 @@ const Dashboard = () => {
                         >
                           {slide.url && slide.type !== "video" ? (
                             <>
-                              <img src={slide.url} alt={slide.title || ""} className="w-full h-[150px] object-cover" loading="lazy" />
+                              <img src={slide.url} alt={slide.title || ""} className="w-full h-[150px] object-cover" width={360} height={150} decoding="async" loading={idx === 0 ? "eager" : "lazy"} fetchPriority={idx === 0 ? "high" : "low"} />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                               <div className="absolute bottom-0 left-0 p-4">
                                 <p className="text-white font-bold text-base drop-shadow-md">{slide.title}</p>
