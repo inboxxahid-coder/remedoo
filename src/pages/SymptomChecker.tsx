@@ -318,7 +318,7 @@ export default function SymptomChecker() {
                       <div key={doc.id} className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
                           {doc.image_url ? (
-                            <img src={doc.image_url} alt={doc.name} className="w-full h-full rounded-full object-cover" />
+                            <img loading="lazy" decoding="async" src={doc.image_url} alt={doc.name} className="w-full h-full rounded-full object-cover" />
                           ) : (
                             <Stethoscope className="w-5 h-5 text-muted-foreground" />
                           )}

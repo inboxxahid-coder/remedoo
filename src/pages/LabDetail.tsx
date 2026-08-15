@@ -144,7 +144,7 @@ const LabDetail = () => {
       <div className="relative">
         <div className="h-48 bg-gradient-to-br from-primary/20 via-accent/40 to-primary/10 relative overflow-hidden">
           {lab.image_url ? (
-            <img src={lab.image_url} alt={lab.name} className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={lab.image_url} alt={lab.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-7xl opacity-30">🔬</span>

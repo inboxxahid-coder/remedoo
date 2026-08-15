@@ -134,7 +134,7 @@ const DoctorDetail = () => {
           className="bg-card rounded-2xl border border-border p-5 shadow-lg"
         >
           <div className="flex gap-4">
-            <img src={getDoctorAvatar(doctor.gender, doctor.image_url)} alt={doctor.name} className="w-20 h-20 rounded-2xl object-cover flex-shrink-0 border-2 border-primary/20" />
+            <img loading="lazy" decoding="async" src={getDoctorAvatar(doctor.gender, doctor.image_url)} alt={doctor.name} className="w-20 h-20 rounded-2xl object-cover flex-shrink-0 border-2 border-primary/20" />
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold text-foreground flex items-center gap-1.5">{doctor.name}{doctor.approval_status === "approved" && <BadgeCheck className="w-5 h-5 text-blue-500 shrink-0" />}</h2>
               <p

@@ -106,7 +106,7 @@ const PharmacyDetail = () => {
         {/* Hero image */}
         <div className="h-48 bg-gradient-to-br from-primary/20 via-accent/40 to-primary/10 relative overflow-hidden">
           {pharmacy.image_url ? (
-            <img src={pharmacy.image_url} alt={pharmacy.name} className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={pharmacy.image_url} alt={pharmacy.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-7xl opacity-30">🏥</span>
@@ -267,7 +267,7 @@ const PharmacyDetail = () => {
                   {/* Medicine image */}
                   <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-accent/60 to-accent/20 flex items-center justify-center overflow-hidden shrink-0 relative">
                     {m.image_url ? (
-                      <img src={m.image_url} alt={m.name} className="w-full h-full object-cover" />
+                      <img loading="lazy" decoding="async" src={m.image_url} alt={m.name} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-3xl">{getCategoryIcon(m.category)}</span>
                     )}

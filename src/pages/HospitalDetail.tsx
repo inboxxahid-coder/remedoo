@@ -108,7 +108,7 @@ const HospitalDetail = () => {
           <div className="flex gap-4">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent to-primary/15 flex items-center justify-center text-4xl flex-shrink-0">
               {hospital.image_url ? (
-                <img src={hospital.image_url} alt={hospital.name} className="w-full h-full rounded-2xl object-cover" />
+                <img loading="lazy" decoding="async" src={hospital.image_url} alt={hospital.name} className="w-full h-full rounded-2xl object-cover" />
               ) : hospital.is_government ? "🏛️" : "🏥"}
             </div>
             <div className="flex-1 min-w-0">
@@ -201,7 +201,7 @@ const HospitalDetail = () => {
                 >
                   <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-2xl flex-shrink-0">
                     {doc.image_url ? (
-                      <img src={doc.image_url} alt={doc.name} className="w-full h-full rounded-xl object-cover" />
+                      <img loading="lazy" decoding="async" src={doc.image_url} alt={doc.name} className="w-full h-full rounded-xl object-cover" />
                     ) : "👨‍⚕️"}
                   </div>
                   <div className="flex-1 min-w-0">
