@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation, Phone, MapPin, CheckCircle, Truck, Clock } from "lucide-react";
 import { toast } from "sonner";
-import AmbulanceMap from "@/components/patient/AmbulanceMap";
+import AmbulanceMap from "@/components/patient/LazyAmbulanceMap";
 
 const TRIP_STAGES = [
   { key: "en_route", label: "En Route to Patient", next: "arrived", btnLabel: "Arrived at Pickup" },

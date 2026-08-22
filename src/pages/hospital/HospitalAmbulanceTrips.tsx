@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { exportToCsv } from "@/lib/exportCsv";
 import { logAuditAction } from "@/lib/auditLog";
 import { Route, IndianRupee, Download, Filter, Clock, Truck, MapPin, Navigation } from "lucide-react";
-import AmbulanceMap from "@/components/patient/AmbulanceMap";
+import AmbulanceMap from "@/components/patient/LazyAmbulanceMap";
 
 export default function HospitalAmbulanceTrips() {
   const [hospital, setHospital] = useState<any>(null);
