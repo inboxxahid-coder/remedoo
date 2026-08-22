@@ -27,10 +27,11 @@ const Doctors = () => {
   const [searchParams] = useSearchParams();
   const { services, loading: serviceLoading } = useServiceToggle();
   const specFromUrl = searchParams.get("spec") || "All";
-  const [doctors, setDoctors] = useState<any[]>([]);
+  const cachedDoctors = useMemo(() => readPageCache<any[]>("doctors"), []);
+  const [doctors, setDoctors] = useState<any[]>(cachedDoctors ?? []);
   const [search, setSearch] = useState("");
   const [selectedSpec, setSelectedSpec] = useState<string>(specFromUrl);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedDoctors);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("Relevance");
