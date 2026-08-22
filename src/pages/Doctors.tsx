@@ -11,6 +11,7 @@ import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolo
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getDoctorAvatar } from "@/lib/providerDefaults";
+import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 import { useServiceToggle } from "@/hooks/useServiceToggle";
 import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
@@ -27,10 +28,11 @@ const Doctors = () => {
   const [searchParams] = useSearchParams();
   const { services, loading: serviceLoading } = useServiceToggle();
   const specFromUrl = searchParams.get("spec") || "All";
-  const [doctors, setDoctors] = useState<any[]>([]);
+  const cachedDoctors = useMemo(() => readPageCache<any[]>("doctors"), []);
+  const [doctors, setDoctors] = useState<any[]>(cachedDoctors ?? []);
   const [search, setSearch] = useState("");
   const [selectedSpec, setSelectedSpec] = useState<string>(specFromUrl);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedDoctors);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("Relevance");
@@ -47,14 +49,16 @@ const Doctors = () => {
       try {
         const { data: doctorsRes } = await supabase.from("doctors_public").select("*, hospitals(name, latitude, longitude, is_government)");
         if (doctorsRes) {
-          setDoctors(doctorsRes
+          const mapped = doctorsRes
             .filter((d: any) => !d.hospitals?.is_government)
             .map((d: any) => ({
               ...d,
               hospital_name: d.hospitals?.name,
               latitude: d.hospitals?.latitude ?? null,
               longitude: d.hospitals?.longitude ?? null,
-            })));
+            }));
+          setDoctors(mapped);
+          writePageCache("doctors", mapped);
         }
       } catch (e) { console.error("Failed to fetch doctors:", e); }
       setLoading(false);
@@ -71,7 +75,7 @@ const Doctors = () => {
         }
       } catch (e) { console.error("Failed to load favorites:", e); }
     };
-    loadFavorites();
+    runWhenIdle(loadFavorites);
   }, []);
 
   const toggleFavorite = async (e: React.MouseEvent, doctorId: string) => {

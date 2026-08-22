@@ -11,6 +11,7 @@ import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPharmacyImage } from "@/lib/providerDefaults";
 import { usePharmacyMode } from "@/hooks/usePharmacyMode";
+import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 
 const OFFER_BANNERS = [
   { emoji: "💊", title: "Flat 20% OFF", subtitle: "On first medicine order", bg: "from-emerald-500 to-teal-600" },
@@ -23,13 +24,14 @@ const FILTERS = ["Relevance", "Rating 4.0+", "Delivery Time", "Has Offers", "Nea
 const Pharmacies = () => {
   const navigate = useNavigate();
   const { mode, loading: modeLoading } = usePharmacyMode();
-  const [pharmacies, setPharmacies] = useState<any[]>([]);
+  const cached = useMemo(() => readPageCache<any>("pharmacies"), []);
+  const [pharmacies, setPharmacies] = useState<any[]>(cached?.pharmacies ?? []);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cached);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
-  const [medicineCounts, setMedicineCounts] = useState<Record<string, number>>({});
-  const [offerCounts, setOfferCounts] = useState<Record<string, number>>({});
+  const [medicineCounts, setMedicineCounts] = useState<Record<string, number>>(cached?.medicineCounts ?? {});
+  const [offerCounts, setOfferCounts] = useState<Record<string, number>>(cached?.offerCounts ?? {});
   const [activeFilter, setActiveFilter] = useState("Relevance");
   const [bannerIdx, setBannerIdx] = useState(0);
   const { location } = useGeolocation();
@@ -50,11 +52,12 @@ const Pharmacies = () => {
   useEffect(() => {
     const fetchPharmacies = async () => {
       try {
-        const [pRes, mRes] = await Promise.all([
-          supabase.from("pharmacies_public").select("*"),
-          supabase.from("medicines").select("pharmacy_id, discount_percent"),
-        ]);
+        const pRes = await supabase.from("pharmacies_public").select("*");
         if (pRes.data) setPharmacies(pRes.data);
+        setLoading(false);
+        const mRes = await new Promise<any>((resolve) =>
+          runWhenIdle(() => supabase.from("medicines").select("pharmacy_id, discount_percent").then(resolve))
+        );
         if (mRes.data) {
           const counts: Record<string, number> = {};
           const offers: Record<string, number> = {};
@@ -64,6 +67,7 @@ const Pharmacies = () => {
           });
           setMedicineCounts(counts);
           setOfferCounts(offers);
+          writePageCache("pharmacies", { pharmacies: pRes.data ?? [], medicineCounts: counts, offerCounts: offers });
         }
       } catch (e) { console.error("Failed to fetch pharmacies:", e); }
       setLoading(false);
@@ -80,7 +84,7 @@ const Pharmacies = () => {
         }
       } catch (e) { console.error("Failed to load favorites:", e); }
     };
-    loadFavorites();
+    runWhenIdle(loadFavorites);
   }, []);
 
   const toggleFavorite = async (e: React.MouseEvent, id: string) => {

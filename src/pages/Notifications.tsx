@@ -9,6 +9,7 @@ import { format, parseISO } from "date-fns";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import BottomNav from "@/components/BottomNav";
+import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 
 type NotificationItem = {
   id: string;
@@ -77,8 +78,11 @@ const EmptyState = ({ label }: { label: string }) => (
 
 const Notifications = () => {
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedNotifications = readPageCache<any[]>("notifications", 5 * 60 * 1000);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(
+    (cachedNotifications ?? []).map((n: any) => ({ ...n, icon: iconMap[n.type] || Info }))
+  );
+  const [loading, setLoading] = useState(!cachedNotifications);
   const { permission, supported, requestPermission } = usePushNotifications();
 
   // Enable real-time toast alerts
@@ -100,8 +104,7 @@ const Notifications = () => {
         .limit(50);
 
       if (data) {
-        setNotifications(
-          data.map((n: any) => ({
+        const mapped = data.map((n: any) => ({
             id: n.id,
             type: n.type,
             title: n.title,
@@ -110,8 +113,9 @@ const Notifications = () => {
             read: n.read,
             icon: iconMap[n.type] || Info,
             path: n.path,
-          }))
-        );
+        }));
+        setNotifications(mapped);
+        writePageCache("notifications", mapped.map(({ icon, ...rest }: any) => rest));
       }
       setLoading(false);
     };

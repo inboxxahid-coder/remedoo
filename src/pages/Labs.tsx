@@ -10,6 +10,7 @@ import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolo
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getLabImage } from "@/lib/providerDefaults";
+import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 import { useServiceToggle } from "@/hooks/useServiceToggle";
 import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
@@ -24,13 +25,14 @@ const FILTERS = ["Relevance", "Rating 4.0+", "Most Tests", "Has Offers", "Neares
 const Labs = () => {
   const navigate = useNavigate();
   const { services } = useServiceToggle();
-  const [labs, setLabs] = useState<any[]>([]);
+  const cached = useMemo(() => readPageCache<any>("labs"), []);
+  const [labs, setLabs] = useState<any[]>(cached?.labs ?? []);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cached);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
-  const [testCounts, setTestCounts] = useState<Record<string, number>>({});
-  const [offerCounts, setOfferCounts] = useState<Record<string, number>>({});
+  const [testCounts, setTestCounts] = useState<Record<string, number>>(cached?.testCounts ?? {});
+  const [offerCounts, setOfferCounts] = useState<Record<string, number>>(cached?.offerCounts ?? {});
   const [activeFilter, setActiveFilter] = useState("Relevance");
   const [bannerIdx, setBannerIdx] = useState(0);
   const { location } = useGeolocation();
@@ -44,11 +46,12 @@ const Labs = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [lRes, tRes] = await Promise.all([
-          supabase.from("labs_public").select("*"),
-          supabase.from("lab_tests").select("lab_id, discount_percent"),
-        ]);
+        const lRes = await supabase.from("labs_public").select("*");
         if (lRes.data) setLabs(lRes.data);
+        setLoading(false);
+        const tRes = await new Promise<any>((resolve) =>
+          runWhenIdle(() => supabase.from("lab_tests").select("lab_id, discount_percent").then(resolve))
+        );
         if (tRes.data) {
           const counts: Record<string, number> = {};
           const offers: Record<string, number> = {};
@@ -58,6 +61,7 @@ const Labs = () => {
           });
           setTestCounts(counts);
           setOfferCounts(offers);
+          writePageCache("labs", { labs: lRes.data ?? [], testCounts: counts, offerCounts: offers });
         }
       } catch (e) { console.error("Failed to fetch labs:", e); }
       setLoading(false);
@@ -74,7 +78,7 @@ const Labs = () => {
         }
       } catch (e) { console.error("Failed to load favorites:", e); }
     };
-    loadFavorites();
+    runWhenIdle(loadFavorites);
   }, []);
 
   const toggleFavorite = async (e: React.MouseEvent, id: string) => {

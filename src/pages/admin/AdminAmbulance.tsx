@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { Ambulance, Truck, MapPin, Clock, Activity, IndianRupee, BarChart3, Navigation } from "lucide-react";
-import AmbulanceMap from "@/components/patient/AmbulanceMap";
+import AmbulanceMap from "@/components/patient/LazyAmbulanceMap";
 
 export default function AdminAmbulance() {
   const [ambulances, setAmbulances] = useState<any[]>([]);

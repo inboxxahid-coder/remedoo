@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import PatientQueueView from "@/components/patient/PatientQueueView";
 import ReviewDialog from "@/components/patient/ReviewDialog";
 import { generateAppointmentInvoice } from "@/lib/generateAppointmentInvoice";
+import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 
 type AppointmentWithProvider = {
   id: string;
@@ -36,8 +37,9 @@ const statusConfig: Record<string, { icon: any; color: string; bg: string }> = {
 
 const Appointments = () => {
   const navigate = useNavigate();
-  const [appointments, setAppointments] = useState<AppointmentWithProvider[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedAppointments = readPageCache<AppointmentWithProvider[]>("appointments", 5 * 60 * 1000);
+  const [appointments, setAppointments] = useState<AppointmentWithProvider[]>(cachedAppointments ?? []);
+  const [loading, setLoading] = useState(!cachedAppointments);
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   const [rescheduleApt, setRescheduleApt] = useState<AppointmentWithProvider | null>(null);
   const [cancelTarget, setCancelTarget] = useState<AppointmentWithProvider | null>(null);
@@ -70,11 +72,13 @@ const Appointments = () => {
       .order("appointment_date", { ascending: false });
 
     if (data) {
-      setAppointments(data.map((a: any) => ({
+      const mapped = data.map((a: any) => ({
         ...a,
         provider_name:
           a.doctors?.name || a.hospitals?.name || a.labs?.name || a.pharmacies?.name || "Unknown",
-      })));
+      }));
+      setAppointments(mapped);
+      writePageCache("appointments", mapped);
     }
     setLoading(false);
   };

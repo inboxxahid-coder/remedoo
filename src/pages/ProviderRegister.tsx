@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Heart, Mail, Lock, User, Eye, EyeOff, Stethoscope, Building2, FlaskConical, Store, Phone, MapPin, FileText, Upload, Camera, X } from "lucide-react";
-import LocationPicker from "@/components/provider/LocationPicker";
+import LocationPicker from "@/components/provider/LazyLocationPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
