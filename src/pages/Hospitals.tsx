@@ -9,6 +9,7 @@ import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolo
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getHospitalImage } from "@/lib/providerDefaults";
+import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 
 const OFFER_BANNERS = [
   { emoji: "🏥", title: "Free Health Checkup", subtitle: "On first hospital visit", bg: "from-emerald-500 to-teal-600" },
@@ -20,9 +21,10 @@ const FILTERS = ["Relevance", "Rating 4.0+", "Has ICU", "Government", "Nearest F
 
 const Hospitals = () => {
   const navigate = useNavigate();
-  const [hospitals, setHospitals] = useState<any[]>([]);
+  const cachedHospitals = useMemo(() => readPageCache<any[]>("hospitals"), []);
+  const [hospitals, setHospitals] = useState<any[]>(cachedHospitals ?? []);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cachedHospitals);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("Relevance");
@@ -38,7 +40,7 @@ const Hospitals = () => {
     const fetchHospitals = async () => {
       try {
         const { data: hRes } = await supabase.from("hospitals_public").select("*");
-        if (hRes) setHospitals(hRes);
+        if (hRes) { setHospitals(hRes); writePageCache("hospitals", hRes); }
       } catch (e) { console.error("Failed to fetch hospitals:", e); }
       setLoading(false);
     };
@@ -54,7 +56,7 @@ const Hospitals = () => {
         }
       } catch (e) { console.error("Failed to load favorites:", e); }
     };
-    loadFavorites();
+    runWhenIdle(loadFavorites);
   }, []);
 
   const toggleFavorite = async (e: React.MouseEvent, id: string) => {
