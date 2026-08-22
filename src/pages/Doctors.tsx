@@ -11,6 +11,7 @@ import { useGeolocation, sortByDistance, formatDistance } from "@/hooks/useGeolo
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getDoctorAvatar } from "@/lib/providerDefaults";
+import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 import { useServiceToggle } from "@/hooks/useServiceToggle";
 import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
 
@@ -48,14 +49,16 @@ const Doctors = () => {
       try {
         const { data: doctorsRes } = await supabase.from("doctors_public").select("*, hospitals(name, latitude, longitude, is_government)");
         if (doctorsRes) {
-          setDoctors(doctorsRes
+          const mapped = doctorsRes
             .filter((d: any) => !d.hospitals?.is_government)
             .map((d: any) => ({
               ...d,
               hospital_name: d.hospitals?.name,
               latitude: d.hospitals?.latitude ?? null,
               longitude: d.hospitals?.longitude ?? null,
-            })));
+            }));
+          setDoctors(mapped);
+          writePageCache("doctors", mapped);
         }
       } catch (e) { console.error("Failed to fetch doctors:", e); }
       setLoading(false);
@@ -72,7 +75,7 @@ const Doctors = () => {
         }
       } catch (e) { console.error("Failed to load favorites:", e); }
     };
-    loadFavorites();
+    runWhenIdle(loadFavorites);
   }, []);
 
   const toggleFavorite = async (e: React.MouseEvent, doctorId: string) => {
