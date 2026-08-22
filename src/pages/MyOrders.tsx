@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { SkeletonOrderCard } from "@/components/SkeletonCard";
 import { format, parseISO } from "date-fns";
+import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 
 type Order = {
   id: string;
@@ -25,9 +26,10 @@ const statusConfig: Record<string, { label: string; icon: typeof Package; color:
 
 const MyOrders = () => {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [pharmacyNames, setPharmacyNames] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
+  const cached = readPageCache<any>("my_orders", 5 * 60 * 1000);
+  const [orders, setOrders] = useState<Order[]>(cached?.orders ?? []);
+  const [pharmacyNames, setPharmacyNames] = useState<Record<string, string>>(cached?.pharmacyNames ?? {});
+  const [loading, setLoading] = useState(!cached);
   const [tab, setTab] = useState<"active" | "past">("active");
 
   useEffect(() => {
@@ -37,13 +39,17 @@ const MyOrders = () => {
       const { data } = await supabase.from("orders").select("id, status, total, placed_at, pharmacy_id").eq("user_id", session.user.id).order("placed_at", { ascending: false });
       if (data) {
         setOrders(data);
+        setLoading(false);
         const ids = [...new Set(data.map((o) => o.pharmacy_id))];
         if (ids.length > 0) {
-          const { data: pData } = await supabase.from("pharmacies").select("id, name").in("id", ids);
+          const { data: pData } = await new Promise<any>((resolve) =>
+            runWhenIdle(() => supabase.from("pharmacies").select("id, name").in("id", ids).then(resolve))
+          );
           if (pData) {
             const names: Record<string, string> = {};
-            pData.forEach((p) => { names[p.id] = p.name; });
+            pData.forEach((p: any) => { names[p.id] = p.name; });
             setPharmacyNames(names);
+            writePageCache("my_orders", { orders: data, pharmacyNames: names });
           }
         }
       }
