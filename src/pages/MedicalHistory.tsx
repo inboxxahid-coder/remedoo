@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 type TimelineItem = {
   id: string;
