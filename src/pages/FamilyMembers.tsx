@@ -29,8 +29,9 @@ interface FamilyMember {
 
 export default function FamilyMembers() {
   const navigate = useNavigate();
-  const [members, setMembers] = useState<FamilyMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedMembers = readPageCache<FamilyMember[]>("family_members");
+  const [members, setMembers] = useState<FamilyMember[]>(cachedMembers || []);
+  const [loading, setLoading] = useState(!cachedMembers);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<FamilyMember | null>(null);
   const [saving, setSaving] = useState(false);
