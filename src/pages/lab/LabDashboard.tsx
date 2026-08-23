@@ -49,7 +49,7 @@ export default function LabDashboard() {
       const samples = samplesRes.data || [];
       const completed = apts.filter(a => a.status === "completed");
 
-      setStats({
+      const nextStats = {
         total: apts.length,
         pending: apts.filter(a => a.status === "pending").length,
         completed: completed.length,
@@ -59,9 +59,12 @@ export default function LabDashboard() {
         samplesCollected: samples.filter(s => s.status === "collected" || s.status === "completed").length,
         totalRevenue: 0,
         monthlyRevenue: 0,
-      });
+      };
+      const nextRecent = recentRes.data || [];
 
-      setRecentAppointments(recentRes.data || []);
+      setStats(nextStats);
+      setRecentAppointments(nextRecent);
+      writePageCache("lab_dashboard", { lab: labData, stats: nextStats, recentAppointments: nextRecent });
       setLoading(false);
     };
     load();
