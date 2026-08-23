@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { SkeletonListCard } from "@/components/SkeletonCard";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 type FavoriteItem = {
   id: string;
