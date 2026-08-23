@@ -5,17 +5,19 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { CalendarCheck, Stethoscope, BedDouble, Activity, AlertTriangle, IndianRupee, TrendingUp, Heart, Ambulance, Building, Percent, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 export default function HospitalDashboard() {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
+  const snap = readPageCache<any>("hospital_dashboard");
+  const [stats, setStats] = useState(snap ?? {
     appointments: 0, doctors: 0, totalBeds: 0, availableBeds: 0,
     totalIcu: 0, availableIcu: 0, activeEmergencies: 0, totalEmergenciesToday: 0,
     todayAppointments: 0, upcomingAppointments: 0, departments: 0,
     totalRevenue: 0, commission: 0, netEarnings: 0, monthlyRevenue: 0,
     ambulanceFleet: 0, ambulanceAvailable: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!snap);
 
   useEffect(() => {
     const load = async () => {
