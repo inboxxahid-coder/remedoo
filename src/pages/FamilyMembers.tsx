@@ -46,6 +46,7 @@ export default function FamilyMembers() {
     const { data } = await supabase.from("family_members").select("*")
       .eq("user_id", session.user.id).order("created_at");
     setMembers(data || []);
+    writePageCache("family_members", data || []);
     setLoading(false);
   };
 
