@@ -10,17 +10,19 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 export default function LabDashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [lab, setLab] = useState<any>(null);
-  const [stats, setStats] = useState({
+  const snap = readPageCache<any>("lab_dashboard");
+  const [loading, setLoading] = useState(!snap);
+  const [lab, setLab] = useState<any>(snap?.lab ?? null);
+  const [stats, setStats] = useState(snap?.stats ?? {
     total: 0, pending: 0, completed: 0, todayCount: 0,
     totalTests: 0, samplesPending: 0, samplesCollected: 0,
     totalRevenue: 0, monthlyRevenue: 0,
   });
-  const [recentAppointments, setRecentAppointments] = useState<any[]>([]);
+  const [recentAppointments, setRecentAppointments] = useState<any[]>(snap?.recentAppointments ?? []);
 
   useEffect(() => {
     const load = async () => {
