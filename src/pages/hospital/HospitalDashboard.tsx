@@ -53,7 +53,7 @@ export default function HospitalDashboard() {
       const monthlyRevenue = (monthEarningsRes.data || []).reduce((s: number, e: any) => s + Number(e.net_earning || 0), 0);
       const ambData = ambRes.data || [];
 
-      setStats({
+      const nextStats = {
         appointments: aptRes.count || 0,
         doctors: docRes.count || 0,
         totalBeds: hospital.total_beds || 0,
@@ -68,7 +68,9 @@ export default function HospitalDashboard() {
         totalRevenue, commission, netEarnings, monthlyRevenue,
         ambulanceFleet: ambData.length,
         ambulanceAvailable: ambData.filter((a: any) => a.status === "available").length,
-      });
+      };
+      setStats(nextStats);
+      writePageCache("hospital_dashboard", nextStats);
       setLoading(false);
     };
     load();
