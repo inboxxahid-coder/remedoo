@@ -10,16 +10,18 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 export default function PharmacyDashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [pharmacy, setPharmacy] = useState<any>(null);
-  const [stats, setStats] = useState({
+  const snap = readPageCache<any>("pharmacy_dashboard");
+  const [loading, setLoading] = useState(!snap);
+  const [pharmacy, setPharmacy] = useState<any>(snap?.pharmacy ?? null);
+  const [stats, setStats] = useState(snap?.stats ?? {
     orders: 0, medicines: 0, revenue: 0, pending: 0,
     delivered: 0, cancelled: 0, monthlyRevenue: 0, outOfStock: 0,
   });
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>(snap?.recentOrders ?? []);
 
   useEffect(() => {
     const load = async () => {
