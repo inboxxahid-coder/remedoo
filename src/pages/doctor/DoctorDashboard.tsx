@@ -10,18 +10,28 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { logAuditAction } from "@/lib/auditLog";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
+
+type DocSnapshot = {
+  doctor: any;
+  stats: any;
+  todayAppointments: any[];
+  totalRevenue: number;
+  monthlyRevenue: number;
+};
 
 export default function DoctorDashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [doctor, setDoctor] = useState<any>(null);
-  const [stats, setStats] = useState({
+  const snap = readPageCache<DocSnapshot>("doctor_dashboard");
+  const [loading, setLoading] = useState(!snap);
+  const [doctor, setDoctor] = useState<any>(snap?.doctor ?? null);
+  const [stats, setStats] = useState(snap?.stats ?? {
     total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0,
     todayCount: 0, upcomingCount: 0,
   });
-  const [todayAppointments, setTodayAppointments] = useState<any[]>([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [todayAppointments, setTodayAppointments] = useState<any[]>(snap?.todayAppointments ?? []);
+  const [totalRevenue, setTotalRevenue] = useState(snap?.totalRevenue ?? 0);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(snap?.monthlyRevenue ?? 0);
   const [emergencies, setEmergencies] = useState<any[]>([]);
 
   const load = useCallback(async () => {
