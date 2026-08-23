@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { format } from "date-fns";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 const RELATIONSHIPS = ["Father", "Mother", "Son", "Daughter", "Spouse", "Sibling", "Grandparent", "Other"];
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
