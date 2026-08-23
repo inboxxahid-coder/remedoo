@@ -200,9 +200,14 @@ const Login = () => {
         </div>
 
         {/* Bottom links */}
-        <button onClick={() => navigate("/dashboard", { replace: true })} className="w-full text-center mt-5 text-sm text-muted-foreground font-medium">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => navigate("/dashboard", { replace: true })}
+          className="w-full h-12 rounded-xl font-semibold text-[15px] border-border hover:bg-muted/50 mt-5"
+        >
           Skip, continue as guest →
-        </button>
+        </Button>
         <p className="text-center mt-4 text-sm text-muted-foreground">
           Don't have an account?{" "}
           <Link to="/signup" className="text-primary font-bold">Sign Up</Link>
