@@ -113,6 +113,7 @@ const MedicalHistory = () => {
       // Sort by date descending
       items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setTimeline(items);
+      writePageCache("medical_history", items);
       setLoading(false);
     };
     load();
