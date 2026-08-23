@@ -60,11 +60,13 @@ export default function DoctorDashboard() {
 
     if (appointments) {
       const completed = appointments.filter(a => a.status === "completed");
-      const todayAppts = appointments.filter(a => a.appointment_date === today && a.status !== "cancelled");
+      const todayAppts = appointments
+        .filter(a => a.appointment_date === today && a.status !== "cancelled")
+        .sort((a, b) => a.appointment_time.localeCompare(b.appointment_time));
       const upcoming = appointments.filter(a => a.appointment_date >= today && a.status === "confirmed");
       const monthCompleted = completed.filter(a => a.appointment_date >= monthStartStr);
 
-      setStats({
+      const nextStats = {
         total: appointments.length,
         pending: appointments.filter(a => a.status === "pending").length,
         confirmed: appointments.filter(a => a.status === "confirmed").length,
@@ -72,14 +74,26 @@ export default function DoctorDashboard() {
         cancelled: appointments.filter(a => a.status === "cancelled").length,
         todayCount: todayAppts.length,
         upcomingCount: upcoming.length,
-      });
+      };
+      const nextTotalRevenue = completed.length * (doc.consultation_fee ?? 0);
+      const nextMonthlyRevenue = monthCompleted.length * (doc.consultation_fee ?? 0);
 
-      setTodayAppointments(todayAppts.sort((a, b) => a.appointment_time.localeCompare(b.appointment_time)));
-      setTotalRevenue(completed.length * (doc.consultation_fee ?? 0));
-      setMonthlyRevenue(monthCompleted.length * (doc.consultation_fee ?? 0));
+      setStats(nextStats);
+      setTodayAppointments(todayAppts);
+      setTotalRevenue(nextTotalRevenue);
+      setMonthlyRevenue(nextMonthlyRevenue);
+      writePageCache("doctor_dashboard", {
+        doctor: doc,
+        stats: nextStats,
+        todayAppointments: todayAppts,
+        totalRevenue: nextTotalRevenue,
+        monthlyRevenue: nextMonthlyRevenue,
+      });
     }
 
-    // Emergency alerts for hospital-attached doctors
+    setLoading(false);
+
+    // Emergency alerts for hospital-attached doctors (non-critical, after paint)
     if (doc.hospital_id && doc.emergency_available) {
       const { data: emergencyData } = await supabase
         .from("emergency_requests")
@@ -90,7 +104,6 @@ export default function DoctorDashboard() {
       setEmergencies(emergencyData || []);
     }
 
-    setLoading(false);
     logAuditAction({ action: "view_dashboard", entityType: "dashboard" });
   }, []);
 
