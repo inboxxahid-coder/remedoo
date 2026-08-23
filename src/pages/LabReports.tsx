@@ -36,8 +36,9 @@ const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bg
 
 export default function LabReports() {
   const navigate = useNavigate();
-  const [reports, setReports] = useState<LabReport[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = readPageCache<LabReport[]>("lab_reports");
+  const [reports, setReports] = useState<LabReport[]>(cached || []);
+  const [loading, setLoading] = useState(!cached);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "completed">("all");
 
@@ -52,24 +53,24 @@ export default function LabReports() {
         .eq("patient_id", session.user.id)
         .order("scheduled_date", { ascending: false });
 
-      setReports(
-        (data || []).map((r: any) => ({
-          id: r.id,
-          test_name: r.test_name,
-          sample_type: r.sample_type,
-          status: r.status,
-          scheduled_date: r.scheduled_date,
-          scheduled_time: r.scheduled_time,
-          collection_type: r.collection_type,
-          collector_name: r.collector_name,
-          collected_at: r.collected_at,
-          report_url: r.report_url,
-          report_version: r.report_version,
-          notes: r.notes,
-          created_at: r.created_at,
-          lab_name: r.labs?.name || "Unknown Lab",
-        }))
-      );
+      const mapped: LabReport[] = (data || []).map((r: any) => ({
+        id: r.id,
+        test_name: r.test_name,
+        sample_type: r.sample_type,
+        status: r.status,
+        scheduled_date: r.scheduled_date,
+        scheduled_time: r.scheduled_time,
+        collection_type: r.collection_type,
+        collector_name: r.collector_name,
+        collected_at: r.collected_at,
+        report_url: r.report_url,
+        report_version: r.report_version,
+        notes: r.notes,
+        created_at: r.created_at,
+        lab_name: r.labs?.name || "Unknown Lab",
+      }));
+      setReports(mapped);
+      writePageCache("lab_reports", mapped);
       setLoading(false);
     };
     load();
