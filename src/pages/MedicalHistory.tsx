@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 type TimelineItem = {
   id: string;
@@ -24,8 +25,9 @@ const typeConfig = {
 
 const MedicalHistory = () => {
   const navigate = useNavigate();
-  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedTimeline = readPageCache<TimelineItem[]>("medical_history");
+  const [timeline, setTimeline] = useState<TimelineItem[]>(cachedTimeline || []);
+  const [loading, setLoading] = useState(!cachedTimeline);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "appointment" | "prescription" | "lab_report">("all");
 
@@ -111,6 +113,7 @@ const MedicalHistory = () => {
       // Sort by date descending
       items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setTimeline(items);
+      writePageCache("medical_history", items);
       setLoading(false);
     };
     load();

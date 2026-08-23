@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { SkeletonListCard } from "@/components/SkeletonCard";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 type FavoriteItem = {
   id: string;
@@ -27,27 +28,48 @@ const colorMap: Record<string, string> = {
 
 const Favorites = () => {
   const navigate = useNavigate();
-  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedFavs = readPageCache<FavoriteItem[]>("favorites");
+  const [favorites, setFavorites] = useState<FavoriteItem[]>(cachedFavs || []);
+  const [loading, setLoading] = useState(!cachedFavs);
 
   const loadFavorites = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { navigate("/login", { replace: true }); return; }
     const { data: favs } = await supabase.from("favorites").select("*").eq("user_id", session.user.id);
     if (!favs) { setLoading(false); return; }
+
+    // Batch one query per provider type instead of one per favorite (N+1)
+    const tableFor: Record<string, "doctors" | "hospitals" | "labs" | "pharmacies"> = {
+      doctor: "doctors", hospital: "hospitals", lab: "labs", pharmacy: "pharmacies",
+    };
+    const byType = new Map<string, string[]>();
+    favs.forEach((f) => {
+      const t = tableFor[f.provider_type] || "pharmacies";
+      byType.set(t, [...(byType.get(t) || []), f.provider_id]);
+    });
+
+    const results = await Promise.all(
+      Array.from(byType.entries()).map(async ([table, ids]) => {
+        const { data } = await supabase.from(table as any).select("*").in("id", ids);
+        return (data || []) as any[];
+      })
+    );
+    const lookup = new Map<string, any>();
+    results.flat().forEach((row: any) => lookup.set(row.id, row));
+
     const items: FavoriteItem[] = [];
     for (const fav of favs) {
-      const table = fav.provider_type === "doctor" ? "doctors" : fav.provider_type === "hospital" ? "hospitals" : fav.provider_type === "lab" ? "labs" : "pharmacies";
-      const { data } = await supabase.from(table).select("*").eq("id", fav.provider_id).single();
+      const data = lookup.get(fav.provider_id);
       if (data) {
         items.push({
           id: fav.id, provider_type: fav.provider_type, provider_id: fav.provider_id,
-          name: (data as any).name, rating: (data as any).rating,
-          location: (data as any).location, specialization: (data as any).specialization,
+          name: data.name, rating: data.rating,
+          location: data.location, specialization: data.specialization,
         });
       }
     }
     setFavorites(items);
+    writePageCache("favorites", items);
     setLoading(false);
   };
 

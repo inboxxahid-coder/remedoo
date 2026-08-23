@@ -10,16 +10,18 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 export default function PharmacyDashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [pharmacy, setPharmacy] = useState<any>(null);
-  const [stats, setStats] = useState({
+  const snap = readPageCache<any>("pharmacy_dashboard");
+  const [loading, setLoading] = useState(!snap);
+  const [pharmacy, setPharmacy] = useState<any>(snap?.pharmacy ?? null);
+  const [stats, setStats] = useState(snap?.stats ?? {
     orders: 0, medicines: 0, revenue: 0, pending: 0,
     delivered: 0, cancelled: 0, monthlyRevenue: 0, outOfStock: 0,
   });
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>(snap?.recentOrders ?? []);
 
   useEffect(() => {
     const load = async () => {
@@ -47,7 +49,7 @@ export default function PharmacyDashboard() {
       const monthlyRevenue = monthOrders.reduce((s, o) => s + Number(o.total), 0);
       const pending = orders.filter(o => o.status === "placed" || o.status === "confirmed").length;
 
-      setStats({
+      const nextStats = {
         orders: orders.length,
         medicines: medCountRes.count || 0,
         revenue,
@@ -56,9 +58,12 @@ export default function PharmacyDashboard() {
         cancelled: orders.filter(o => o.status === "cancelled").length,
         monthlyRevenue,
         outOfStock: outStockRes.count || 0,
-      });
+      };
+      const nextRecent = recentRes.data || [];
 
-      setRecentOrders(recentRes.data || []);
+      setStats(nextStats);
+      setRecentOrders(nextRecent);
+      writePageCache("pharmacy_dashboard", { pharmacy: ph, stats: nextStats, recentOrders: nextRecent });
       setLoading(false);
     };
     load();

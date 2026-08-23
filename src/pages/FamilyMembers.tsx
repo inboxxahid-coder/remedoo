@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import { format } from "date-fns";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 const RELATIONSHIPS = ["Father", "Mother", "Son", "Daughter", "Spouse", "Sibling", "Grandparent", "Other"];
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -28,8 +29,9 @@ interface FamilyMember {
 
 export default function FamilyMembers() {
   const navigate = useNavigate();
-  const [members, setMembers] = useState<FamilyMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedMembers = readPageCache<FamilyMember[]>("family_members");
+  const [members, setMembers] = useState<FamilyMember[]>(cachedMembers || []);
+  const [loading, setLoading] = useState(!cachedMembers);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<FamilyMember | null>(null);
   const [saving, setSaving] = useState(false);
@@ -44,6 +46,7 @@ export default function FamilyMembers() {
     const { data } = await supabase.from("family_members").select("*")
       .eq("user_id", session.user.id).order("created_at");
     setMembers(data || []);
+    writePageCache("family_members", data || []);
     setLoading(false);
   };
 

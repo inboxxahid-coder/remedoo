@@ -10,18 +10,28 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { logAuditAction } from "@/lib/auditLog";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
+
+type DocSnapshot = {
+  doctor: any;
+  stats: any;
+  todayAppointments: any[];
+  totalRevenue: number;
+  monthlyRevenue: number;
+};
 
 export default function DoctorDashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [doctor, setDoctor] = useState<any>(null);
-  const [stats, setStats] = useState({
+  const snap = readPageCache<DocSnapshot>("doctor_dashboard");
+  const [loading, setLoading] = useState(!snap);
+  const [doctor, setDoctor] = useState<any>(snap?.doctor ?? null);
+  const [stats, setStats] = useState(snap?.stats ?? {
     total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0,
     todayCount: 0, upcomingCount: 0,
   });
-  const [todayAppointments, setTodayAppointments] = useState<any[]>([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [todayAppointments, setTodayAppointments] = useState<any[]>(snap?.todayAppointments ?? []);
+  const [totalRevenue, setTotalRevenue] = useState(snap?.totalRevenue ?? 0);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(snap?.monthlyRevenue ?? 0);
   const [emergencies, setEmergencies] = useState<any[]>([]);
 
   const load = useCallback(async () => {
@@ -50,11 +60,13 @@ export default function DoctorDashboard() {
 
     if (appointments) {
       const completed = appointments.filter(a => a.status === "completed");
-      const todayAppts = appointments.filter(a => a.appointment_date === today && a.status !== "cancelled");
+      const todayAppts = appointments
+        .filter(a => a.appointment_date === today && a.status !== "cancelled")
+        .sort((a, b) => a.appointment_time.localeCompare(b.appointment_time));
       const upcoming = appointments.filter(a => a.appointment_date >= today && a.status === "confirmed");
       const monthCompleted = completed.filter(a => a.appointment_date >= monthStartStr);
 
-      setStats({
+      const nextStats = {
         total: appointments.length,
         pending: appointments.filter(a => a.status === "pending").length,
         confirmed: appointments.filter(a => a.status === "confirmed").length,
@@ -62,14 +74,26 @@ export default function DoctorDashboard() {
         cancelled: appointments.filter(a => a.status === "cancelled").length,
         todayCount: todayAppts.length,
         upcomingCount: upcoming.length,
-      });
+      };
+      const nextTotalRevenue = completed.length * (doc.consultation_fee ?? 0);
+      const nextMonthlyRevenue = monthCompleted.length * (doc.consultation_fee ?? 0);
 
-      setTodayAppointments(todayAppts.sort((a, b) => a.appointment_time.localeCompare(b.appointment_time)));
-      setTotalRevenue(completed.length * (doc.consultation_fee ?? 0));
-      setMonthlyRevenue(monthCompleted.length * (doc.consultation_fee ?? 0));
+      setStats(nextStats);
+      setTodayAppointments(todayAppts);
+      setTotalRevenue(nextTotalRevenue);
+      setMonthlyRevenue(nextMonthlyRevenue);
+      writePageCache("doctor_dashboard", {
+        doctor: doc,
+        stats: nextStats,
+        todayAppointments: todayAppts,
+        totalRevenue: nextTotalRevenue,
+        monthlyRevenue: nextMonthlyRevenue,
+      });
     }
 
-    // Emergency alerts for hospital-attached doctors
+    setLoading(false);
+
+    // Emergency alerts for hospital-attached doctors (non-critical, after paint)
     if (doc.hospital_id && doc.emergency_available) {
       const { data: emergencyData } = await supabase
         .from("emergency_requests")
@@ -80,7 +104,6 @@ export default function DoctorDashboard() {
       setEmergencies(emergencyData || []);
     }
 
-    setLoading(false);
     logAuditAction({ action: "view_dashboard", entityType: "dashboard" });
   }, []);
 

@@ -10,17 +10,19 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { readPageCache, writePageCache } from "@/lib/pageCache";
 
 export default function LabDashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [lab, setLab] = useState<any>(null);
-  const [stats, setStats] = useState({
+  const snap = readPageCache<any>("lab_dashboard");
+  const [loading, setLoading] = useState(!snap);
+  const [lab, setLab] = useState<any>(snap?.lab ?? null);
+  const [stats, setStats] = useState(snap?.stats ?? {
     total: 0, pending: 0, completed: 0, todayCount: 0,
     totalTests: 0, samplesPending: 0, samplesCollected: 0,
     totalRevenue: 0, monthlyRevenue: 0,
   });
-  const [recentAppointments, setRecentAppointments] = useState<any[]>([]);
+  const [recentAppointments, setRecentAppointments] = useState<any[]>(snap?.recentAppointments ?? []);
 
   useEffect(() => {
     const load = async () => {
@@ -47,7 +49,7 @@ export default function LabDashboard() {
       const samples = samplesRes.data || [];
       const completed = apts.filter(a => a.status === "completed");
 
-      setStats({
+      const nextStats = {
         total: apts.length,
         pending: apts.filter(a => a.status === "pending").length,
         completed: completed.length,
@@ -57,9 +59,12 @@ export default function LabDashboard() {
         samplesCollected: samples.filter(s => s.status === "collected" || s.status === "completed").length,
         totalRevenue: 0,
         monthlyRevenue: 0,
-      });
+      };
+      const nextRecent = recentRes.data || [];
 
-      setRecentAppointments(recentRes.data || []);
+      setStats(nextStats);
+      setRecentAppointments(nextRecent);
+      writePageCache("lab_dashboard", { lab: labData, stats: nextStats, recentAppointments: nextRecent });
       setLoading(false);
     };
     load();
