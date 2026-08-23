@@ -49,7 +49,7 @@ export default function PharmacyDashboard() {
       const monthlyRevenue = monthOrders.reduce((s, o) => s + Number(o.total), 0);
       const pending = orders.filter(o => o.status === "placed" || o.status === "confirmed").length;
 
-      setStats({
+      const nextStats = {
         orders: orders.length,
         medicines: medCountRes.count || 0,
         revenue,
@@ -58,9 +58,12 @@ export default function PharmacyDashboard() {
         cancelled: orders.filter(o => o.status === "cancelled").length,
         monthlyRevenue,
         outOfStock: outStockRes.count || 0,
-      });
+      };
+      const nextRecent = recentRes.data || [];
 
-      setRecentOrders(recentRes.data || []);
+      setStats(nextStats);
+      setRecentOrders(nextRecent);
+      writePageCache("pharmacy_dashboard", { pharmacy: ph, stats: nextStats, recentOrders: nextRecent });
       setLoading(false);
     };
     load();
