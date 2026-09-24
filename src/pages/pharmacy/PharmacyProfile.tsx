@@ -83,7 +83,7 @@ export default function PharmacyProfile() {
     if (!session?.user?.email) { toast.error("Session expired"); setSaving(false); return; }
     const { error: authError } = await supabase.auth.signInWithPassword({ email: session.user.email, password: confirmPassword });
     if (authError) { toast.error("Incorrect password"); setSaving(false); return; }
-    const { error } = await supabase.from("pharmacies").update(pendingUpdates).eq("id", profile.id);
+    const { error } = await supabase.from("pharmacies").update(pendingUpdates as never).eq("id", profile.id);
     if (error) toast.error(error.message);
     else { toast.success("Profile updated"); setProfile({ ...profile, ...pendingUpdates }); setPhotoFile(null); setLicenseFile(null); setGstFile(null); }
     setSaving(false); setShowPasswordDialog(false); setPendingUpdates(null);
