@@ -32,7 +32,7 @@ export default function AdminQuickActions() {
       columns={columns}
       loading={loading}
       onAdd={async (item) => { const { error } = await supabase.from("dashboard_quick_actions").insert([item] as any); if (error) throw error; fetchData(); }}
-      onUpdate={async (id, item) => { const { error } = await supabase.from("dashboard_quick_actions").update(item).eq("id", id); if (error) throw error; fetchData(); }}
+      onUpdate={async (id, item) => { const { error } = await supabase.from("dashboard_quick_actions").update(item as never).eq("id", id); if (error) throw error; fetchData(); }}
       onDelete={async (id) => { const { error } = await supabase.from("dashboard_quick_actions").delete().eq("id", id); if (error) throw error; fetchData(); }}
     />
   );

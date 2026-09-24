@@ -32,7 +32,7 @@ export default function AdminInfoCards() {
       columns={columns}
       loading={loading}
       onAdd={async (item) => { const { error } = await supabase.from("dashboard_info_cards").insert([item] as any); if (error) throw error; fetchData(); }}
-      onUpdate={async (id, item) => { const { error } = await supabase.from("dashboard_info_cards").update(item).eq("id", id); if (error) throw error; fetchData(); }}
+      onUpdate={async (id, item) => { const { error } = await supabase.from("dashboard_info_cards").update(item as never).eq("id", id); if (error) throw error; fetchData(); }}
       onDelete={async (id) => { const { error } = await supabase.from("dashboard_info_cards").delete().eq("id", id); if (error) throw error; fetchData(); }}
     />
   );

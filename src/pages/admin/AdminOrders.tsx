@@ -51,7 +51,7 @@ export default function AdminOrders() {
         loading={loading}
         canAdd={false}
         onAdd={async () => {}}
-        onUpdate={async (id, item) => { const { error } = await supabase.from("orders").update(item).eq("id", id); if (error) throw error; fetch(); }}
+        onUpdate={async (id, item) => { const { error } = await supabase.from("orders").update(item as never).eq("id", id); if (error) throw error; fetch(); }}
         onDelete={async (id) => { const { error } = await supabase.from("orders").delete().eq("id", id); if (error) throw error; fetch(); }}
       />
     </>

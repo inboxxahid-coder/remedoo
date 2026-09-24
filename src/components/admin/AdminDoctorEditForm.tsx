@@ -169,7 +169,7 @@ export default function AdminDoctorEditForm({ doctor, open, onOpenChange, onSucc
       await Promise.all(fileUploads);
     }
 
-    const { error } = await supabase.from("doctors").update(updates).eq("id", doctor.id);
+    const { error } = await supabase.from("doctors").update(updates as never).eq("id", doctor.id);
     if (error) {
       toast.error("Failed to update: " + error.message);
       setLoading(false);

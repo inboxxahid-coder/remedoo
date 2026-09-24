@@ -34,7 +34,7 @@ export default function AdminMedicines() {
       columns={columns}
       loading={loading}
       onAdd={async (item) => { const { error } = await supabase.from("medicines").insert([item] as any); if (error) throw error; fetch(); }}
-      onUpdate={async (id, item) => { const { error } = await supabase.from("medicines").update(item).eq("id", id); if (error) throw error; fetch(); }}
+      onUpdate={async (id, item) => { const { error } = await supabase.from("medicines").update(item as never).eq("id", id); if (error) throw error; fetch(); }}
       onDelete={async (id) => { const { error } = await supabase.from("medicines").delete().eq("id", id); if (error) throw error; fetch(); }}
     />
   );

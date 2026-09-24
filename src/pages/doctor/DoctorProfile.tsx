@@ -159,7 +159,7 @@ export default function DoctorProfile() {
     }
 
     // Save updates
-    const { error } = await supabase.from("doctors").update(pendingUpdates).eq("id", profile.id);
+    const { error } = await supabase.from("doctors").update(pendingUpdates as never).eq("id", profile.id);
     if (error) {
       toast.error(error.message);
     } else {

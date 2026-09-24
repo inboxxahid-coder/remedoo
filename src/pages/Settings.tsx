@@ -55,7 +55,7 @@ const Settings = () => {
 
   const updateField = async (field: string, value: any) => {
     if (!profile) return;
-    const { error } = await supabase.from("profiles").update({ [field]: value }).eq("id", profile.id);
+    const { error } = await supabase.from("profiles").update({ [field]: value } as never).eq("id", profile.id);
     if (error) toast.error("Failed to save setting");
   };
 

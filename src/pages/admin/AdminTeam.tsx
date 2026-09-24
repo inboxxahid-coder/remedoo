@@ -203,7 +203,7 @@ export default function AdminTeam() {
 
     const { error } = await supabase
       .from("admin_team")
-      .update(updates)
+      .update(updates as never)
       .eq("id", editMember.id);
     if (error) {
       toast.error("Failed to update details");
