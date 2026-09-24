@@ -1,4 +1,5 @@
 import { Calendar, AlertTriangle, Pill, Heart, Home, User, Settings, MapPin, ShoppingBag, ChevronLeft, Users, Bell } from "lucide-react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import {
@@ -31,18 +32,26 @@ const navigation = [
 ];
 
 export function AppSidebar() {
-  const { toggleSidebar, setOpenMobile } = useSidebar();
+  const { toggleSidebar, setOpenMobile, setOpen } = useSidebar();
   const location = useLocation();
   const guardedNavigate = useGuardedNavigate();
   const currentPath = location.pathname;
 
+  // Always close the sidebar when the route changes
+  useEffect(() => {
+    setOpenMobile(false);
+    setOpen(false);
+  }, [currentPath, setOpenMobile, setOpen]);
+
   const handleNavigate = (url: string) => {
     setOpenMobile(false);
+    setOpen(false);
     // Defer navigation to next frame so sidebar close animation isn't blocked by Suspense
     requestAnimationFrame(() => {
       guardedNavigate(url);
     });
   };
+
 
   return (
     <Sidebar collapsible="offcanvas">

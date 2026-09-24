@@ -83,7 +83,7 @@ export default function AdminPharmacyEditForm({ pharmacy, open, onOpenChange, on
     if (photoFile) fileUploads.push(uploadFile(photoFile, "photo").then(url => { if (url) updates.image_url = url; }));
     if (fileUploads.length > 0) { toast.info("Uploading..."); await Promise.all(fileUploads); }
 
-    const { error } = await supabase.from("pharmacies").update(updates).eq("id", pharmacy.id);
+    const { error } = await supabase.from("pharmacies").update(updates as never).eq("id", pharmacy.id);
     if (error) { toast.error("Failed: " + error.message); setLoading(false); return; }
     toast.success("Pharmacy updated"); setLoading(false); onOpenChange(false); onSuccess();
   };

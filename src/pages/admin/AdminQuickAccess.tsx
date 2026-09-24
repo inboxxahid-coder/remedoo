@@ -34,7 +34,7 @@ export default function AdminQuickAccess() {
       columns={columns}
       loading={loading}
       onAdd={async (item) => { const { error } = await supabase.from("dashboard_quick_access").insert([item] as any); if (error) throw error; fetchData(); }}
-      onUpdate={async (id, item) => { const { error } = await supabase.from("dashboard_quick_access").update(item).eq("id", id); if (error) throw error; fetchData(); }}
+      onUpdate={async (id, item) => { const { error } = await supabase.from("dashboard_quick_access").update(item as never).eq("id", id); if (error) throw error; fetchData(); }}
       onDelete={async (id) => { const { error } = await supabase.from("dashboard_quick_access").delete().eq("id", id); if (error) throw error; fetchData(); }}
     />
   );
