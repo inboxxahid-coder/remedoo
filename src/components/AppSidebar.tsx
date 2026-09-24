@@ -1,4 +1,5 @@
 import { Calendar, AlertTriangle, Pill, Heart, Home, User, Settings, MapPin, ShoppingBag, ChevronLeft, Users, Bell } from "lucide-react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGuardedNavigate } from "@/hooks/useGuardedNavigate";
 import {
