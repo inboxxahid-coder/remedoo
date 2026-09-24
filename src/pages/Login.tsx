@@ -108,9 +108,9 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
       >
-        <div className="bg-card rounded-2xl shadow-xl border border-border p-6">
+        <div className="bg-card rounded-2xl shadow-xl border border-border p-4">
           {/* Mode tabs */}
-          <div className="flex gap-1.5 mb-6 bg-muted rounded-xl p-1">
+          <div className="flex gap-1.5 mb-4 bg-muted rounded-xl p-1">
             {(["password", "magic"] as const).map((mode) => (
               <button
                 key={mode}
