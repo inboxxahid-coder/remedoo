@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Sparkles, UserPlus, Stethoscope, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +66,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Swiggy-style curved header */}
-      <div className="relative gradient-primary px-6 pt-14 pb-20 flex flex-col items-center overflow-hidden">
+      <div className="relative gradient-primary px-6 pt-6 pb-12 flex flex-col items-center overflow-hidden">
         {/* Decorative circles */}
         <div className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-primary-foreground/5" />
         <div className="absolute -bottom-10 -left-16 w-40 h-40 rounded-full bg-primary-foreground/5" />
@@ -74,13 +74,13 @@ const Login = () => {
         <motion.img
           src={remedooLogo}
           alt="Remedoo"
-          className="h-16 object-contain mb-4 brightness-0 invert"
+          className="h-11 object-contain mb-2 brightness-0 invert"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
         />
         <motion.h1
-          className="text-2xl font-bold text-primary-foreground"
+          className="text-xl font-bold text-primary-foreground"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -88,7 +88,7 @@ const Login = () => {
           Welcome Back
         </motion.h1>
         <motion.p
-          className="text-primary-foreground/60 text-sm mt-1"
+          className="text-primary-foreground/60 text-xs mt-0.5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -108,9 +108,9 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
       >
-        <div className="bg-card rounded-2xl shadow-xl border border-border p-6">
+        <div className="bg-card rounded-2xl shadow-xl border border-border p-4">
           {/* Mode tabs */}
-          <div className="flex gap-1.5 mb-6 bg-muted rounded-xl p-1">
+          <div className="flex gap-1.5 mb-4 bg-muted rounded-xl p-1">
             {(["password", "magic"] as const).map((mode) => (
               <button
                 key={mode}
