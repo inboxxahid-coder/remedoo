@@ -188,7 +188,7 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 rounded-xl font-semibold text-[15px] gap-2.5 border-border hover:bg-muted/50"
+            className="w-full h-11 rounded-xl font-semibold text-[15px] gap-2.5 border-border hover:bg-muted/50"
             onClick={async () => {
               const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
               if (error) toast.error(error.message);
@@ -199,23 +199,38 @@ const Login = () => {
           </Button>
         </div>
 
-        {/* Bottom links */}
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => navigate("/dashboard", { replace: true })}
-          className="w-full h-12 rounded-xl font-semibold text-[15px] border-border hover:bg-muted/50 mt-5"
-        >
-          Skip, continue as guest →
-        </Button>
-        <p className="text-center mt-4 text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-primary font-bold">Sign Up</Link>
-        </p>
-        <p className="text-center mt-2 mb-8 text-sm text-muted-foreground">
-          Are you a provider?{" "}
-          <Link to="/provider-register" className="text-primary font-bold">Register</Link>
-        </p>
+        {/* Bottom actions */}
+        <div className="mt-3 space-y-2 pb-4">
+          <Link to="/signup" className="block">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 rounded-xl font-bold text-[15px] gap-2 bg-primary/10 border-primary/30 text-primary hover:bg-primary/15"
+            >
+              <UserPlus className="w-4 h-4" />
+              Don't have an account? Sign Up
+            </Button>
+          </Link>
+          <Link to="/provider-register" className="block">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 rounded-xl font-bold text-[15px] gap-2 bg-muted/70 border-border text-foreground hover:bg-muted"
+            >
+              <Stethoscope className="w-4 h-4 text-primary" />
+              Are you a provider? Register
+            </Button>
+          </Link>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => navigate("/dashboard", { replace: true })}
+            className="w-full h-10 rounded-xl font-semibold text-sm text-muted-foreground gap-1.5 hover:text-foreground"
+          >
+            Skip, continue as guest
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
       </motion.div>
     </div>
   );
