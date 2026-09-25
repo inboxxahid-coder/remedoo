@@ -86,11 +86,11 @@ const MyOrders = () => {
         </div>
       </div>
 
-      <div className="px-5 mt-4 space-y-3">
+      <div className="px-5 mt-4 app-container grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => <SkeletonOrderCard key={i} />)
         ) : display.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16 col-span-full">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
               <ShoppingBag className="w-10 h-10 text-muted-foreground/40" />
             </div>

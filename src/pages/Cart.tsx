@@ -279,7 +279,7 @@ const Cart = () => {
         </div>
       </div>
 
-      <div className="px-5 mt-4 space-y-4">
+      <div className="px-5 mt-4 space-y-4 app-narrow">
         {/* Cart items */}
         <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
           <h2 className="font-semibold text-foreground text-sm">Items ({cartItems.length})</h2>
