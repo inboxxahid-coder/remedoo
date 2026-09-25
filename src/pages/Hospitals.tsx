@@ -103,7 +103,7 @@ const Hospitals = () => {
     <div className="min-h-screen bg-muted/30 pb-24">
       {/* Swiggy-style sticky header */}
       <div className="bg-card sticky top-0 z-30 shadow-sm">
-        <div className="px-4 safe-top pb-3">
+        <div className="px-4 safe-top pb-3 app-container">
           <div className="flex items-center gap-3 mb-3">
             <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
               <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -134,7 +134,7 @@ const Hospitals = () => {
         </div>
 
         {/* Filter chips */}
-        <div className="px-4 pb-3 overflow-x-auto scrollbar-hide">
+        <div className="px-4 pb-3 overflow-x-auto scrollbar-hide app-container">
           <div className="flex gap-2">
             <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-foreground bg-card shrink-0">
               <SlidersHorizontal className="w-3 h-3" /> Filter
@@ -157,7 +157,7 @@ const Hospitals = () => {
       </div>
 
       {/* Offer banner carousel */}
-      <div className="px-4 mt-4">
+      <div className="px-4 mt-4 app-container">
         <div className="relative h-24 rounded-2xl overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
@@ -184,7 +184,7 @@ const Hospitals = () => {
       </div>
 
       {/* Section title */}
-      <div className="px-4 mt-5 mb-3 flex items-center justify-between">
+      <div className="px-4 mt-5 mb-3 flex items-center justify-between app-container">
         <div>
           <h2 className="font-bold text-foreground text-base">{filtered.length} hospitals near you</h2>
           <p className="text-[11px] text-muted-foreground">Find the right hospital for your needs</p>
