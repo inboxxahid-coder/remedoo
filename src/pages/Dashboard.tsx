@@ -376,7 +376,7 @@ const Dashboard = () => {
         <div className="flex-1 flex flex-col min-w-0 h-screen overflow-x-hidden bg-muted/30 dark:bg-background">
           {/* ===== FIXED HEADER — outside scroll ===== */}
           <div className="shrink-0 z-40 bg-primary safe-top">
-            <div className="flex items-center justify-between px-4 h-14">
+            <div className="flex items-center justify-between px-4 h-14 app-container">
               <AnimatedMenuButton />
               <AnimatedLogo />
               <motion.button
@@ -431,10 +431,12 @@ const Dashboard = () => {
           <div className="pb-24 overflow-x-hidden">
             {/* ===== HERO HEADER with search ===== */}
             <div className="bg-primary rounded-b-[28px] px-4 pt-2 pb-5">
-              <p className="text-white/80 text-xs font-medium">Hello,</p>
-              <h1 className="text-xl font-bold text-white truncate">{displayName} 👋</h1>
-              <div className="mt-3">
-                <UnifiedSearch />
+              <div className="app-container">
+                <p className="text-white/80 text-xs font-medium">Hello,</p>
+                <h1 className="text-xl font-bold text-white truncate">{displayName} 👋</h1>
+                <div className="mt-3">
+                  <UnifiedSearch />
+                </div>
               </div>
             </div>
 
@@ -447,11 +449,11 @@ const Dashboard = () => {
                 <Skeleton className="w-full h-24 rounded-2xl" />
               </div>
             ) : (
-              <div className="space-y-5 pt-4 w-full max-w-full">
+              <div className="space-y-5 pt-4 w-full max-w-full app-container">
 
                 {/* ===== CATEGORY GRID (Swiggy-style round icons) ===== */}
                 <div className="px-4">
-                  <div className="grid grid-cols-4 gap-x-3 gap-y-4">
+                  <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-x-3 gap-y-4">
                     {activeCategoryActions.map((cat, idx) => {
                       const CatIcon = getIcon(cat.icon_name);
                       return (
