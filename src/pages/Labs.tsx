@@ -212,13 +212,13 @@ const Labs = () => {
       </div>
 
       {/* Lab listing — Swiggy-style cards */}
-      <div className="px-4 space-y-3">
+      <div className="px-4 app-container card-grid">
         {!services.service_labs_enabled ? (
-          <ServiceDisabledBanner serviceName="Lab Tests" />
+          <div className="col-span-full"><ServiceDisabledBanner serviceName="Lab Tests" /></div>
         ) : loading ? (
-          <MedicalLoader text="Finding labs near you..." />
+          <div className="col-span-full"><MedicalLoader text="Finding labs near you..." /></div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16 col-span-full">
             <TestTube className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
             <p className="text-muted-foreground font-medium">No labs found</p>
             <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>

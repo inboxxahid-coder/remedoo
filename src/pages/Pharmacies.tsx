@@ -219,11 +219,11 @@ const Pharmacies = () => {
       </div>
 
       {/* Pharmacy listing — Swiggy-style cards */}
-      <div className="px-4 space-y-3">
+      <div className="px-4 app-container card-grid">
         {loading ? (
-          <MedicalLoader text="Finding pharmacies near you..." />
+          <div className="col-span-full"><MedicalLoader text="Finding pharmacies near you..." /></div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16 col-span-full">
             <Pill className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
             <p className="text-muted-foreground font-medium">No pharmacies found</p>
             <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
