@@ -116,7 +116,7 @@ const Login = () => {
                 key={mode}
                 type="button"
                 onClick={() => { setLoginMode(mode); setMagicLinkSent(false); }}
-                className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   loginMode === mode
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
