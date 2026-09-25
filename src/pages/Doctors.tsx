@@ -163,7 +163,7 @@ const Doctors = () => {
         </div>
 
         {/* Specialization chips */}
-        <div className="px-4 pb-2 overflow-x-auto scrollbar-hide">
+        <div className="px-4 pb-2 overflow-x-auto scrollbar-hide app-container">
           <div className="flex gap-2">
             {specializations.map(spec => (
               <button
@@ -182,7 +182,7 @@ const Doctors = () => {
         </div>
 
         {/* Filter chips */}
-        <div className="px-4 pb-3 overflow-x-auto scrollbar-hide">
+        <div className="px-4 pb-3 overflow-x-auto scrollbar-hide app-container">
           <div className="flex gap-2">
             <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-foreground bg-card shrink-0">
               <SlidersHorizontal className="w-3 h-3" /> Filter
@@ -205,7 +205,7 @@ const Doctors = () => {
       </div>
 
       {/* Offer banner carousel */}
-      <div className="px-4 mt-4">
+      <div className="px-4 mt-4 app-container">
         <div className="relative h-24 rounded-2xl overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
