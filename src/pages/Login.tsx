@@ -116,7 +116,7 @@ const Login = () => {
                 key={mode}
                 type="button"
                 onClick={() => { setLoginMode(mode); setMagicLinkSent(false); }}
-                className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                   loginMode === mode
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -128,19 +128,19 @@ const Login = () => {
           </div>
 
           {loginMode === "password" ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-1.5">
+            <form onSubmit={handleLogin} className="space-y-3">
+              <div className="space-y-1">
                 <Label htmlFor="email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-12 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
+                  <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
                 </div>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <Label htmlFor="password" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
+                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 pr-10 h-11 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -149,7 +149,7 @@ const Login = () => {
               <div className="flex justify-end">
                 <Link to="/forgot-password" className="text-xs text-primary font-semibold">Forgot Password?</Link>
               </div>
-              <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold text-[15px] shadow-lg shadow-primary/20">
+              <Button type="submit" disabled={loading} className="w-full h-11 rounded-xl gradient-primary text-primary-foreground font-bold text-[15px] shadow-lg shadow-primary/20">
                 {loading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
@@ -168,11 +168,11 @@ const Login = () => {
                 <Label htmlFor="magic-email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="magic-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-12 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
+                  <Input id="magic-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">We'll send you a magic link — no password needed.</p>
-              <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold text-[15px] gap-2 shadow-lg shadow-primary/20">
+              <Button type="submit" disabled={loading} className="w-full h-11 rounded-xl gradient-primary text-primary-foreground font-bold text-[15px] gap-2 shadow-lg shadow-primary/20">
                 <Sparkles className="w-4 h-4" />
                 {loading ? "Sending..." : "Send Magic Link"}
               </Button>
@@ -180,7 +180,7 @@ const Login = () => {
           )}
 
           {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative my-3">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
             <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-3 text-muted-foreground font-medium">or</span></div>
           </div>
@@ -188,7 +188,7 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 rounded-xl font-semibold text-[15px] gap-2.5 border-border hover:bg-muted/50"
+            className="w-full h-11 rounded-xl font-semibold text-[15px] gap-2.5 border-border hover:bg-muted/50"
             onClick={async () => {
               const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
               if (error) toast.error(error.message);
@@ -199,23 +199,38 @@ const Login = () => {
           </Button>
         </div>
 
-        {/* Bottom links */}
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => navigate("/dashboard", { replace: true })}
-          className="w-full h-12 rounded-xl font-semibold text-[15px] border-border hover:bg-muted/50 mt-5"
-        >
-          Skip, continue as guest →
-        </Button>
-        <p className="text-center mt-4 text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-primary font-bold">Sign Up</Link>
-        </p>
-        <p className="text-center mt-2 mb-8 text-sm text-muted-foreground">
-          Are you a provider?{" "}
-          <Link to="/provider-register" className="text-primary font-bold">Register</Link>
-        </p>
+        {/* Bottom actions */}
+        <div className="mt-3 space-y-2 pb-4">
+          <Link to="/signup" className="block">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 rounded-xl font-bold text-[15px] gap-2 bg-primary/10 border-primary/30 text-primary hover:bg-primary/15"
+            >
+              <UserPlus className="w-4 h-4" />
+              Don't have an account? Sign Up
+            </Button>
+          </Link>
+          <Link to="/provider-register" className="block">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 rounded-xl font-bold text-[15px] gap-2 bg-muted/70 border-border text-foreground hover:bg-muted"
+            >
+              <Stethoscope className="w-4 h-4 text-primary" />
+              Are you a provider? Register
+            </Button>
+          </Link>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => navigate("/dashboard", { replace: true })}
+            className="w-full h-10 rounded-xl font-semibold text-sm text-muted-foreground gap-1.5 hover:text-foreground"
+          >
+            Skip, continue as guest
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
       </motion.div>
     </div>
   );
