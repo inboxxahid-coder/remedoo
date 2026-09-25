@@ -216,7 +216,7 @@ const Appointments = () => {
         </div>
       </div>
 
-      <div className="px-5 mt-4 space-y-3">
+      <div className="px-5 mt-4 app-container grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-card rounded-2xl border border-border p-4 space-y-3 animate-pulse">
@@ -225,7 +225,7 @@ const Appointments = () => {
             </div>
           ))
         ) : display.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 col-span-full">
             <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground">No {tab} appointments</p>
             <Button onClick={() => navigate("/doctors")} className="mt-4 gradient-primary text-primary-foreground">Book Now</Button>
