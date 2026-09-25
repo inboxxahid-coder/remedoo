@@ -120,9 +120,23 @@
 }
 
 @layer utilities {
+  /* Responsive layout helpers — phone, tablet, laptop, desktop */
+  .app-container {
+    @apply w-full max-w-7xl mx-auto;
+  }
+
+  .app-narrow {
+    @apply w-full max-w-3xl mx-auto;
+  }
+
+  .card-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4;
+  }
+
   .glass {
     @apply bg-card/80 backdrop-blur-xl border border-border/50;
   }
+
   
   .gradient-primary {
     background: linear-gradient(135deg, hsl(24, 85%, 50%), hsl(30, 80%, 55%));
