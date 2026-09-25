@@ -172,7 +172,7 @@ const Login = () => {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">We'll send you a magic link — no password needed.</p>
-              <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl gradient-primary text-primary-foreground font-bold text-[15px] gap-2 shadow-lg shadow-primary/20">
+              <Button type="submit" disabled={loading} className="w-full h-11 rounded-xl gradient-primary text-primary-foreground font-bold text-[15px] gap-2 shadow-lg shadow-primary/20">
                 <Sparkles className="w-4 h-4" />
                 {loading ? "Sending..." : "Send Magic Link"}
               </Button>
