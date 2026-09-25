@@ -168,7 +168,7 @@ const Login = () => {
                 <Label htmlFor="magic-email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="magic-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-12 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
+                  <Input id="magic-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 h-11 rounded-xl bg-muted/50 border-0 focus:bg-card focus:ring-2 focus:ring-primary/20" required />
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">We'll send you a magic link — no password needed.</p>
