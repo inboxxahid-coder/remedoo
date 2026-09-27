@@ -373,7 +373,7 @@ const PharmacyDetail = () => {
             initial={{ y: 100 }}
             animate={{ y: 0 }}
             exit={{ y: 100 }}
-            className="fixed bottom-0 left-0 right-0 p-4 safe-bottom z-50"
+            className="fixed bottom-0 left-0 right-0 p-4 safe-bottom z-50 [&>*]:max-w-3xl [&>*]:mx-auto"
           >
             <button
               onClick={() => navigate("/cart", { state: { cart, pharmacy } })}

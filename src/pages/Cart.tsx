@@ -269,7 +269,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-background pb-32">
       {/* Header */}
-      <div className="gradient-primary page-header px-5 pb-6 rounded-b-[1.5rem]">
+      <div className="gradient-primary page-header px-5 pb-6 rounded-b-[1.5rem] [&>*]:max-w-7xl [&>*]:mx-auto">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <div>
@@ -413,7 +413,7 @@ const Cart = () => {
       </div>
 
       {/* Place order button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border safe-bottom z-50">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border safe-bottom z-50 [&>*]:max-w-3xl [&>*]:mx-auto">
         <Button
           onClick={placeOrder}
           disabled={loading || cartItems.length === 0}

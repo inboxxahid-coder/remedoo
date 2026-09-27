@@ -65,7 +65,7 @@ const Signup = () => {
       </div>
 
       {/* Form */}
-      <motion.div className="flex-1 px-5 -mt-8 z-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+      <motion.div className="flex-1 px-5 -mt-8 z-10 w-full max-w-md mx-auto" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <div className="bg-card rounded-2xl shadow-xl border border-border p-6">
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-1.5">

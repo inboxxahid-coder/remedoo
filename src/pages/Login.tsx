@@ -103,7 +103,7 @@ const Login = () => {
 
       {/* Form area */}
       <motion.div
-        className="flex-1 px-5 -mt-8 z-10"
+        className="flex-1 px-5 -mt-8 z-10 w-full max-w-md mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
