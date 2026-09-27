@@ -87,7 +87,7 @@ const DoctorDetail = () => {
       <div className="min-h-screen bg-background pb-24 max-w-4xl mx-auto">
         <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border px-5 py-3">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="text-foreground"><ArrowLeft className="w-6 h-6" /></button>
+            <button aria-label="Go back" onClick={() => navigate(-1)} className="text-foreground"><ArrowLeft className="w-6 h-6" /></button>
             <Skeleton className="h-6 w-40" />
           </div>
         </div>
@@ -117,7 +117,7 @@ const DoctorDetail = () => {
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border px-5 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="text-foreground"><ArrowLeft className="w-6 h-6" /></button>
+            <button aria-label="Go back" onClick={() => navigate(-1)} className="text-foreground"><ArrowLeft className="w-6 h-6" /></button>
             <h1 className="text-lg font-bold text-foreground">Doctor Profile</h1>
           </div>
           <button onClick={toggleFavorite} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">

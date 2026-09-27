@@ -271,7 +271,7 @@ const Cart = () => {
       {/* Header */}
       <div className="gradient-primary page-header px-5 pb-6 rounded-b-[1.5rem] [&>*]:max-w-7xl [&>*]:mx-auto">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <div>
             <h1 className="text-lg font-bold text-primary-foreground">Your Cart</h1>
             <p className="text-primary-foreground/70 text-xs">{pharmacy.name}</p>

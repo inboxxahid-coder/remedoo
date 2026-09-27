@@ -269,7 +269,7 @@ export default function SymptomChecker() {
     <div className="flex flex-col h-[100dvh] bg-background">
       {/* Header */}
       <header className="shrink-0 bg-primary text-primary-foreground px-4 py-3 flex items-center gap-3 safe-top">
-        <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">
+        <button aria-label="Go back" onClick={() => navigate(-1)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1 min-w-0">

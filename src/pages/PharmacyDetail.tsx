@@ -117,7 +117,7 @@ const PharmacyDetail = () => {
 
         {/* Top action bar */}
         <div className="absolute top-0 left-0 right-0 px-4 pt-10 flex items-center justify-between z-10">
-          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex gap-2">

@@ -63,7 +63,7 @@ export default function LabReportDetail() {
     <div className="min-h-screen bg-background pb-24">
       <div className="gradient-primary page-header px-5 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground">
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="text-primary-foreground">
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div>

@@ -79,7 +79,7 @@ const Analytics = () => {
     <div className="min-h-screen bg-background pb-8">
       <div className="gradient-primary page-header px-5 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-lg font-bold text-primary-foreground">Analytics</h1>
         </div>
       </div>
