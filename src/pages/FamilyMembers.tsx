@@ -124,7 +124,7 @@ export default function FamilyMembers() {
           <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-sm text-foreground">{editing ? "Edit Member" : "Add Member"}</h3>
-              <button onClick={resetForm}><X className="w-4 h-4 text-muted-foreground" /></button>
+              <button aria-label="Clear" onClick={resetForm}><X className="w-4 h-4 text-muted-foreground" /></button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">

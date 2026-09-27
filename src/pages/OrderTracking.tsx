@@ -160,8 +160,7 @@ const OrderTracking = () => {
             <h3 className="font-semibold text-foreground text-sm">{pharmacyName}</h3>
             <p className="text-xs text-muted-foreground">Pharmacy</p>
           </div>
-          <button className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-            <Phone className="w-4 h-4 text-primary" />
+          <button aria-label="Call" className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center"><Phone className="w-4 h-4 text-primary" />
           </button>
         </div>
 

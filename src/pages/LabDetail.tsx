@@ -162,8 +162,7 @@ const LabDetail = () => {
             <button onClick={() => setShowSearch(!showSearch)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
               <Search className="w-4 h-4 text-foreground" />
             </button>
-            <button onClick={toggleFavorite} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
-              <Heart className={`w-4 h-4 ${isFavorite ? "fill-destructive text-destructive" : "text-foreground"}`} />
+            <button aria-label="Toggle favourite" onClick={toggleFavorite} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"><Heart className={`w-4 h-4 ${isFavorite ? "fill-destructive text-destructive" : "text-foreground"}`} />
             </button>
           </div>
         </div>

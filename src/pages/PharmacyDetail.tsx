@@ -124,8 +124,7 @@ const PharmacyDetail = () => {
             <button onClick={() => setShowSearch(!showSearch)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
               <Search className="w-4 h-4 text-foreground" />
             </button>
-            <button className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
-              <Heart className="w-4 h-4 text-foreground" />
+            <button aria-label="Toggle favourite" className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"><Heart className="w-4 h-4 text-foreground" />
             </button>
           </div>
         </div>

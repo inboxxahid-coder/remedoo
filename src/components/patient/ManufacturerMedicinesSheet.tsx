@@ -49,7 +49,7 @@ export default function ManufacturerMedicinesSheet({ manufacturer, open, onClose
             className="fixed bottom-0 left-0 right-0 z-[60] bg-card rounded-t-3xl max-h-[80vh] overflow-y-auto"
           >
             <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 rounded-full bg-border" /></div>
-            <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full bg-accent"><X className="w-4 h-4 text-muted-foreground" /></button>
+            <button aria-label="Clear" onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full bg-accent"><X className="w-4 h-4 text-muted-foreground" /></button>
 
             <div className="px-5 pt-2 pb-6">
               <div className="flex items-center gap-2">

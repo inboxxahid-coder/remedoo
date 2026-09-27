@@ -96,8 +96,7 @@ const HospitalDetail = () => {
             <button aria-label="Go back" onClick={() => navigate(-1)} className="text-foreground"><ArrowLeft className="w-6 h-6" /></button>
             <h1 className="text-lg font-bold text-foreground">Hospital Details</h1>
           </div>
-          <button onClick={toggleFavorite} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-            <Heart className={`w-5 h-5 ${isFavorite ? "fill-emergency text-emergency" : "text-muted-foreground"}`} />
+          <button aria-label="Toggle favourite" onClick={toggleFavorite} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center"><Heart className={`w-5 h-5 ${isFavorite ? "fill-emergency text-emergency" : "text-muted-foreground"}`} />
           </button>
         </div>
       </div>
