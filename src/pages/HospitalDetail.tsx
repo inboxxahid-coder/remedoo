@@ -60,7 +60,7 @@ const HospitalDetail = () => {
 
    if (loading) {
     return (
-      <div className="min-h-screen bg-background pb-24">
+      <div className="min-h-screen bg-background pb-24 max-w-4xl mx-auto">
         <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border px-5 py-3">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate(-1)} className="text-foreground"><ArrowLeft className="w-6 h-6" /></button>
@@ -88,7 +88,7 @@ const HospitalDetail = () => {
   const workingHours = hospital.working_hours as Record<string, string> | null;
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-32 max-w-4xl mx-auto">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border px-5 py-3">
         <div className="flex items-center justify-between">

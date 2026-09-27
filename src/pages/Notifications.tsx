@@ -193,7 +193,7 @@ const Notifications = () => {
     );
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24 max-w-4xl mx-auto">
       {/* Header */}
       <div className="gradient-primary px-5 pt-[max(env(safe-area-inset-top,0px),12px)] pb-6 rounded-b-[2rem]">
         <div className="flex items-center gap-3">

@@ -139,7 +139,7 @@ const LabDetail = () => {
   if (!lab) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3"><p className="text-muted-foreground">Lab not found</p><Button variant="outline" onClick={() => navigate("/labs")}>Back to Labs</Button></div>;
 
   return (
-    <div className="min-h-screen bg-muted/30 pb-24">
+    <div className="min-h-screen bg-muted/30 pb-24 max-w-4xl mx-auto">
       {/* Swiggy-style hero header */}
       <div className="relative">
         <div className="h-48 bg-gradient-to-br from-primary/20 via-accent/40 to-primary/10 relative overflow-hidden">
