@@ -413,7 +413,7 @@ const Cart = () => {
       </div>
 
       {/* Place order button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border safe-bottom z-50">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t border-border safe-bottom z-50 [&>*]:max-w-3xl [&>*]:mx-auto">
         <Button
           onClick={placeOrder}
           disabled={loading || cartItems.length === 0}
