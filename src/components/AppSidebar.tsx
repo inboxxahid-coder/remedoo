@@ -59,10 +59,12 @@ export function AppSidebar() {
         {/* Close Button */}
         <div className="px-3">
           <button
+            type="button"
             onClick={toggleSidebar}
+            aria-label="Close navigation menu"
             className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-primary/70 text-primary-foreground py-3 px-4 shadow-lg hover:shadow-xl hover:brightness-110 active:scale-95 transition-all duration-300"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
             <span className="font-bold text-sm tracking-wide">Close</span>
           </button>
         </div>
@@ -77,11 +79,13 @@ export function AppSidebar() {
               {quickActions.map((item) => (
                 <button
                   key={item.title}
+                  type="button"
                   onClick={() => handleNavigate(item.url)}
-                  className={`group relative overflow-hidden flex flex-col items-center gap-2 py-3 px-2 rounded-2xl bg-gradient-to-br ${item.gradient} text-primary-foreground shadow-lg hover:shadow-2xl hover:scale-[1.06] active:scale-95 transition-all duration-300 cursor-pointer`}
+                  aria-label={item.title}
+                  className={`group relative overflow-hidden flex flex-col items-center gap-2 py-3 px-2 min-h-[44px] rounded-2xl bg-gradient-to-br ${item.gradient} text-primary-foreground shadow-lg hover:shadow-2xl hover:scale-[1.06] active:scale-95 transition-all duration-300 cursor-pointer`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="text-lg">{item.emoji}</div>
+                  <div className="text-lg" aria-hidden="true">{item.emoji}</div>
                   <span className="text-[10px] font-bold text-center leading-tight drop-shadow-sm relative z-10">
                     {item.title}
                   </span>
@@ -103,8 +107,10 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <button
+                      type="button"
                       onClick={() => handleNavigate(item.url)}
-                      className={`relative flex items-center gap-3 w-full rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
+                      aria-current={isActive ? "page" : undefined}
+                      className={`relative flex items-center gap-3 w-full rounded-2xl px-4 py-3 min-h-[44px] text-sm font-semibold transition-all duration-300 ${
                         isActive
                           ? "bg-gradient-to-r from-sidebar-accent to-sidebar-accent/60 text-sidebar-primary shadow-lg border border-sidebar-primary/20"
                           : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground hover:shadow-md"
@@ -113,7 +119,7 @@ export function AppSidebar() {
                       {isActive && (
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-sidebar-primary" />
                       )}
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <item.icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                       <span>{item.title}</span>
                     </button>
                   </SidebarMenuItem>
