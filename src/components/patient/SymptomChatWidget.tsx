@@ -200,8 +200,7 @@ export default function SymptomChatWidget() {
                 <p className="text-[10px] opacity-75">Health help & app guide</p>
               </div>
               {messages.length > 0 && (
-                <button onClick={clearChat} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10" title="Clear chat">
-                  <Trash2 className="w-3.5 h-3.5" />
+                <button aria-label="Remove item" onClick={clearChat} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10" title="Clear chat"><Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
               <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">

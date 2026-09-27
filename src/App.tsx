@@ -300,6 +300,9 @@ const AppRoutes = () => {
   }
 
   return (
+    <>
+    <a href="#main-content" className="skip-link">Skip to main content</a>
+    <div id="main-content" tabIndex={-1}>
     <Routes>
       {/* Patient routes */}
       <Route path="/" element={<Splash />} />
@@ -490,6 +493,8 @@ const AppRoutes = () => {
 
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </div>
+    </>
   );
 };
 

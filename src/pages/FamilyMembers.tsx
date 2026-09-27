@@ -109,7 +109,7 @@ export default function FamilyMembers() {
     <div className="min-h-screen bg-background pb-24 max-w-4xl mx-auto">
       <div className="gradient-primary page-header px-5 pb-6 rounded-b-[1.5rem]">
         <div className="flex items-center gap-3 mb-2">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-xl font-bold text-primary-foreground flex items-center gap-2"><Users className="w-5 h-5" /> Family Members</h1>
         </div>
         <p className="text-primary-foreground/70 text-xs">Manage health profiles for your family</p>
@@ -124,7 +124,7 @@ export default function FamilyMembers() {
           <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-sm text-foreground">{editing ? "Edit Member" : "Add Member"}</h3>
-              <button onClick={resetForm}><X className="w-4 h-4 text-muted-foreground" /></button>
+              <button aria-label="Clear" onClick={resetForm}><X className="w-4 h-4 text-muted-foreground" /></button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">

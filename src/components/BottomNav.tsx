@@ -17,7 +17,7 @@ const BottomNav = () => {
   const activeIndex = tabs.findIndex((t) => pathname === t.path || pathname.startsWith(t.path + "/"));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border safe-area-bottom md:bottom-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[560px] md:rounded-2xl md:border md:shadow-lg">
+    <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border safe-area-bottom md:bottom-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[560px] md:rounded-2xl md:border md:shadow-lg">
       <div className="flex items-center justify-around h-[62px] max-w-lg mx-auto px-1 relative md:max-w-none">
         {tabs.map((tab, i) => {
           const active = i === activeIndex;
@@ -26,7 +26,10 @@ const BottomNav = () => {
               key={tab.path}
               onClick={() => guardedNavigate(tab.path)}
               whileTap={{ scale: 0.85 }}
-              className="relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full z-10"
+              type="button"
+              aria-label={tab.label}
+              aria-current={active ? "page" : undefined}
+              className="relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full min-h-[44px] z-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               {active && (
                 <motion.div
@@ -43,6 +46,7 @@ const BottomNav = () => {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
                 <tab.icon
+                  aria-hidden="true"
                   className={`w-[21px] h-[21px] transition-colors duration-200 ${
                     active ? "text-primary" : "text-muted-foreground"
                   }`}

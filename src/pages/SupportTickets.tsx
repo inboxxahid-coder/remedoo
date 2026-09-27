@@ -113,7 +113,7 @@ export default function PatientSupportTickets() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted">
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex-1">

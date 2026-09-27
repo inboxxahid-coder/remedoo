@@ -67,7 +67,7 @@ const MyOrders = () => {
       {/* Header */}
       <div className="gradient-primary page-header px-5 pb-6 rounded-b-[1.5rem] [&>*]:max-w-7xl [&>*]:mx-auto">
         <div className="flex items-center gap-3 mb-4">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="text-primary-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <h1 className="text-xl font-bold text-primary-foreground">My Orders</h1>
           <span className="ml-auto text-primary-foreground/60 text-xs font-medium">{orders.length} total</span>
         </div>

@@ -155,15 +155,14 @@ const LabDetail = () => {
 
         {/* Top action bar */}
         <div className="absolute top-0 left-0 right-0 px-4 pt-10 flex items-center justify-between z-10">
-          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex gap-2">
             <button onClick={() => setShowSearch(!showSearch)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
               <Search className="w-4 h-4 text-foreground" />
             </button>
-            <button onClick={toggleFavorite} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
-              <Heart className={`w-4 h-4 ${isFavorite ? "fill-destructive text-destructive" : "text-foreground"}`} />
+            <button aria-label="Toggle favourite" onClick={toggleFavorite} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"><Heart className={`w-4 h-4 ${isFavorite ? "fill-destructive text-destructive" : "text-foreground"}`} />
             </button>
           </div>
         </div>

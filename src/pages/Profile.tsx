@@ -191,7 +191,7 @@ const Profile = () => {
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border px-5 py-3">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-foreground">
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="text-foreground">
             <ArrowLeft className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-bold text-foreground">My Profile</h1>

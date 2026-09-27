@@ -60,8 +60,7 @@ export default function MedicineDetailSheet({ medicine: m, open, onClose, cartQt
             </div>
 
             {/* Close */}
-            <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full bg-accent">
-              <X className="w-4 h-4 text-muted-foreground" />
+            <button aria-label="Clear" onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full bg-accent"><X className="w-4 h-4 text-muted-foreground" />
             </button>
 
             {/* Image / Visual */}

@@ -197,7 +197,7 @@ const Notifications = () => {
       {/* Header */}
       <div className="gradient-primary px-5 pt-[max(env(safe-area-inset-top,0px),12px)] pb-6 rounded-b-[2rem]">
         <div className="flex items-center gap-3">
-          <button
+          <button aria-label="Go back"
             onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-xl bg-primary-foreground/20 border border-primary-foreground/30 flex items-center justify-center"
           >
