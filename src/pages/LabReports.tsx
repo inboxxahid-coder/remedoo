@@ -98,7 +98,7 @@ export default function LabReports() {
         </div>
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/60" />
-          <Input
+          <Input aria-label="Search tests or labs..."
             placeholder="Search tests or labs..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}

@@ -232,7 +232,7 @@ export default function SupportQueryFab() {
               <div className="p-4 space-y-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Subject</label>
-                  <Input placeholder="Brief summary of your issue" value={subject} onChange={e => setSubject(e.target.value)} className="text-xs h-9" maxLength={100} />
+                  <Input aria-label="Brief summary of your issue" placeholder="Brief summary of your issue" value={subject} onChange={e => setSubject(e.target.value)} className="text-xs h-9" maxLength={100} />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Description</label>

@@ -155,7 +155,7 @@ export default function HealthReminders() {
               </div>
               <div className="col-span-2">
                 <Label className="text-xs">Title *</Label>
-                <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g., Take Metformin" className="h-9 text-sm" />
+                <Input aria-label="e.g., Take Metformin" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g., Take Metformin" className="h-9 text-sm" />
               </div>
               <div>
                 <Label className="text-xs">Date *</Label>
@@ -184,7 +184,7 @@ export default function HealthReminders() {
               </div>
               <div className="col-span-2">
                 <Label className="text-xs">Notes</Label>
-                <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional notes" className="h-9 text-sm" />
+                <Input aria-label="Optional notes" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional notes" className="h-9 text-sm" />
               </div>
             </div>
             <Button onClick={handleSave} disabled={saving} className="w-full h-9 text-sm">

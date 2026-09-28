@@ -131,7 +131,7 @@ export default function PatientSupportTickets() {
         {/* Search */}
         <div className="mt-3 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
+          <Input aria-label="Search by ticket #, subject..."
             placeholder="Search by ticket #, subject..."
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -183,7 +183,7 @@ export default function PatientSupportTickets() {
         <DialogContent>
           <DialogHeader><DialogTitle>New Support Ticket</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <div><Label>Subject *</Label><Input value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="Brief summary..." /></div>
+            <div><Label>Subject *</Label><Input aria-label="Brief summary..." value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="Brief summary..." /></div>
             <div><Label>Description *</Label><Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Describe your issue..." rows={4} /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Category</Label><Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="general">General</SelectItem><SelectItem value="payment">Payment</SelectItem><SelectItem value="appointment">Appointment</SelectItem><SelectItem value="order">Order</SelectItem><SelectItem value="technical">Technical</SelectItem></SelectContent></Select></div>

@@ -129,7 +129,7 @@ export default function FamilyMembers() {
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
                 <Label className="text-xs">Name *</Label>
-                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Full name" className="h-9 text-sm" />
+                <Input aria-label="Full name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Full name" className="h-9 text-sm" />
               </div>
               <div>
                 <Label className="text-xs">Relationship *</Label>
@@ -162,11 +162,11 @@ export default function FamilyMembers() {
               </div>
               <div className="col-span-2">
                 <Label className="text-xs">Allergies</Label>
-                <Input value={form.allergies} onChange={e => setForm(f => ({ ...f, allergies: e.target.value }))} placeholder="e.g., Penicillin, Dust" className="h-9 text-sm" />
+                <Input aria-label="e.g., Penicillin, Dust" value={form.allergies} onChange={e => setForm(f => ({ ...f, allergies: e.target.value }))} placeholder="e.g., Penicillin, Dust" className="h-9 text-sm" />
               </div>
               <div className="col-span-2">
                 <Label className="text-xs">Chronic Conditions</Label>
-                <Input value={form.chronic_conditions} onChange={e => setForm(f => ({ ...f, chronic_conditions: e.target.value }))} placeholder="e.g., Diabetes, Asthma" className="h-9 text-sm" />
+                <Input aria-label="e.g., Diabetes, Asthma" value={form.chronic_conditions} onChange={e => setForm(f => ({ ...f, chronic_conditions: e.target.value }))} placeholder="e.g., Diabetes, Asthma" className="h-9 text-sm" />
               </div>
             </div>
             <Button onClick={handleSave} disabled={saving} className="w-full h-9 text-sm">

@@ -359,7 +359,7 @@ const Cart = () => {
             className="rounded-xl resize-none"
             rows={2}
           />
-          <Input
+          <Input aria-label="Any special instructions? (optional)"
             placeholder="Any special instructions? (optional)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

@@ -61,7 +61,7 @@ const ResetPassword = () => {
               <Label htmlFor="password">New Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
+                <Input aria-label="Min. 6 characters"
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Min. 6 characters"

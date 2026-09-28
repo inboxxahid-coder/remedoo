@@ -139,7 +139,7 @@ const Labs = () => {
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
+            <Input aria-label="Search for labs or tests"
               placeholder="Search for labs or tests"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
