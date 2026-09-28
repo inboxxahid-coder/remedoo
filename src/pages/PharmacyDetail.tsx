@@ -121,9 +121,7 @@ const PharmacyDetail = () => {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex gap-2">
-            <button onClick={() => setShowSearch(!showSearch)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
-              <Search className="w-4 h-4 text-foreground" />
-            </button>
+            <button aria-label="Search" onClick={() => setShowSearch(!showSearch)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"><Search className="w-4 h-4 text-foreground" /></button>
             <button aria-label="Toggle favourite" className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"><Heart className="w-4 h-4 text-foreground" />
             </button>
           </div>
@@ -187,7 +185,7 @@ const PharmacyDetail = () => {
           >
             <div className="relative mt-3">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
+              <Input aria-label="Search medicines in this pharmacy..."
                 placeholder="Search medicines in this pharmacy..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -195,9 +193,7 @@ const PharmacyDetail = () => {
                 autoFocus
               />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
+                <button aria-label="Clear search" onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
               )}
             </div>
           </motion.div>
@@ -305,13 +301,9 @@ const PharmacyDetail = () => {
 
                       {inCart ? (
                         <div className="flex items-center bg-primary rounded-lg overflow-hidden h-8" onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => removeFromCart(m.id)} className="px-2.5 h-full flex items-center text-primary-foreground hover:bg-primary/80 transition-colors">
-                            <Minus className="w-3.5 h-3.5" />
-                          </button>
+                          <button aria-label="Decrease quantity" onClick={() => removeFromCart(m.id)} className="px-2.5 h-full flex items-center text-primary-foreground hover:bg-primary/80 transition-colors"><Minus className="w-3.5 h-3.5" /></button>
                           <span className="text-xs font-bold text-primary-foreground px-1 min-w-[20px] text-center">{inCart.quantity}</span>
-                          <button onClick={() => addToCart(m)} className="px-2.5 h-full flex items-center text-primary-foreground hover:bg-primary/80 transition-colors">
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
+                          <button aria-label="Add" onClick={() => addToCart(m)} className="px-2.5 h-full flex items-center text-primary-foreground hover:bg-primary/80 transition-colors"><Plus className="w-3.5 h-3.5" /></button>
                         </div>
                       ) : (
                         <Button

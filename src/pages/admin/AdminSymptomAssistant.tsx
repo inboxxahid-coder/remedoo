@@ -313,7 +313,7 @@ export default function AdminSymptomAssistant() {
                   <div key={t.id} className="flex items-center gap-1 bg-destructive/10 border border-destructive/20 rounded-full px-3 py-1.5">
                     <AlertTriangle className="w-3 h-3 text-destructive" />
                     <span className="text-sm text-destructive font-medium">{t.symptom_keyword}</span>
-                    <button onClick={() => deleteTrigger(t.id)} className="ml-1 hover:text-destructive/80"><Trash2 className="w-3 h-3" /></button>
+                    <button aria-label="Remove item" onClick={() => deleteTrigger(t.id)} className="ml-1 hover:text-destructive/80"><Trash2 className="w-3 h-3" /></button>
                   </div>
                 ))}
               </div>

@@ -302,9 +302,7 @@ const Cart = () => {
                       {item.quantity === 1 ? <Trash2 className="w-3.5 h-3.5 text-destructive" /> : <Minus className="w-3.5 h-3.5" />}
                     </button>
                     <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
-                    <button onClick={() => updateQty(item.medicine.id, 1)} className="p-1 rounded-lg bg-secondary text-secondary-foreground">
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
+                    <button aria-label="Add" onClick={() => updateQty(item.medicine.id, 1)} className="p-1 rounded-lg bg-secondary text-secondary-foreground"><Plus className="w-3.5 h-3.5" /></button>
                   </div>
                   <span className="text-sm font-bold text-foreground w-14 text-right">₹{(discounted * item.quantity).toFixed(0)}</span>
                 </div>
@@ -326,7 +324,7 @@ const Cart = () => {
               <div className="flex items-center gap-2 bg-accent rounded-xl p-3">
                 <FileText className="w-4 h-4 text-primary" />
                 <span className="text-sm text-foreground flex-1 truncate">{prescriptionFile.name}</span>
-                <button onClick={() => setPrescriptionFile(null)}><X className="w-4 h-4 text-muted-foreground" /></button>
+                <button aria-label="Clear search" onClick={() => setPrescriptionFile(null)}><X className="w-4 h-4 text-muted-foreground" /></button>
               </div>
             ) : (
               <Button variant="outline" onClick={() => fileRef.current?.click()} className="w-full rounded-xl border-dashed border-primary text-primary">
@@ -361,7 +359,7 @@ const Cart = () => {
             className="rounded-xl resize-none"
             rows={2}
           />
-          <Input
+          <Input aria-label="Any special instructions? (optional)"
             placeholder="Any special instructions? (optional)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

@@ -453,13 +453,11 @@ export default function SymptomChecker() {
               className="flex-1 bg-muted rounded-full px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none"
               disabled={loading}
             />
-            <button
+            <button aria-label="Send message"
               onClick={() => handleSend()}
               disabled={!input.trim() || loading}
               className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 transition-opacity"
-            >
-              <Send className="w-4 h-4" />
-            </button>
+            ><Send className="w-4 h-4" /></button>
           </div>
         )}
       </div>

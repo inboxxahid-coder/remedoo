@@ -469,7 +469,7 @@ const BookAppointment = () => {
 
           <div className="space-y-2">
             <Label>Notes (optional)</Label>
-            <Input placeholder="Any specific concerns..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <Input aria-label="Any specific concerns..." placeholder="Any specific concerns..." value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
 
           {/* Payment Method Selection */}

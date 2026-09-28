@@ -57,9 +57,7 @@ const RemedooOrderTracking = () => {
     <div className="min-h-screen bg-muted/30 pb-24">
       <div className="bg-card sticky top-0 z-30 shadow-sm px-4 safe-top pb-3">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/my-orders")} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
+          <button aria-label="Go back" onClick={() => navigate("/my-orders")} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center"><ArrowLeft className="w-5 h-5 text-foreground" /></button>
           <div>
             <h1 className="text-lg font-bold text-foreground">Order #{order.id.slice(0, 8)}</h1>
             <p className="text-[11px] text-muted-foreground">{format(new Date(order.placed_at), "dd MMM yyyy, hh:mm a")}</p>

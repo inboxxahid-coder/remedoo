@@ -129,7 +129,7 @@ export default function FamilyMembers() {
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
                 <Label className="text-xs">Name *</Label>
-                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Full name" className="h-9 text-sm" />
+                <Input aria-label="Full name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Full name" className="h-9 text-sm" />
               </div>
               <div>
                 <Label className="text-xs">Relationship *</Label>
@@ -162,11 +162,11 @@ export default function FamilyMembers() {
               </div>
               <div className="col-span-2">
                 <Label className="text-xs">Allergies</Label>
-                <Input value={form.allergies} onChange={e => setForm(f => ({ ...f, allergies: e.target.value }))} placeholder="e.g., Penicillin, Dust" className="h-9 text-sm" />
+                <Input aria-label="e.g., Penicillin, Dust" value={form.allergies} onChange={e => setForm(f => ({ ...f, allergies: e.target.value }))} placeholder="e.g., Penicillin, Dust" className="h-9 text-sm" />
               </div>
               <div className="col-span-2">
                 <Label className="text-xs">Chronic Conditions</Label>
-                <Input value={form.chronic_conditions} onChange={e => setForm(f => ({ ...f, chronic_conditions: e.target.value }))} placeholder="e.g., Diabetes, Asthma" className="h-9 text-sm" />
+                <Input aria-label="e.g., Diabetes, Asthma" value={form.chronic_conditions} onChange={e => setForm(f => ({ ...f, chronic_conditions: e.target.value }))} placeholder="e.g., Diabetes, Asthma" className="h-9 text-sm" />
               </div>
             </div>
             <Button onClick={handleSave} disabled={saving} className="w-full h-9 text-sm">
@@ -197,8 +197,8 @@ export default function FamilyMembers() {
                       <p className="text-xs text-muted-foreground">{m.relationship}</p>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleEdit(m)} className="p-1.5 rounded-lg hover:bg-muted"><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></button>
-                      <button onClick={() => handleDelete(m.id)} className="p-1.5 rounded-lg hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5 text-destructive" /></button>
+                      <button aria-label="Edit" onClick={() => handleEdit(m)} className="p-1.5 rounded-lg hover:bg-muted"><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></button>
+                      <button aria-label="Remove item" onClick={() => handleDelete(m.id)} className="p-1.5 rounded-lg hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5 text-destructive" /></button>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">

@@ -227,7 +227,7 @@ const Profile = () => {
         <div className="bg-card rounded-2xl border border-border p-5 space-y-5">
           <div className="space-y-2">
             <Label className="flex items-center gap-2 text-sm"><User className="w-4 h-4 text-primary" /> Full Name</Label>
-            <Input value={form.full_name} onChange={(e) => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Your full name" maxLength={100} />
+            <Input aria-label="Your full name" value={form.full_name} onChange={(e) => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Your full name" maxLength={100} />
           </div>
 
           <div className="space-y-2">
@@ -238,7 +238,7 @@ const Profile = () => {
 
           <div className="space-y-2">
             <Label className="flex items-center gap-2 text-sm"><Phone className="w-4 h-4 text-primary" /> Phone</Label>
-            <Input value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+91 98765 43210" maxLength={20} />
+            <Input aria-label="+91 98765 43210" value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+91 98765 43210" maxLength={20} />
           </div>
 
           {/* Gender Selection */}

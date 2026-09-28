@@ -144,6 +144,8 @@ export default function SupportQueryFab() {
               if (!session) { toast.info("Please login to access support"); navigate("/login", { replace: true }); return; }
               setView("list"); setOpen(true);
             }}
+            type="button"
+            aria-label={unreadCount > 0 ? `Support chat, ${unreadCount} unread` : "Open support chat"}
             className="fixed bottom-20 right-4 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
           >
             <MessageSquarePlus className="w-6 h-6" />
@@ -168,9 +170,7 @@ export default function SupportQueryFab() {
           >
             <div className="shrink-0 bg-primary text-primary-foreground px-4 py-3 flex items-center gap-3">
               {view === "new" && (
-                <button onClick={() => setView("list")} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
+                <button aria-label="Previous" onClick={() => setView("list")} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10"><ChevronLeft className="w-4 h-4" /></button>
               )}
               <MessageSquarePlus className="w-5 h-5" />
               <div className="flex-1 min-w-0">
@@ -187,9 +187,7 @@ export default function SupportQueryFab() {
                     <List className="w-4 h-4" />
                   </button>
                 )}
-                <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">
-                  <X className="w-4 h-4" />
-                </button>
+                <button aria-label="Clear search" onClick={() => setOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10"><X className="w-4 h-4" /></button>
               </div>
             </div>
 
@@ -236,7 +234,7 @@ export default function SupportQueryFab() {
               <div className="p-4 space-y-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Subject</label>
-                  <Input placeholder="Brief summary of your issue" value={subject} onChange={e => setSubject(e.target.value)} className="text-xs h-9" maxLength={100} />
+                  <Input aria-label="Brief summary of your issue" placeholder="Brief summary of your issue" value={subject} onChange={e => setSubject(e.target.value)} className="text-xs h-9" maxLength={100} />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground">Description</label>

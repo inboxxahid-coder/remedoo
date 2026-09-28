@@ -224,9 +224,7 @@ export default function DoctorSchedule() {
             {vacationDates.map(date => (
               <Badge key={date} variant="secondary" className="gap-1 py-1">
                 {date}
-                <button onClick={() => setVacationDates(v => v.filter(d => d !== date))} className="hover:text-destructive">
-                  <X className="w-3 h-3" />
-                </button>
+                <button aria-label="Clear search" onClick={() => setVacationDates(v => v.filter(d => d !== date))} className="hover:text-destructive"><X className="w-3 h-3" /></button>
               </Badge>
             ))}
           </div>

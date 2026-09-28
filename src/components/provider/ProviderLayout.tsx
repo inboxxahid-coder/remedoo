@@ -49,9 +49,7 @@ export default function ProviderLayout({ title, subtitle, icon: Icon, navItems, 
             <Icon className={cn("w-6 h-6", iconColor)} />
             <h1 className="text-lg font-bold text-foreground">{title}</h1>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg hover:bg-muted">
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
+          <button aria-label="Clear search" onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg hover:bg-muted"><X className="w-5 h-5 text-muted-foreground" /></button>
         </div>
         <p className="text-xs text-muted-foreground px-5 pt-2">{subtitle}</p>
 
@@ -89,9 +87,7 @@ export default function ProviderLayout({ title, subtitle, icon: Icon, navItems, 
 
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="sticky top-0 z-30 bg-card border-b border-border px-4 py-3 flex items-center gap-3 lg:hidden">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-muted transition-colors">
-            <Menu className="w-5 h-5 text-foreground" />
-          </button>
+          <button aria-label="Open menu" onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-muted transition-colors"><Menu className="w-5 h-5 text-foreground" /></button>
           <div className="flex items-center gap-2">
             <Icon className={cn("w-5 h-5", iconColor)} />
             <span className="font-bold text-foreground">{title}</span>

@@ -22,7 +22,7 @@ const FileUploadBox = ({ id, label, file, existingUrl, onFileChange, accept = ".
     <label htmlFor={id} className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30">
       <Upload className="w-5 h-5 text-muted-foreground shrink-0" />
       <span className="text-sm text-muted-foreground truncate flex-1">{file ? file.name : hint || "Choose file to replace"}</span>
-      {file && <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFileChange(null); }} className="p-1 rounded-full hover:bg-destructive/10"><X className="w-4 h-4 text-destructive" /></button>}
+      {file && <button aria-label="Clear search" type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFileChange(null); }} className="p-1 rounded-full hover:bg-destructive/10"><X className="w-4 h-4 text-destructive" /></button>}
     </label>
     <input id={id} type="file" accept={accept} className="hidden" onChange={(e) => { onFileChange(e.target.files?.[0] || null); e.target.value = ""; }} />
   </div>
