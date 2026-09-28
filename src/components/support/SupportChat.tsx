@@ -243,9 +243,7 @@ export default function SupportChat({
             </button>
           )}
           {onClose && (
-            <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary-foreground/10 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+            <button aria-label="Clear search" onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary-foreground/10 transition-colors"><X className="w-4 h-4" /></button>
           )}
         </div>
       </div>

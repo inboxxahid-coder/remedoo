@@ -139,7 +139,7 @@ export default function HealthReminders() {
           <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-sm text-foreground">New Reminder</h3>
-              <button onClick={() => setShowForm(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
+              <button aria-label="Clear search" onClick={() => setShowForm(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
@@ -215,9 +215,7 @@ export default function HealthReminders() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <h3 className={`font-semibold text-sm ${r.is_completed ? "line-through text-muted-foreground" : "text-foreground"}`}>{r.title}</h3>
-                      <button onClick={() => deleteReminder(r.id)} className="p-1 rounded hover:bg-destructive/10">
-                        <X className="w-3.5 h-3.5 text-muted-foreground" />
-                      </button>
+                      <button aria-label="Clear search" onClick={() => deleteReminder(r.id)} className="p-1 rounded hover:bg-destructive/10"><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
                     </div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${overdue ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>

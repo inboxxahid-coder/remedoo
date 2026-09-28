@@ -123,9 +123,7 @@ const UnifiedSearch = () => {
         className="pl-11 pr-9 bg-white/20 border border-white/30 shadow-sm h-11 rounded-xl text-sm text-white placeholder:text-white/60 focus-visible:ring-2 focus-visible:ring-white/40"
       />
       {query && (
-        <button onClick={() => { setQuery(""); setOpen(false); }} className="absolute right-3 top-1/2 -translate-y-1/2">
-          <X className="w-4 h-4 text-muted-foreground" />
-        </button>
+        <button aria-label="Clear search" onClick={() => { setQuery(""); setOpen(false); }} className="absolute right-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
       )}
 
       <AnimatePresence>

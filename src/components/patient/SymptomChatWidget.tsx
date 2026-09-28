@@ -203,9 +203,7 @@ export default function SymptomChatWidget() {
                 <button aria-label="Remove item" onClick={clearChat} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10" title="Clear chat"><Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
-              <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10">
-                <X className="w-4 h-4" />
-              </button>
+              <button aria-label="Clear search" onClick={() => setOpen(false)} className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-foreground/10"><X className="w-4 h-4" /></button>
             </div>
 
             {/* Messages */}
@@ -282,13 +280,11 @@ export default function SymptomChatWidget() {
                   className="flex-1 bg-muted rounded-full px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none"
                   disabled={isLoading}
                 />
-                <button
+                <button aria-label="Send message"
                   onClick={() => sendMessage()}
                   disabled={!input.trim() || isLoading}
                   className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 transition-opacity"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                </button>
+                ><Send className="w-3.5 h-3.5" /></button>
               </div>
             </div>
           </motion.div>

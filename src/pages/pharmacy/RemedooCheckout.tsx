@@ -146,9 +146,7 @@ const RemedooCheckout = () => {
     <div className="min-h-screen bg-muted/30 pb-8">
       <div className="bg-card sticky top-0 z-30 shadow-sm px-4 safe-top pb-3">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
+          <button aria-label="Go back" onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center"><ArrowLeft className="w-5 h-5 text-foreground" /></button>
           <h1 className="text-lg font-bold text-foreground">Checkout</h1>
         </div>
       </div>

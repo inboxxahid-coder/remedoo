@@ -136,9 +136,7 @@ const RemedooPharmacyPage = () => {
       <div className="bg-card sticky top-0 z-30 shadow-sm">
         <div className="px-4 safe-top pb-3">
           <div className="flex items-center gap-3 mb-3">
-            <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-              <ArrowLeft className="w-5 h-5 text-foreground" />
-            </button>
+            <button aria-label="Go back" onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-muted flex items-center justify-center"><ArrowLeft className="w-5 h-5 text-foreground" /></button>
             <div className="flex-1">
               <h1 className="text-lg font-bold text-foreground flex items-center gap-1.5">
                 Remedoo Pharmacy <BadgeCheck className="w-4 h-4 text-primary" />
@@ -155,7 +153,7 @@ const RemedooPharmacyPage = () => {
               value={search} onChange={e => setSearch(e.target.value)}
               className="pl-10 pr-4 bg-muted/50 border-border h-11 rounded-xl text-sm"
             />
-            {search && <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
+            {search && <button aria-label="Clear search" onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
           </div>
         </div>
         {/* Categories */}
@@ -219,9 +217,9 @@ const RemedooPharmacyPage = () => {
                 {item.stock_quantity > 0 ? (
                   inCart > 0 ? (
                     <div className="flex items-center justify-between bg-primary/10 rounded-lg p-1">
-                      <button onClick={() => removeFromCart(item.id)} className="w-7 h-7 rounded-md bg-card flex items-center justify-center"><Minus className="w-3 h-3" /></button>
+                      <button aria-label="Decrease quantity" onClick={() => removeFromCart(item.id)} className="w-7 h-7 rounded-md bg-card flex items-center justify-center"><Minus className="w-3 h-3" /></button>
                       <span className="text-sm font-bold text-primary">{inCart}</span>
-                      <button onClick={() => addToCart(item)} className="w-7 h-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center"><Plus className="w-3 h-3" /></button>
+                      <button aria-label="Add" onClick={() => addToCart(item)} className="w-7 h-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center"><Plus className="w-3 h-3" /></button>
                     </div>
                   ) : (
                     <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => addToCart(item)}>

@@ -126,9 +126,7 @@ const Hospitals = () => {
               className="pl-10 pr-4 bg-muted/50 border-border h-11 rounded-xl text-sm"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+              <button aria-label="Clear search" onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
             )}
           </div>
         </div>
@@ -216,12 +214,10 @@ const Hospitals = () => {
                 <img loading="lazy" decoding="async" src={getHospitalImage(h.image_url)} alt={h.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
 
                 {/* Favorite button */}
-                <button
+                <button aria-label="Toggle favourite"
                   onClick={(e) => toggleFavorite(e, h.id)}
                   className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"
-                >
-                  <Heart className={`w-4 h-4 ${favorites.has(h.id) ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
-                </button>
+                ><Heart className={`w-4 h-4 ${favorites.has(h.id) ? "fill-destructive text-destructive" : "text-muted-foreground"}`} /></button>
 
                 {/* Govt / ICU ribbon */}
                 <div className="absolute bottom-0 left-0 right-0 flex gap-0">

@@ -146,9 +146,7 @@ const Labs = () => {
               className="pl-10 pr-4 bg-muted/50 border-border h-11 rounded-xl text-sm"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+              <button aria-label="Clear search" onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
             )}
           </div>
         </div>
@@ -240,12 +238,10 @@ const Labs = () => {
                   <img loading="lazy" decoding="async" src={getLabImage(lab.image_url)} alt={lab.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
 
                   {/* Favorite button */}
-                  <button
+                  <button aria-label="Toggle favourite"
                     onClick={(e) => toggleFavorite(e, lab.id)}
                     className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"
-                  >
-                    <Heart className={`w-4 h-4 ${favorites.has(lab.id) ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
-                  </button>
+                  ><Heart className={`w-4 h-4 ${favorites.has(lab.id) ? "fill-destructive text-destructive" : "text-muted-foreground"}`} /></button>
 
                   {/* Offer ribbon */}
                   {hasOffers && (

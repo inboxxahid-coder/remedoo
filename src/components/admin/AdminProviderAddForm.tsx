@@ -48,13 +48,11 @@ const FileUploadBox = ({ id, label, file, onFileChange, accept = ".pdf,.jpg,.jpe
             {file ? file.name : hint || "Choose file (PDF/Image)"}
           </span>
           {file && (
-            <button
+            <button aria-label="Clear search"
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFileChange(null); }}
               className="p-1 rounded-full hover:bg-destructive/10"
-            >
-              <X className="w-4 h-4 text-destructive" />
-            </button>
+            ><X className="w-4 h-4 text-destructive" /></button>
           )}
         </label>
         <input

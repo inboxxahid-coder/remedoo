@@ -197,8 +197,8 @@ export default function FamilyMembers() {
                       <p className="text-xs text-muted-foreground">{m.relationship}</p>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleEdit(m)} className="p-1.5 rounded-lg hover:bg-muted"><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></button>
-                      <button onClick={() => handleDelete(m.id)} className="p-1.5 rounded-lg hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5 text-destructive" /></button>
+                      <button aria-label="Edit" onClick={() => handleEdit(m)} className="p-1.5 rounded-lg hover:bg-muted"><Pencil className="w-3.5 h-3.5 text-muted-foreground" /></button>
+                      <button aria-label="Remove item" onClick={() => handleDelete(m.id)} className="p-1.5 rounded-lg hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5 text-destructive" /></button>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">

@@ -173,13 +173,9 @@ export default function MedicineDetailSheet({ medicine: m, open, onClose, cartQt
               <div className="pt-1">
                 {cartQty > 0 ? (
                   <div className="flex items-center justify-between bg-primary/10 rounded-2xl p-2">
-                    <button onClick={() => onRemove(m.id)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary/20 text-primary">
-                      <Minus className="w-5 h-5" />
-                    </button>
+                    <button aria-label="Decrease quantity" onClick={() => onRemove(m.id)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary/20 text-primary"><Minus className="w-5 h-5" /></button>
                     <span className="text-lg font-bold text-primary">{cartQty}</span>
-                    <button onClick={() => onAdd(m)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                      <Plus className="w-5 h-5" />
-                    </button>
+                    <button aria-label="Add" onClick={() => onAdd(m)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-primary-foreground"><Plus className="w-5 h-5" /></button>
                   </div>
                 ) : (
                   <Button onClick={() => onAdd(m)} className="w-full h-12 rounded-2xl text-sm font-bold" disabled={!m.in_stock}>

@@ -146,12 +146,10 @@ const Favorites = () => {
                       </div>
                     </div>
                     <div className="flex flex-col items-center gap-2 shrink-0">
-                      <button
+                      <button aria-label="Remove item"
                         onClick={(e) => { e.stopPropagation(); removeFavorite(fav.id); }}
                         className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center hover:bg-destructive/20 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                      </button>
+                      ><Trash2 className="w-3.5 h-3.5 text-destructive" /></button>
                       <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     </div>
                   </div>

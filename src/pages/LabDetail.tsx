@@ -159,9 +159,7 @@ const LabDetail = () => {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex gap-2">
-            <button onClick={() => setShowSearch(!showSearch)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm">
-              <Search className="w-4 h-4 text-foreground" />
-            </button>
+            <button aria-label="Search" onClick={() => setShowSearch(!showSearch)} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"><Search className="w-4 h-4 text-foreground" /></button>
             <button aria-label="Toggle favourite" onClick={toggleFavorite} className="w-9 h-9 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-sm"><Heart className={`w-4 h-4 ${isFavorite ? "fill-destructive text-destructive" : "text-foreground"}`} />
             </button>
           </div>
@@ -220,9 +218,7 @@ const LabDetail = () => {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Search tests in this lab..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 pr-9 bg-card border-border h-11 rounded-xl text-sm" autoFocus />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
+                <button aria-label="Clear search" onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>
               )}
             </div>
           </motion.div>

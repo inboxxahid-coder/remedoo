@@ -422,9 +422,7 @@ export default function AdminLayout() {
                 <p className="text-[11px] text-muted-foreground font-medium">Admin Console</p>
               </div>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center">
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
+            <button aria-label="Clear search" onClick={() => setSidebarOpen(false)} className="lg:hidden w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center"><X className="w-4 h-4 text-muted-foreground" /></button>
           </div>
         </div>
 
@@ -457,12 +455,10 @@ export default function AdminLayout() {
         {/* Top header — always visible, never scrolls */}
         <header className="shrink-0 z-30 bg-card border-b border-border">
           <div className="flex items-center gap-3 px-4 md:px-6 h-14">
-            <button
+            <button aria-label="Open menu"
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden w-9 h-9 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors"
-            >
-              <Menu className="w-5 h-5 text-foreground" />
-            </button>
+            ><Menu className="w-5 h-5 text-foreground" /></button>
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-foreground truncate">{getCurrentTitle()}</h2>
             </div>
@@ -496,13 +492,11 @@ export default function AdminLayout() {
                   </div>
                 )}
               </div>
-              <button
+              <button aria-label="Notifications"
                 onClick={() => navigate("/admin/support-tickets")}
                 className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors relative"
                 title="Support Tickets"
-              >
-                <Bell className="w-4 h-4 text-muted-foreground" />
-              </button>
+              ><Bell className="w-4 h-4 text-muted-foreground" /></button>
               <button
                 onClick={() => navigate("/admin/settings")}
                 className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
