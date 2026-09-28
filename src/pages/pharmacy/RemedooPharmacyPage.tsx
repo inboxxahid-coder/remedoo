@@ -173,10 +173,10 @@ const RemedooPharmacyPage = () => {
       </div>
 
       {/* Medicines Grid */}
-      <div className="px-4 mt-4 grid grid-cols-2 gap-3">
-        {loading ? <div className="col-span-2"><MedicalLoader text="Loading medicines..." /></div> :
+      <div className="px-4 mt-4 app-container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 items-stretch">
+        {loading ? <div className="col-span-full"><MedicalLoader text="Loading medicines..." /></div> :
           filtered.length === 0 ? (
-            <div className="col-span-2 text-center py-16">
+            <div className="col-span-full text-center py-16">
               <Pill className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
               <p className="text-muted-foreground font-medium">No medicines found</p>
               {search && <p className="text-xs text-muted-foreground mt-1">Try searching by generic name or brand</p>}
@@ -189,7 +189,7 @@ const RemedooPharmacyPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.03 }}
-                className="bg-card rounded-xl border border-border p-3 flex flex-col"
+                className="bg-card rounded-xl border border-border p-3 flex flex-col h-full"
               >
                 <div className="flex items-start justify-between mb-1">
                   <button onClick={() => setDetailItem(item)} className="flex-1 min-w-0 text-left">
