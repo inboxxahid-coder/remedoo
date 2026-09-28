@@ -144,6 +144,8 @@ export default function SupportQueryFab() {
               if (!session) { toast.info("Please login to access support"); navigate("/login", { replace: true }); return; }
               setView("list"); setOpen(true);
             }}
+            type="button"
+            aria-label={unreadCount > 0 ? `Support chat, ${unreadCount} unread` : "Open support chat"}
             className="fixed bottom-20 right-4 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
           >
             <MessageSquarePlus className="w-6 h-6" />

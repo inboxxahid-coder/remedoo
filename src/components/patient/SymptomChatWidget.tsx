@@ -172,6 +172,8 @@ export default function SymptomChatWidget() {
             exit={{ scale: 0 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setOpen(true)}
+            type="button"
+            aria-label="Open symptom checker chat"
             className="fixed bottom-20 right-4 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
           >
             <MessageCircleHeart className="w-6 h-6" />

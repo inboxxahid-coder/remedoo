@@ -104,8 +104,11 @@ const AnimatedMenuButton = () => {
   const isOpen = isMobile ? openMobile : open;
   return (
     <button
+      type="button"
       onClick={toggleSidebar}
-      className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 transition-all duration-300 active:scale-90"
+      aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+      aria-expanded={isOpen}
+      className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-white/10 transition-all duration-300 active:scale-90"
     >
       <div className="relative w-6 h-6">
         <Menu className={`w-6 h-6 text-white absolute inset-0 transition-all duration-300 ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`} />
@@ -382,7 +385,9 @@ const Dashboard = () => {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => guardedNavigate("/notifications")}
-                className="relative w-10 h-10 rounded-full flex items-center justify-center"
+                type="button"
+                aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+                className="relative w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center"
               >
                 <Bell className="w-6 h-6 text-white" strokeWidth={1.8} />
                 <AnimatePresence>
