@@ -236,7 +236,7 @@ const PharmacyDetail = () => {
       )}
 
       {/* Medicine catalogue */}
-      <div className="px-4">
+      <div className="px-4 app-container">
         {filtered.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
             <Pill className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -244,7 +244,7 @@ const PharmacyDetail = () => {
             <p className="text-xs mt-1">Try a different search or category</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="result-grid xl:grid-cols-4">
             {filtered.map((m, idx) => {
               const inCart = cart[m.id];
               const discountedPrice = getDiscountedPrice(m);
@@ -257,7 +257,7 @@ const PharmacyDetail = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.03 }}
                   onClick={() => setSelectedMedicine(m)}
-                  className="bg-card rounded-xl border border-border p-3 flex gap-3 cursor-pointer hover:shadow-md transition-shadow group"
+                  className="bg-card rounded-xl border border-border p-3 flex gap-3 cursor-pointer hover:shadow-md transition-shadow group h-full"
                 >
                   {/* Medicine image */}
                   <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-accent/60 to-accent/20 flex items-center justify-center overflow-hidden shrink-0 relative">

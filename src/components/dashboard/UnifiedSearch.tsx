@@ -132,12 +132,12 @@ const UnifiedSearch = () => {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="absolute top-full mt-2 left-0 right-0 bg-card rounded-2xl shadow-2xl border border-border overflow-hidden max-h-80 overflow-y-auto"
+            className="absolute top-full mt-2 left-0 right-0 bg-card rounded-2xl shadow-2xl border border-border overflow-hidden max-h-80 md:max-h-[26rem] overflow-y-auto p-0 md:p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-0 md:gap-2 items-stretch"
           >
             {loading ? (
-              <div className="p-4 text-center text-sm text-muted-foreground">Searching…</div>
+              <div className="col-span-full p-4 text-center text-sm text-muted-foreground">Searching…</div>
             ) : results.length === 0 ? (
-              <div className="p-4 text-center text-sm text-muted-foreground">No results found</div>
+              <div className="col-span-full p-4 text-center text-sm text-muted-foreground">No results found</div>
             ) : (
               results.map((r) => {
                 const cfg = typeConfig[r.type];
@@ -146,7 +146,7 @@ const UnifiedSearch = () => {
                   <button
                     key={`${r.type}-${r.id}`}
                     onClick={() => handleSelect(r)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/50 transition-colors text-left"
+                    className="w-full h-full flex items-center gap-3 px-4 py-3 md:px-3 md:rounded-xl md:border md:border-border/60 hover:bg-accent/50 transition-colors text-left"
                   >
                     <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Icon className="w-4 h-4 text-primary" />
