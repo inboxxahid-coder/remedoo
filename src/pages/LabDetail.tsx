@@ -269,7 +269,7 @@ const LabDetail = () => {
             <p className="text-xs mt-1">Try a different search or category</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="result-grid items-start">
             {filteredTests.map((test, idx) => {
               const isExpanded = expandedTest === test.id;
               const discountedPrice = test.discount_percent ? Math.round(test.price * (1 - (test.discount_percent ?? 0) / 100)) : test.price;
