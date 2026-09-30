@@ -10,6 +10,7 @@ import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getHospitalImage } from "@/lib/providerDefaults";
 import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
+import SortControl from "@/components/search/SortControl";
 
 const OFFER_BANNERS = [
   { emoji: "🏥", title: "Free Health Checkup", subtitle: "On first hospital visit", bg: "from-emerald-500 to-teal-600" },
@@ -18,6 +19,14 @@ const OFFER_BANNERS = [
 ];
 
 const FILTERS = ["Relevance", "Rating 4.0+", "Has ICU", "Government", "Nearest First"];
+
+const SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "rating", label: "Rating: High to Low" },
+  { value: "distance", label: "Distance: Nearest first" },
+  { value: "beds", label: "Most beds available" },
+  { value: "name", label: "Name: A to Z" },
+];
 
 const Hospitals = () => {
   const navigate = useNavigate();
@@ -28,6 +37,7 @@ const Hospitals = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("Relevance");
+  const [sortBy, setSortBy] = useState("relevance");
   const [bannerIdx, setBannerIdx] = useState(0);
   const { location } = useGeolocation();
 
@@ -88,8 +98,13 @@ const Hospitals = () => {
       results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     }
 
+    if (sortBy === "rating") results = [...results].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    else if (sortBy === "distance") results = location ? sortByDistance(results, location.latitude, location.longitude) : results;
+    else if (sortBy === "beds") results = [...results].sort((a, b) => (b.available_beds || 0) - (a.available_beds || 0));
+    else if (sortBy === "name") results = [...results].sort((a, b) => a.name.localeCompare(b.name));
+
     return results;
-  }, [hospitals, search, location, activeFilter]);
+  }, [hospitals, search, location, activeFilter, sortBy]);
 
   const travelTime = (h: any) => {
     if (h.distance_km != null) {
@@ -137,6 +152,7 @@ const Hospitals = () => {
             <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-foreground bg-card shrink-0">
               <SlidersHorizontal className="w-3 h-3" /> Filter
             </button>
+            <SortControl value={sortBy} onChange={setSortBy} options={SORT_OPTIONS} label="Sort hospitals" />
             {FILTERS.map(f => (
               <button
                 key={f}

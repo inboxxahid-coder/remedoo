@@ -10,6 +10,16 @@ import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import MedicalLoader from "@/components/ui/MedicalLoader";
 import { motion } from "framer-motion";
+import SortControl from "@/components/search/SortControl";
+
+const SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "price_low", label: "Price: Low to High" },
+  { value: "price_high", label: "Price: High to Low" },
+  { value: "discount", label: "Biggest discount" },
+  { value: "availability", label: "Best availability" },
+  { value: "name", label: "Name: A to Z" },
+];
 
 interface RemedooItem {
   id: string;
@@ -46,6 +56,7 @@ const RemedooPharmacyPage = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, CartEntry>>({});
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("relevance");
   const [detailItem, setDetailItem] = useState<RemedooItem | null>(null);
   const [deliverySettings, setDeliverySettings] = useState({ base: 30, freeThreshold: 499 });
 
@@ -91,8 +102,13 @@ const RemedooPharmacyPage = () => {
         (i.manufacturer?.toLowerCase().includes(q))
       );
     }
+    if (sortBy === "price_low") res = [...res].sort((a, b) => a.price - b.price);
+    else if (sortBy === "price_high") res = [...res].sort((a, b) => b.price - a.price);
+    else if (sortBy === "discount") res = [...res].sort((a, b) => (b.discount_percent || 0) - (a.discount_percent || 0));
+    else if (sortBy === "name") res = [...res].sort((a, b) => a.name.localeCompare(b.name));
+    else if (sortBy === "availability") res = [...res].sort((a, b) => b.stock_quantity - a.stock_quantity);
     return res;
-  }, [items, search, selectedCategory]);
+  }, [items, search, selectedCategory, sortBy]);
 
   // Find alternatives (same generic name, different brand)
   const getAlternatives = (item: RemedooItem) => {
@@ -157,7 +173,7 @@ const RemedooPharmacyPage = () => {
           </div>
         </div>
         {/* Categories */}
-        <div className="px-4 pb-3 overflow-x-auto scrollbar-hide">
+        <div className="px-4 pb-2 overflow-x-auto scrollbar-hide">
           <div className="flex gap-2">
             {categories.map(c => (
               <button
@@ -169,6 +185,10 @@ const RemedooPharmacyPage = () => {
               >{c}</button>
             ))}
           </div>
+        </div>
+        {/* Sorting */}
+        <div className="px-4 pb-3 flex items-center gap-2">
+          <SortControl value={sortBy} onChange={setSortBy} options={SORT_OPTIONS} label="Sort medicines" />
         </div>
       </div>
 
