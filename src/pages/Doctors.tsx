@@ -14,6 +14,7 @@ import { getDoctorAvatar } from "@/lib/providerDefaults";
 import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 import { useServiceToggle } from "@/hooks/useServiceToggle";
 import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
+import SortControl from "@/components/search/SortControl";
 
 const OFFER_BANNERS = [
   { emoji: "🩺", title: "Flat 30% OFF", subtitle: "On first doctor consultation", bg: "from-emerald-500 to-teal-600" },
@@ -22,6 +23,16 @@ const OFFER_BANNERS = [
 ];
 
 const FILTERS = ["Relevance", "Rating 4.0+", "Fee: Low-High", "Experience", "Nearest First"];
+
+const SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "rating", label: "Rating: High to Low" },
+  { value: "distance", label: "Distance: Nearest first" },
+  { value: "fee_low", label: "Fee: Low to High" },
+  { value: "fee_high", label: "Fee: High to Low" },
+  { value: "experience", label: "Experience: Most first" },
+  { value: "name", label: "Name: A to Z" },
+];
 
 const Doctors = () => {
   const navigate = useNavigate();
@@ -36,6 +47,7 @@ const Doctors = () => {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("Relevance");
+  const [sortBy, setSortBy] = useState("relevance");
   const [bannerIdx, setBannerIdx] = useState(0);
   const { location } = useGeolocation();
 
@@ -117,8 +129,16 @@ const Doctors = () => {
       results = rankDoctors(results, location?.latitude, location?.longitude);
     }
 
+    // Explicit sorting control (overrides the quick-filter ordering)
+    if (sortBy === "rating") results = [...results].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    else if (sortBy === "distance") results = location ? sortByDistance(results, location.latitude, location.longitude) : results;
+    else if (sortBy === "fee_low") results = [...results].sort((a, b) => (a.consultation_fee ?? Infinity) - (b.consultation_fee ?? Infinity));
+    else if (sortBy === "fee_high") results = [...results].sort((a, b) => (b.consultation_fee || 0) - (a.consultation_fee || 0));
+    else if (sortBy === "experience") results = [...results].sort((a, b) => (b.experience_years || 0) - (a.experience_years || 0));
+    else if (sortBy === "name") results = [...results].sort((a, b) => a.name.localeCompare(b.name));
+
     return results;
-  }, [doctors, search, selectedSpec, location, activeFilter]);
+  }, [doctors, search, selectedSpec, location, activeFilter, sortBy]);
 
   const waitTime = (d: any) => {
     if (d.distance_km != null) {
