@@ -152,6 +152,7 @@ const Hospitals = () => {
             <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-foreground bg-card shrink-0">
               <SlidersHorizontal className="w-3 h-3" /> Filter
             </button>
+            <SortControl value={sortBy} onChange={setSortBy} options={SORT_OPTIONS} label="Sort hospitals" />
             {FILTERS.map(f => (
               <button
                 key={f}

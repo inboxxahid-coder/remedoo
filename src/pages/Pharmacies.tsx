@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getPharmacyImage } from "@/lib/providerDefaults";
 import { usePharmacyMode } from "@/hooks/usePharmacyMode";
 import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
+import SortControl from "@/components/search/SortControl";
 
 const OFFER_BANNERS = [
   { emoji: "💊", title: "Flat 20% OFF", subtitle: "On first medicine order", bg: "from-emerald-500 to-teal-600" },
@@ -20,6 +21,15 @@ const OFFER_BANNERS = [
 ];
 
 const FILTERS = ["Relevance", "Rating 4.0+", "Delivery Time", "Has Offers", "Nearest First"];
+
+const SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "rating", label: "Rating: High to Low" },
+  { value: "distance", label: "Distance: Nearest first" },
+  { value: "medicines", label: "Most medicines" },
+  { value: "offers", label: "Most offers" },
+  { value: "name", label: "Name: A to Z" },
+];
 
 const Pharmacies = () => {
   const navigate = useNavigate();
@@ -33,6 +43,7 @@ const Pharmacies = () => {
   const [medicineCounts, setMedicineCounts] = useState<Record<string, number>>(cached?.medicineCounts ?? {});
   const [offerCounts, setOfferCounts] = useState<Record<string, number>>(cached?.offerCounts ?? {});
   const [activeFilter, setActiveFilter] = useState("Relevance");
+  const [sortBy, setSortBy] = useState("relevance");
   const [bannerIdx, setBannerIdx] = useState(0);
   const { location } = useGeolocation();
 
@@ -113,8 +124,14 @@ const Pharmacies = () => {
       results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     }
 
+    if (sortBy === "rating") results = [...results].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    else if (sortBy === "distance") results = location ? sortByDistance(results, location.latitude, location.longitude) : results;
+    else if (sortBy === "medicines") results = [...results].sort((a, b) => (medicineCounts[b.id] || 0) - (medicineCounts[a.id] || 0));
+    else if (sortBy === "offers") results = [...results].sort((a, b) => (offerCounts[b.id] || 0) - (offerCounts[a.id] || 0));
+    else if (sortBy === "name") results = [...results].sort((a, b) => a.name.localeCompare(b.name));
+
     return results;
-  }, [pharmacies, search, location, activeFilter, offerCounts]);
+  }, [pharmacies, search, location, activeFilter, offerCounts, medicineCounts, sortBy]);
 
   const deliveryTime = (p: any) => {
     if (p.distance_km != null) {
@@ -163,6 +180,7 @@ const Pharmacies = () => {
             <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-foreground bg-card shrink-0">
               <SlidersHorizontal className="w-3 h-3" /> Filter
             </button>
+            <SortControl value={sortBy} onChange={setSortBy} options={SORT_OPTIONS} label="Sort pharmacies" />
             {FILTERS.map(f => (
               <button
                 key={f}

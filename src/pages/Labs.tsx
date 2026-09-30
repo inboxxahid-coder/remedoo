@@ -13,6 +13,7 @@ import { getLabImage } from "@/lib/providerDefaults";
 import { readPageCache, writePageCache, runWhenIdle } from "@/lib/pageCache";
 import { useServiceToggle } from "@/hooks/useServiceToggle";
 import ServiceDisabledBanner from "@/components/ServiceDisabledBanner";
+import SortControl from "@/components/search/SortControl";
 
 const OFFER_BANNERS = [
   { emoji: "🔬", title: "Flat 30% OFF", subtitle: "On first lab test booking", bg: "from-emerald-500 to-teal-600" },
@@ -21,6 +22,14 @@ const OFFER_BANNERS = [
 ];
 
 const FILTERS = ["Relevance", "Rating 4.0+", "Most Tests", "Has Offers", "Nearest First"];
+
+const SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "rating", label: "Rating: High to Low" },
+  { value: "distance", label: "Distance: Nearest first" },
+  { value: "tests", label: "Most tests available" },
+  { value: "name", label: "Name: A to Z" },
+];
 
 const Labs = () => {
   const navigate = useNavigate();
@@ -34,6 +43,7 @@ const Labs = () => {
   const [testCounts, setTestCounts] = useState<Record<string, number>>(cached?.testCounts ?? {});
   const [offerCounts, setOfferCounts] = useState<Record<string, number>>(cached?.offerCounts ?? {});
   const [activeFilter, setActiveFilter] = useState("Relevance");
+  const [sortBy, setSortBy] = useState("relevance");
   const [bannerIdx, setBannerIdx] = useState(0);
   const { location } = useGeolocation();
 
@@ -107,8 +117,13 @@ const Labs = () => {
       results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     }
 
+    if (sortBy === "rating") results = [...results].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    else if (sortBy === "distance") results = location ? sortByDistance(results, location.latitude, location.longitude) : results;
+    else if (sortBy === "tests") results = [...results].sort((a, b) => (testCounts[b.id] || 0) - (testCounts[a.id] || 0));
+    else if (sortBy === "name") results = [...results].sort((a, b) => a.name.localeCompare(b.name));
+
     return results;
-  }, [labs, search, location, activeFilter, offerCounts, testCounts]);
+  }, [labs, search, location, activeFilter, offerCounts, testCounts, sortBy]);
 
   const reportTime = (l: any) => {
     if (l.distance_km != null) {
@@ -157,6 +172,7 @@ const Labs = () => {
             <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-foreground bg-card shrink-0">
               <SlidersHorizontal className="w-3 h-3" /> Filter
             </button>
+            <SortControl value={sortBy} onChange={setSortBy} options={SORT_OPTIONS} label="Sort labs" />
             {FILTERS.map(f => (
               <button
                 key={f}
