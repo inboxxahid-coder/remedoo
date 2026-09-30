@@ -56,6 +56,7 @@ const RemedooPharmacyPage = () => {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<Record<string, CartEntry>>({});
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("relevance");
   const [detailItem, setDetailItem] = useState<RemedooItem | null>(null);
   const [deliverySettings, setDeliverySettings] = useState({ base: 30, freeThreshold: 499 });
 
