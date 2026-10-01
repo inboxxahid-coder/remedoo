@@ -81,6 +81,7 @@ const LabDetail = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("relevance");
   const [expandedTest, setExpandedTest] = useState<string | null>(null);
   const [compareTest, setCompareTest] = useState<Tables<"lab_tests"> | null>(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -132,8 +133,13 @@ const LabDetail = () => {
       const q = search.toLowerCase();
       result = result.filter((t) => t.name.toLowerCase().includes(q) || t.category.toLowerCase().includes(q));
     }
+    const eff = (t: Tables<"lab_tests">) => t.price * (1 - (t.discount_percent || 0) / 100);
+    if (sortBy === "price_low") result = [...result].sort((a, b) => eff(a) - eff(b));
+    else if (sortBy === "price_high") result = [...result].sort((a, b) => eff(b) - eff(a));
+    else if (sortBy === "discount") result = [...result].sort((a, b) => (b.discount_percent || 0) - (a.discount_percent || 0));
+    else if (sortBy === "name") result = [...result].sort((a, b) => a.name.localeCompare(b.name));
     return result;
-  }, [tests, activeCategory, search]);
+  }, [tests, activeCategory, search, sortBy]);
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading...</div>;
   if (!lab) return <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3"><p className="text-muted-foreground">Lab not found</p><Button variant="outline" onClick={() => navigate("/labs")}>Back to Labs</Button></div>;
@@ -259,6 +265,12 @@ const LabDetail = () => {
           </div>
         </div>
       )}
+
+      {/* Sorting */}
+      <div className="px-4 mb-3 flex items-center justify-between gap-2">
+        <span className="text-xs text-muted-foreground">{filteredTests.length} tests</span>
+        <SortControl value={sortBy} onChange={setSortBy} options={TEST_SORT_OPTIONS} label="Sort lab tests" />
+      </div>
 
       {/* Test catalogue */}
       <div className="px-4">
