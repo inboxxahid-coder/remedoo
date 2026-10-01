@@ -10,6 +10,15 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import SortControl from "@/components/search/SortControl";
+
+const MEDICINE_SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "price_low", label: "Price: Low to High" },
+  { value: "price_high", label: "Price: High to Low" },
+  { value: "discount", label: "Biggest discount" },
+  { value: "name", label: "Name: A to Z" },
+];
 
 export type CartItem = {
   medicine: Tables<"medicines">;
@@ -32,6 +41,7 @@ const PharmacyDetail = () => {
   const [medicines, setMedicines] = useState<Tables<"medicines">[]>([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("relevance");
   const [cart, setCart] = useState<Record<string, CartItem>>({});
   const [loading, setLoading] = useState(true);
   const [selectedMedicine, setSelectedMedicine] = useState<Tables<"medicines"> | null>(null);
@@ -56,12 +66,18 @@ const PharmacyDetail = () => {
   }, [medicines]);
 
   const filtered = useMemo(() => {
-    return medicines.filter((m) => {
+    let res = medicines.filter((m) => {
       const matchSearch = m.name.toLowerCase().includes(search.toLowerCase()) || (m.generic_name?.toLowerCase().includes(search.toLowerCase()));
       const matchCategory = selectedCategory === "All" || m.category === selectedCategory;
       return matchSearch && matchCategory;
     });
-  }, [medicines, search, selectedCategory]);
+    const eff = (m: Tables<"medicines">) => m.price * (1 - (m.discount_percent || 0) / 100);
+    if (sortBy === "price_low") res = [...res].sort((a, b) => eff(a) - eff(b));
+    else if (sortBy === "price_high") res = [...res].sort((a, b) => eff(b) - eff(a));
+    else if (sortBy === "discount") res = [...res].sort((a, b) => (b.discount_percent || 0) - (a.discount_percent || 0));
+    else if (sortBy === "name") res = [...res].sort((a, b) => a.name.localeCompare(b.name));
+    return res;
+  }, [medicines, search, selectedCategory, sortBy]);
 
   const offersCount = useMemo(() => medicines.filter(m => (m.discount_percent || 0) > 0).length, [medicines]);
 
@@ -234,6 +250,12 @@ const PharmacyDetail = () => {
           </div>
         </div>
       )}
+
+      {/* Sorting */}
+      <div className="px-4 mb-3 app-container flex items-center justify-between gap-2">
+        <span className="text-xs text-muted-foreground">{filtered.length} medicines</span>
+        <SortControl value={sortBy} onChange={setSortBy} options={MEDICINE_SORT_OPTIONS} label="Sort medicines" />
+      </div>
 
       {/* Medicine catalogue */}
       <div className="px-4 app-container">

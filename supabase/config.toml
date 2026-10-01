@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.admin-change-email]
 verify_jwt = false
+
+[functions.ai-care-match]
+verify_jwt = false
