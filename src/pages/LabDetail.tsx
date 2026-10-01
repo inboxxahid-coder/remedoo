@@ -16,6 +16,15 @@ import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 import LabTestCompareSheet from "@/components/patient/LabTestCompareSheet";
 import { motion, AnimatePresence } from "framer-motion";
+import SortControl from "@/components/search/SortControl";
+
+const TEST_SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "price_low", label: "Price: Low to High" },
+  { value: "price_high", label: "Price: High to Low" },
+  { value: "discount", label: "Biggest discount" },
+  { value: "name", label: "Name: A to Z" },
+];
 
 const getCategoryIcon = (category: string) => {
   const icons: Record<string, string> = {

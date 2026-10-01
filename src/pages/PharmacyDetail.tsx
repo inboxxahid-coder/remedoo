@@ -10,6 +10,15 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import SortControl from "@/components/search/SortControl";
+
+const MEDICINE_SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "price_low", label: "Price: Low to High" },
+  { value: "price_high", label: "Price: High to Low" },
+  { value: "discount", label: "Biggest discount" },
+  { value: "name", label: "Name: A to Z" },
+];
 
 export type CartItem = {
   medicine: Tables<"medicines">;
