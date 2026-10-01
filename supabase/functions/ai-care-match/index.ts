@@ -64,7 +64,7 @@ serve(async (req) => {
         ? supabase.from("doctors_public").select("id, name, specialization, rating, consultation_fee, experience_years, hospital_id, hospitals(name, latitude, longitude)")
         : Promise.resolve({ data: [] as any[] }),
       careType === "any" || careType === "hospital"
-        ? supabase.from("hospitals").select("id, name, location, rating, latitude, longitude, icu_available, emergency_available, available_beds")
+        ? supabase.from("hospitals").select("id, name, location, rating, latitude, longitude, icu_available, available_beds").eq("approval_status", "approved")
         : Promise.resolve({ data: [] as any[] }),
       careType === "any" || careType === "lab"
         ? supabase.from("labs").select("id, name, location, rating, latitude, longitude, home_collection")
