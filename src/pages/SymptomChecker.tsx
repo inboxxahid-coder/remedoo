@@ -276,7 +276,13 @@ export default function SymptomChecker() {
           <h1 className="text-base font-bold">Remedoo Health Assistant</h1>
           <p className="text-[11px] opacity-80">Describe your symptoms and we'll guide you to the right care</p>
         </div>
-        <Stethoscope className="w-6 h-6 opacity-60" />
+        <button
+          type="button"
+          onClick={() => navigate("/care-match")}
+          className="shrink-0 min-h-[36px] px-3 rounded-full bg-primary-foreground/15 text-xs font-semibold"
+        >
+          ✨ Smart match
+        </button>
       </header>
 
       {/* Chat area */}
