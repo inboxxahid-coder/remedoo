@@ -56,7 +56,7 @@ const Labs = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const lRes = await supabase.from("labs_public").select("*");
+        const lRes = await supabase.from("labs_public").select("*").eq("approval_status", "approved");
         if (lRes.data) setLabs(lRes.data);
         setLoading(false);
         const tRes = await new Promise<any>((resolve) =>
