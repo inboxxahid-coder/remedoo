@@ -442,6 +442,17 @@ const Dashboard = () => {
                 <div className="mt-3">
                   <UnifiedSearch />
                 </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/care-match")}
+                  className="mt-3 w-full min-h-[44px] flex items-center gap-2 rounded-xl bg-primary-foreground/15 border border-primary-foreground/25 px-3 py-2 text-left text-primary-foreground"
+                >
+                  <span aria-hidden="true">✨</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm font-semibold">Smart Care Finder</span>
+                    <span className="block text-[11px] opacity-80 truncate">Describe symptoms, get matched doctors, hospitals & labs</span>
+                  </span>
+                </button>
               </div>
             </div>
 
