@@ -59,7 +59,7 @@ const Doctors = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const { data: doctorsRes } = await supabase.from("doctors_public").select("*, hospitals(name, latitude, longitude, is_government)");
+        const { data: doctorsRes } = await supabase.from("doctors_public").select("*, hospitals(name, latitude, longitude, is_government)").eq("approval_status", "approved");
         if (doctorsRes) {
           const mapped = doctorsRes
             .filter((d: any) => !d.hospitals?.is_government)

@@ -63,7 +63,7 @@ const Pharmacies = () => {
   useEffect(() => {
     const fetchPharmacies = async () => {
       try {
-        const pRes = await supabase.from("pharmacies_public").select("*");
+        const pRes = await supabase.from("pharmacies_public").select("*").eq("approval_status", "approved");
         if (pRes.data) setPharmacies(pRes.data);
         setLoading(false);
         const mRes = await new Promise<any>((resolve) =>

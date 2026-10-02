@@ -1,3 +1,4 @@
+import LazyLocationPicker from "@/components/provider/LazyLocationPicker";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,8 @@ export default function LabProfile() {
     if (!profile) return;
     const updates: Record<string, any> = {
       name: profile.name, location: profile.location, phone: profile.phone,
+      latitude: profile.latitude === "" || profile.latitude == null ? null : Number(profile.latitude),
+      longitude: profile.longitude === "" || profile.longitude == null ? null : Number(profile.longitude),
     };
     setUploading(true);
     const uploads: Promise<void>[] = [];
@@ -119,7 +122,7 @@ export default function LabProfile() {
       <Card className="p-5 space-y-4">
         <h2 className="text-lg font-semibold text-foreground">Basic Information</h2>
         <div><Label>Name</Label><Input value={profile.name || ""} onChange={e => set("name", e.target.value)} /></div>
-        <div><Label>Location</Label><Input value={profile.location || ""} onChange={e => set("location", e.target.value)} /></div>
+        <div><Label>Location on map</Label><p className="text-xs text-muted-foreground mb-2">Set your exact spot so patients nearby find you in search.</p><LazyLocationPicker latitude={profile.latitude != null ? String(profile.latitude) : ""} longitude={profile.longitude != null ? String(profile.longitude) : ""} locationText={profile.location || ""} onLatitudeChange={v => set("latitude", v)} onLongitudeChange={v => set("longitude", v)} onLocationTextChange={v => set("location", v)} /></div>
         <div><Label>Phone</Label><Input value={profile.phone || ""} onChange={e => set("phone", e.target.value)} /></div>
         <div><Label>Rating</Label><Input value={profile.rating ?? 0} disabled className="bg-muted/50" /></div>
       </Card>
