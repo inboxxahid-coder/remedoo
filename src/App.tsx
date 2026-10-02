@@ -48,6 +48,7 @@ const PaymentFailure = lazy(() => import("./pages/PaymentFailure"));
 const RefundTracking = lazy(() => import("./pages/RefundTracking"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const SymptomChecker = lazy(() => import("./pages/SymptomChecker"));
+const CareMatch = lazy(() => import("./pages/CareMatch"));
 const FamilyMembers = lazy(() => import("./pages/FamilyMembers"));
 const HealthReminders = lazy(() => import("./pages/HealthReminders"));
 
@@ -342,6 +343,7 @@ const AppRoutes = () => {
       <Route path="/refunds" element={<RefundTracking />} />
       <Route path="/support-tickets" element={<SupportTickets />} />
       <Route path="/symptom-checker" element={<SymptomChecker />} />
+      <Route path="/care-match" element={<CareMatch />} />
       <Route path="/remedoo-pharmacy" element={<RemedooPharmacyPage />} />
       <Route path="/remedoo-checkout" element={<RemedooCheckout />} />
       <Route path="/remedoo-order/:id" element={<RemedooOrderTracking />} />
